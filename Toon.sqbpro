@@ -1,0 +1,777 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/User/Desktop/Toon import/home-assistant_v2.db" readonly="0" foreign_keys="0" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="0" synchronous="1"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="406"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="3862"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,15:mainstatistics_meta"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="GAS_NEW" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="143"/><column index="2" value="60"/><column index="3" value="130"/><column index="4" value="207"/><column index="5" value="69"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="56"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="43"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="43"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_solar_quantity_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="189"/><column index="2" value="63"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_solar_quantity_CurrentElectricityQuantity_5yrhours" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="145"/><column index="2" value="49"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="event_data" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="57"/><column index="2" value="77"/><column index="3" value="300"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="statistics" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="12" mode="0"/></sort><column_widths><column index="1" value="144"/><column index="2" value="59"/><column index="3" value="41"/><column index="4" value="130"/><column index="5" value="46"/><column index="6" value="53"/><column index="7" value="75"/><column index="8" value="86"/><column index="9" value="120"/><column index="10" value="90"/><column index="11" value="150"/><column index="12" value="118"/><column index="13" value="96"/></column_widths><filter_values><column index="10" value="=6"/></filter_values><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="statistics_meta" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="40"/><column index="2" value="300"/><column index="3" value="56"/><column index="4" value="151"/><column index="5" value="74"/><column index="6" value="65"/><column index="7" value="43"/></column_widths><filter_values><column index="2" value="gas"/></filter_values><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Import Toon data">/* 
+Import Toon files
+
+How to:
+- Download and install: DB Browser for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
+- Download and install/configure: WinSCP (https://winscp.net/eng/download.php)
+- Backup and download Toon data  (Instellingen -&gt; Internet -&gt; Toon data)
+- Backup and download Home Assistant data (disable recorder while making the backup -&gt; Developer tools/Services/Call service: Recorder:disable)
+- Stop the Home Assistant core (Developer tools/Services/Call service: Home Assistant Core Integration: Stop)
+- Toon data: &quot;export.zip&quot;
+	extract: &quot;usage.zip&quot;
+- Toon data: &quot;usage.zip&quot;
+    extract: &quot;elec_quantity_nt_orig_CurrentElectricityQuantity_5yrhours.csv&quot;
+    extract: &quot;elec_quantity_lt_orig_CurrentElectricityQuantity_5yrhours.csv&quot;
+	extract: &quot;elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours.csv&quot;
+	extract: &quot;elec_quantity_lt_produ_CurrentElectricityQuantity_5yrhours.csv&quot;
+	extract: &quot;elec_solar_quantity_CurrentElectricityQuantity_5yrhours.csv&quot;
+	extract: &quot;elec_quantity_nt_orig_CurrentElectricityQuantity_10yrdays.csv&quot;
+	extract: &quot;elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays.csv&quot;
+	extract: &quot;elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays.csv&quot;
+	extract: &quot;elec_quantity_lt_produ_CurrentElectricityQuantity_10yrdays.csv&quot;
+	extract: &quot;elec_solar_quantity_CurrentElectricityQuantity_10yrdays.csv&quot;
+	extract: &quot;gas_quantity_CurrentGasQuantity_5yrhours.csv&quot;
+	extract: &quot;gas_quantity_CurrentGasQuantity_10yrdays.csv&quot;
+- Home Assistant data: 
+	extract: &quot;home-assistant_v2.db&quot; (from &quot;backup.tar&quot; extract &quot;homeassistant.tar.gz&quot; from &quot;data&quot; folder)
+	As an alternative it is also possible to download the &quot;home-assistant_v2.db&quot; directly from the Home Assistant &quot;config&quot; directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
+	In case of this method make sure to make a copy of the database so that you can always restore this version of the database.
+- Start &quot;DB Browser for SQLite&quot;
+- Open project &quot;Toon.sqbpro&quot;. If the database is not loaded directly you have to open the &quot;home-assistant_v2.db&quot; database manually (&quot;Open Database&quot;).
+- Validate the schema version of the database (Browse Data -&gt; Table: schema_version)
+  The script has been tested with schema version 35 . With higher versions you should validate if the structure of the &quot;statistics&quot; and &quot;short_term_statistics&quot; tables have changed.
+  used fields in table &quot;statistics&quot;: metadata_id, state, sum, start_ts, created_ts
+  used fields in table &quot;short_term_statistics&quot;: sum 
+- Import, one at a time, all the extracted Toon data elec* and gas* files (File -&gt; Import -&gt; Table from CSV file...)
+  It is possible to load data from multiple Toons (for example: Toon 1 and Toon 2). The exported files from the second Toon can be imported into the existing tables.
+  You have to create the table manually (field1, field2) in case a Toon file does not contain any data (0 KB). The name of the table should be the name of the file without &quot;.csv&quot;,
+  another option is to comment out the SQL for the specific file.
+- Lookup in the &quot;statistics_meta&quot; table the ID's of the sensors (Browse Data -&gt; Table: statistics_meta; You can use &quot;filter&quot; to find the id of the sensor)
+  Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
+	id  statistic_id                                	source      unit_of_measurement
+	2	sensor.gas_meter								recorder	m³
+	3	sensor.electricity_meter_feed_in_tariff_1		recorder	kWh
+	4	sensor.electricity_meter_feed_in_tariff_2		recorder	kWh
+	6	sensor.electricity_meter_feed_out_tariff_1		recorder	kWh
+	7	sensor.electricity_meter_feed_out_tariff_2		recorder	kWh
+	10	sensor.solar_energy_produced_today				recorder	kWh
+- Change the below script and insert the correct ID on the places where the text &quot;* Change *&quot; has been added in the SQL statement.
+  The script basically has the same SQL statements for each sensor so in case a sensor is not needed you can comment out that specific part (for example: solar, gas)
+- Execute the SQL and wait for it to complete.
+- Commit the changes by selecting &quot;Write changes&quot; in the toolbar, if the script ends without errors. In case of an error select &quot;Revert changes&quot; and correct the error and execute this step again.
+- Upload &quot;home-assistant_v2.db&quot; to the Home Assistant &quot;config&quot; directory (For example: use WinSCP in combination with the Home Assistant SSH addon). 
+- Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the &quot;reboot&quot; command)
+- Validate the imported Toon data in the &quot;Energy Dashboard&quot;
+- Enjoy :-)
+
+
+Background information:
+
+Normal tariff meter values without correction for solar usage
+elec_quantity_nt_orig_CurrentElectricityQuantity_5yrhours.csv (hourly - max 5 years)
+elec_quantity_nt_orig_CurrentElectricityQuantity_10yrdays.csv (daily - max 10 years)
+
+Low tariff meter values without correction for solar usage
+elec_quantity_lt_orig_CurrentElectricityQuantity_5yrhours.csv (hourly - max 5 years)
+elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays.csv (daily - max 10 years)
+
+Normal tariff production meter values 
+elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours.csv (hourly - max 5 years)
+elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays.csv (daily - max 10 years)
+
+Low tariff production meter values
+elec_quantity_lt_produ_CurrentElectricityQuantity_5yrhours.csv (hourly - max 5 years)
+elec_quantity_lt_produ_CurrentElectricityQuantity_10yrdays.csv (daily - max 10 years)
+
+Solar production meter values
+elec_solar_quantity_CurrentElectricityQuantity_5yrhours.csv (hourly - max 5 years)
+elec_solar_quantity_CurrentElectricityQuantity_10yrdays.csv (daily - max 10 years)
+
+Gas meter values
+gas_quantity_CurrentGasQuantity_5yrhours.csv (hourly - max 5 years)
+gas_quantity_CurrentGasQuantity_10yrdays.csv (daily - max 10 years)
+
+For Toon the solar sensor is reset every night.
+Because of kWh the values have to be divided by 1000.
+
+Long term statistics (1 hour interval) =&gt; statistics
+Short term statistics (5 min interval) =&gt; statistics_short_term
+
+Short term statistics are rolled over to long term statistics.
+Both tables need to be updated according to the new imported data which changes the sum column!
+
+*/
+
+/* Remove the temporary tables if they exist */
+DROP TABLE IF EXISTS NT_ORIG_NEW;
+DROP TABLE IF EXISTS LT_ORIG_NEW;
+DROP TABLE IF EXISTS NT_PROD_NEW;
+DROP TABLE IF EXISTS LT_PROD_NEW;
+DROP TABLE IF EXISTS SOLAR_NEW;
+DROP TABLE IF EXISTS GAS_NEW;
+
+
+/* Create temp tables that can hold the difference between the measurements and create a new sum */
+CREATE TABLE &quot;NT_ORIG_NEW&quot; (
+	&quot;ts&quot;		INTEGER,
+	&quot;value&quot;		FLOAT,
+	&quot;diff&quot;		FLOAT,
+	&quot;old_sum&quot;	FLOAT,
+	&quot;new_sum&quot;	FLOAT
+);
+CREATE TABLE &quot;LT_ORIG_NEW&quot; (
+	&quot;ts&quot;		INTEGER,
+	&quot;value&quot;		FLOAT,
+	&quot;diff&quot;		FLOAT,
+	&quot;old_sum&quot;	FLOAT,
+	&quot;new_sum&quot;	FLOAT
+);
+CREATE TABLE &quot;NT_PROD_NEW&quot; (
+	&quot;ts&quot;		INTEGER,
+	&quot;value&quot;		FLOAT,
+	&quot;diff&quot;		FLOAT,
+	&quot;old_sum&quot;	FLOAT,
+	&quot;new_sum&quot;	FLOAT
+);
+CREATE TABLE &quot;LT_PROD_NEW&quot; (
+	&quot;ts&quot;		INTEGER,
+	&quot;value&quot;		FLOAT,
+	&quot;diff&quot;		FLOAT,
+	&quot;old_sum&quot;	FLOAT,
+	&quot;new_sum&quot;	FLOAT
+);
+CREATE TABLE &quot;SOLAR_NEW&quot; (
+	&quot;ts&quot;		INTEGER,
+	&quot;value&quot;		FLOAT,
+	&quot;diff&quot;		FLOAT,
+	&quot;old_sum&quot;	FLOAT,
+	&quot;new_sum&quot;	FLOAT
+);
+CREATE TABLE &quot;GAS_NEW&quot; (
+	&quot;ts&quot;		INTEGER,
+	&quot;value&quot;		FLOAT,
+	&quot;diff&quot;		FLOAT,
+	&quot;old_sum&quot;	FLOAT,
+	&quot;new_sum&quot;	FLOAT
+);
+
+
+/* Insert the hourly records from Toon - max 5 years */
+INSERT INTO NT_ORIG_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_nt_orig_CurrentElectricityQuantity_5yrhours;
+
+INSERT INTO LT_ORIG_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_lt_orig_CurrentElectricityQuantity_5yrhours;
+
+INSERT INTO NT_PROD_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours;
+
+INSERT INTO LT_PROD_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_lt_produ_CurrentElectricityQuantity_5yrhours;
+
+INSERT INTO SOLAR_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_solar_quantity_CurrentElectricityQuantity_5yrhours;
+
+INSERT INTO GAS_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM gas_quantity_CurrentGasQuantity_5yrhours;
+
+
+/* Insert the day records from Toon - max 10 years. We only add data that is older than the hourly records */
+INSERT INTO NT_ORIG_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_nt_orig_CurrentElectricityQuantity_10yrdays  
+WHERE
+  field1 &lt; (SELECT MIN(ts) FROM NT_ORIG_NEW);
+
+INSERT INTO LT_ORIG_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays  
+WHERE
+  field1 &lt; (SELECT MIN(ts) FROM LT_ORIG_NEW);
+
+INSERT INTO NT_PROD_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays
+WHERE
+  field1 &lt; (SELECT MIN(ts) FROM NT_PROD_NEW);
+
+INSERT INTO LT_PROD_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_quantity_lt_produ_CurrentElectricityQuantity_10yrdays
+WHERE
+  field1 &lt; (SELECT MIN(ts) FROM LT_PROD_NEW);
+  
+INSERT INTO SOLAR_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM elec_solar_quantity_CurrentElectricityQuantity_10yrdays
+WHERE
+  field1 &lt; (SELECT MIN(ts) FROM SOLAR_NEW);  
+
+INSERT INTO GAS_NEW (ts, value)
+SELECT field1, round(field2 / 1000.0, 3)
+FROM gas_quantity_CurrentGasQuantity_10yrdays
+WHERE
+  field1 &lt; (SELECT MIN(ts) FROM GAS_NEW);  
+
+  
+/* Remove any overlapping records from Toon which are already in Home Assistant */
+DELETE FROM NT_ORIG_NEW
+WHERE
+ts &gt;= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 3); /* Change */
+
+DELETE FROM LT_ORIG_NEW
+WHERE
+ts &gt;= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 4); /* Change */
+
+DELETE FROM NT_PROD_NEW
+WHERE
+ts &gt;= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 6); /* Change */
+
+DELETE FROM LT_PROD_NEW
+WHERE
+ts &gt;= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 7); /* Change */
+
+DELETE FROM SOLAR_NEW
+WHERE
+ts &gt;= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 10); /* Change */
+
+DELETE FROM GAS_NEW
+WHERE
+ts &gt;= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 2); /* Change */
+
+
+/* Insert the data from Home Assistant so that we can adjust the records with the new calculated sum */
+INSERT INTO NT_ORIG_NEW (ts, value, old_sum)
+SELECT start_ts, state, sum
+FROM statistics
+WHERE metadata_id = 3; /* Change */
+
+INSERT INTO LT_ORIG_NEW (ts, value, old_sum)
+SELECT start_ts, state, sum
+FROM statistics
+WHERE metadata_id = 4; /* Change */
+
+INSERT INTO NT_PROD_NEW (ts, value, old_sum)
+SELECT start_ts, state, sum
+FROM statistics
+WHERE metadata_id = 6; /* Change */
+
+INSERT INTO LT_PROD_NEW (ts, value, old_sum)
+SELECT start_ts, state, sum
+FROM statistics
+WHERE metadata_id = 7; /* Change */
+
+INSERT INTO SOLAR_NEW (ts, value, old_sum)
+SELECT start_ts, state, sum
+FROM statistics
+WHERE metadata_id = 10; /* Change */
+
+INSERT INTO GAS_NEW (ts, value, old_sum)
+SELECT start_ts, state, sum
+FROM statistics
+WHERE metadata_id = 2; /* Change */
+
+
+/* 
+Calculate the difference from the previous record in the table 
+  - For the Toon values calculate the diff from the previous record from the imported values (use value column / old_sum column is empty)
+  - For the Home Assistant values calculate the diff from the previous record from the existing sum column (use old_sum column / old_sum column is not empty)
+*/
+WITH CTE_DIFF_NT_ORIG_VALUE AS (
+	SELECT ts, round(value - (lag(value, 1, 0) OVER (ORDER BY ts)), 3) AS diff
+	FROM NT_ORIG_NEW
+	ORDER BY ts
+)
+UPDATE NT_ORIG_NEW
+SET diff = CTE_DIFF_NT_ORIG_VALUE.diff
+FROM CTE_DIFF_NT_ORIG_VALUE
+WHERE
+  NT_ORIG_NEW.ts = CTE_DIFF_NT_ORIG_VALUE.ts AND
+  NT_ORIG_NEW.old_sum IS NULL;
+
+WITH CTE_DIFF_NT_ORIG_SUM AS (
+	SELECT ts, old_sum - (lag(old_sum, 1, 0) OVER (ORDER BY ts)) AS diff
+	FROM NT_ORIG_NEW
+	ORDER BY ts
+)
+UPDATE NT_ORIG_NEW
+SET diff = CTE_DIFF_NT_ORIG_SUM.diff
+FROM CTE_DIFF_NT_ORIG_SUM
+WHERE
+  NT_ORIG_NEW.ts = CTE_DIFF_NT_ORIG_SUM.ts AND
+  NT_ORIG_NEW.old_sum IS NOT NULL;
+  
+
+WITH CTE_DIFF_LT_ORIG_VALUE AS (
+	SELECT ts, round(value - (lag(value, 1, 0) OVER (ORDER BY ts)), 3) AS diff
+	FROM LT_ORIG_NEW
+	ORDER BY ts
+)
+UPDATE LT_ORIG_NEW
+SET diff = CTE_DIFF_LT_ORIG_VALUE.diff
+FROM CTE_DIFF_LT_ORIG_VALUE
+WHERE
+  LT_ORIG_NEW.ts = CTE_DIFF_LT_ORIG_VALUE.ts AND
+  LT_ORIG_NEW.old_sum IS NULL;
+
+WITH CTE_DIFF_LT_ORIG_SUM AS (
+	SELECT ts, old_sum - (lag(old_sum, 1, 0) OVER (ORDER BY ts)) AS diff
+	FROM LT_ORIG_NEW
+	ORDER BY ts
+)
+UPDATE LT_ORIG_NEW
+SET diff = CTE_DIFF_LT_ORIG_SUM.diff
+FROM CTE_DIFF_LT_ORIG_SUM
+WHERE
+  LT_ORIG_NEW.ts = CTE_DIFF_LT_ORIG_SUM.ts AND
+  LT_ORIG_NEW.old_sum IS NOT NULL;
+
+  
+WITH CTE_DIFF_NT_PROD_VALUE AS (
+	SELECT ts, round(value - (lag(value, 1, 0) OVER (ORDER BY ts)), 3) AS diff
+	FROM NT_PROD_NEW
+	ORDER BY ts
+)
+UPDATE NT_PROD_NEW
+SET diff = CTE_DIFF_NT_PROD_VALUE.diff
+FROM CTE_DIFF_NT_PROD_VALUE
+WHERE
+  NT_PROD_NEW.ts = CTE_DIFF_NT_PROD_VALUE.ts AND
+  NT_PROD_NEW.old_sum IS NULL;
+
+WITH CTE_DIFF_NT_PROD_SUM AS (
+	SELECT ts, old_sum - (lag(old_sum, 1, 0) OVER (ORDER BY ts)) AS diff
+	FROM NT_PROD_NEW
+	ORDER BY ts
+)
+UPDATE NT_PROD_NEW
+SET diff = CTE_DIFF_NT_PROD_SUM.diff
+FROM CTE_DIFF_NT_PROD_SUM
+WHERE
+  NT_PROD_NEW.ts = CTE_DIFF_NT_PROD_SUM.ts AND
+  NT_PROD_NEW.old_sum IS NOT NULL;
+ 
+
+WITH CTE_DIFF_LT_PROD_VALUE AS (
+	SELECT ts, round(value - (lag(value, 1, 0) OVER (ORDER BY ts)), 3) AS diff
+	FROM LT_PROD_NEW
+	ORDER BY ts
+)
+UPDATE LT_PROD_NEW
+SET diff = CTE_DIFF_LT_PROD_VALUE.diff
+FROM CTE_DIFF_LT_PROD_VALUE
+WHERE
+  LT_PROD_NEW.ts = CTE_DIFF_LT_PROD_VALUE.ts AND
+  LT_PROD_NEW.old_sum IS NULL;
+
+WITH CTE_DIFF_LT_PROD_SUM AS (
+	SELECT ts, old_sum - (lag(old_sum, 1, 0) OVER (ORDER BY ts)) AS diff
+	FROM LT_PROD_NEW
+	ORDER BY ts
+)
+UPDATE LT_PROD_NEW
+SET diff = CTE_DIFF_LT_PROD_SUM.diff
+FROM CTE_DIFF_LT_PROD_SUM
+WHERE
+  LT_PROD_NEW.ts = CTE_DIFF_LT_PROD_SUM.ts AND
+  LT_PROD_NEW.old_sum IS NOT NULL;
+
+
+WITH CTE_DIFF_SOLAR_VALUE AS (
+	SELECT ts, round(value - (lag(value, 1, 0) OVER (ORDER BY ts)), 3) AS diff
+	FROM SOLAR_NEW
+	ORDER BY ts
+)
+UPDATE SOLAR_NEW
+SET diff = CTE_DIFF_SOLAR_VALUE.diff
+FROM CTE_DIFF_SOLAR_VALUE
+WHERE
+  SOLAR_NEW.ts = CTE_DIFF_SOLAR_VALUE.ts AND
+  SOLAR_NEW.old_sum IS NULL;
+
+WITH CTE_DIFF_SOLAR_SUM AS (
+	SELECT ts, old_sum - (lag(old_sum, 1, 0) OVER (ORDER BY ts)) AS diff
+	FROM SOLAR_NEW
+	ORDER BY ts
+)
+UPDATE SOLAR_NEW
+SET diff = CTE_DIFF_SOLAR_SUM.diff
+FROM CTE_DIFF_SOLAR_SUM
+WHERE
+  SOLAR_NEW.ts = CTE_DIFF_SOLAR_SUM.ts AND
+  SOLAR_NEW.old_sum IS NOT NULL;
+
+  
+WITH CTE_DIFF_GAS_VALUE AS (
+	SELECT ts, round(value - (lag(value, 1, 0) OVER (ORDER BY ts)), 3) AS diff
+	FROM GAS_NEW
+	ORDER BY ts
+)
+UPDATE GAS_NEW
+SET diff = CTE_DIFF_GAS_VALUE.diff
+FROM CTE_DIFF_GAS_VALUE
+WHERE
+  GAS_NEW.ts = CTE_DIFF_GAS_VALUE.ts AND
+  GAS_NEW.old_sum IS NULL;
+
+WITH CTE_DIFF_GAS_SUM AS (
+	SELECT ts, old_sum - (lag(old_sum, 1, 0) OVER (ORDER BY ts)) AS diff
+	FROM GAS_NEW
+	ORDER BY ts
+)
+UPDATE GAS_NEW
+SET diff = CTE_DIFF_GAS_SUM.diff
+FROM CTE_DIFF_GAS_SUM
+WHERE
+  GAS_NEW.ts = CTE_DIFF_GAS_SUM.ts AND
+  GAS_NEW.old_sum IS NOT NULL;
+
+  
+/* Cleanup possible wrong values:
+        - Remove the first record if no diff could be determined (Toon data)
+        - Diff is null  =&gt; The point where Toon data goes over to Home Assistant data 
+		- Diff &lt; 0		=&gt; Probably new meter installed (measurement should be low)
+		- Diff &gt; 1000	=&gt; Incorrect value 
+   First handle the first two cases and then correct to 0 when incorrect value
+*/
+DELETE FROM NT_ORIG_NEW
+WHERE
+ROWID IN (
+  SELECT ROWID FROM NT_ORIG_NEW
+  WHERE
+    old_sum IS NULL
+  ORDER BY ts
+  LIMIT 1
+);
+
+UPDATE NT_ORIG_NEW
+SET diff = round(old_sum, 3)
+WHERE (diff IS NULL);
+
+UPDATE NT_ORIG_NEW
+SET diff = round(value, 3)
+WHERE (diff &lt; 0.0) AND (value &lt; 10);
+
+UPDATE NT_ORIG_NEW
+SET diff = 0
+WHERE (diff &lt; 0.0) OR (diff &gt; 1000.0);
+
+
+DELETE FROM LT_ORIG_NEW
+WHERE
+ROWID IN (
+  SELECT ROWID FROM LT_ORIG_NEW
+  WHERE
+    old_sum IS NULL
+  ORDER BY ts
+  LIMIT 1
+);
+
+UPDATE LT_ORIG_NEW
+SET diff = round(old_sum, 3)
+WHERE (diff IS NULL);
+
+UPDATE LT_ORIG_NEW
+SET diff = round(value, 3)
+WHERE (diff &lt; 0.0) AND (value &lt; 10);
+
+UPDATE LT_ORIG_NEW
+SET diff = 0
+WHERE (diff &lt; 0.0) OR (diff &gt; 1000.0);
+
+
+DELETE FROM NT_PROD_NEW
+WHERE
+ROWID IN (
+  SELECT ROWID FROM NT_PROD_NEW
+  WHERE
+    old_sum IS NULL
+  ORDER BY ts
+  LIMIT 1
+);
+
+UPDATE NT_PROD_NEW
+SET diff = round(old_sum, 3)
+WHERE (diff IS NULL);
+
+UPDATE NT_PROD_NEW
+SET diff = round(value, 3)
+WHERE (diff &lt; 0.0) AND (value &lt; 10);
+
+UPDATE NT_PROD_NEW
+SET diff = 0
+WHERE (diff &lt; 0.0) OR (diff &gt; 1000.0);
+
+
+DELETE FROM LT_PROD_NEW
+WHERE
+ROWID IN (
+  SELECT ROWID FROM LT_PROD_NEW
+  WHERE
+    old_sum IS NULL
+  ORDER BY ts
+  LIMIT 1
+);
+
+UPDATE LT_PROD_NEW
+SET diff = round(old_sum, 3)
+WHERE (diff IS NULL);
+
+UPDATE LT_PROD_NEW
+SET diff = round(value, 3)
+WHERE (diff &lt; 0.0) AND (value &lt; 10);
+
+UPDATE LT_PROD_NEW
+SET diff = 0
+WHERE (diff &lt; 0.0) OR (diff &gt; 1000.0);
+
+
+DELETE FROM SOLAR_NEW
+WHERE
+ROWID IN (
+  SELECT ROWID FROM SOLAR_NEW
+  WHERE
+    old_sum IS NULL
+  ORDER BY ts
+  LIMIT 1
+);
+
+UPDATE SOLAR_NEW
+SET diff = round(old_sum, 3)
+WHERE (diff IS NULL);
+
+UPDATE SOLAR_NEW
+SET diff = value
+WHERE (diff &lt; 0.0) AND (value &lt; 10);
+
+UPDATE SOLAR_NEW
+SET diff = 0
+WHERE (diff &lt; 0.0) OR (diff &gt; 1000.0);
+
+
+DELETE FROM GAS_NEW
+WHERE
+ROWID IN (
+  SELECT ROWID FROM GAS_NEW
+  WHERE
+    old_sum IS NULL
+  ORDER BY ts
+  LIMIT 1
+);
+
+UPDATE GAS_NEW
+SET diff = round(old_sum, 3)
+WHERE (diff IS NULL);
+
+UPDATE GAS_NEW
+SET diff = value
+WHERE (diff &lt; 0.0) AND (value &lt; 10);
+
+UPDATE GAS_NEW
+SET diff = 0
+WHERE (diff &lt; 0.0) OR (diff &gt; 1000.0);
+
+
+/* Calculate the new sum
+   It is calculated by calculating the sum until the record that is currently processed
+*/
+WITH CTE_SUM_NT_ORIG AS (
+    SELECT ts, SUM(diff) OVER (ORDER BY ts) AS new_sum
+    FROM NT_ORIG_NEW
+)
+UPDATE NT_ORIG_NEW
+SET new_sum = round(CTE_SUM_NT_ORIG.new_sum, 3)
+FROM CTE_SUM_NT_ORIG
+WHERE
+  NT_ORIG_NEW.ts = CTE_SUM_NT_ORIG.ts;
+
+WITH CTE_SUM_LT_ORIG AS (
+    SELECT ts, SUM(diff) OVER (ORDER BY ts) AS new_sum
+    FROM LT_ORIG_NEW
+)
+UPDATE LT_ORIG_NEW
+SET new_sum = round(CTE_SUM_LT_ORIG.new_sum, 3)
+FROM CTE_SUM_LT_ORIG
+WHERE
+  LT_ORIG_NEW.ts = CTE_SUM_LT_ORIG.ts;
+
+WITH CTE_SUM_NT_PROD AS (
+    SELECT ts, SUM(diff) OVER (ORDER BY ts) AS new_sum
+    FROM NT_PROD_NEW
+)
+UPDATE NT_PROD_NEW
+SET new_sum = round(CTE_SUM_NT_PROD.new_sum, 3)
+FROM CTE_SUM_NT_PROD
+WHERE
+  NT_PROD_NEW.ts = CTE_SUM_NT_PROD.ts;
+
+WITH CTE_SUM_LT_PROD AS (
+    SELECT ts, SUM(diff) OVER (ORDER BY ts) AS new_sum
+    FROM LT_PROD_NEW
+)
+UPDATE LT_PROD_NEW
+SET new_sum = round(CTE_SUM_LT_PROD.new_sum, 3)
+FROM CTE_SUM_LT_PROD
+WHERE
+  LT_PROD_NEW.ts = CTE_SUM_LT_PROD.ts;
+
+WITH CTE_SUM_SOLAR AS (
+    SELECT ts, SUM(diff) OVER (ORDER BY ts) AS new_sum
+    FROM SOLAR_NEW
+)
+UPDATE SOLAR_NEW
+SET new_sum = round(CTE_SUM_SOLAR.new_sum, 3)
+FROM CTE_SUM_SOLAR
+WHERE
+  SOLAR_NEW.ts = CTE_SUM_SOLAR.ts;
+
+WITH CTE_SUM_GAS AS (
+    SELECT ts, SUM(diff) OVER (ORDER BY ts) AS new_sum
+    FROM GAS_NEW
+)
+UPDATE GAS_NEW
+SET new_sum = round(CTE_SUM_GAS.new_sum, 3)
+FROM CTE_SUM_GAS
+WHERE
+  GAS_NEW.ts = CTE_SUM_GAS.ts;
+
+  
+/* Copy the new information to the statistics table
+id			=&gt; primary key and automatically filled with ROWID
+sum			=&gt; calculated new_sum value
+metadata_id	=&gt; the fixed metadata id of this statistics (see top)
+created_ts	=&gt; set to the timestamp of the statistic
+start_ts	=&gt; timestamp of the statistic
+The sum is updated in case the record is already in Home Assistant
+
+&quot;where true&quot; is needed to remove parsing ambiguity
+*/
+INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
+SELECT new_sum, new_sum, 3, ts, ts FROM NT_ORIG_NEW WHERE true /* Change */
+ON CONFLICT DO UPDATE SET sum = excluded.sum;
+
+INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
+SELECT new_sum, new_sum, 4, ts, ts FROM LT_ORIG_NEW WHERE true /* Change */
+ON CONFLICT DO UPDATE SET sum = excluded.sum;
+
+INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
+SELECT new_sum, new_sum, 6, ts, ts FROM NT_PROD_NEW WHERE true /* Change */
+ON CONFLICT DO UPDATE SET sum = excluded.sum;
+
+INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
+SELECT new_sum, new_sum, 7, ts, ts FROM LT_PROD_NEW WHERE true /* Change */
+ON CONFLICT DO UPDATE SET sum = excluded.sum;
+
+INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
+SELECT new_sum, new_sum, 10, ts, ts FROM SOLAR_NEW WHERE true /* Change */
+ON CONFLICT DO UPDATE SET sum = excluded.sum;
+
+INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
+SELECT new_sum, new_sum, 2, ts, ts FROM GAS_NEW WHERE true /* Change */
+ON CONFLICT DO UPDATE SET sum = excluded.sum;
+
+
+/* Also update the short term statistics. 
+We calculate the delta with which the sum was changed and add that to the current measurements
+*/
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, NT_ORIG_NEW AS SN
+  WHERE
+    SST.metadata_id = 3 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY state DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 3; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, LT_ORIG_NEW AS SN
+  WHERE
+    SST.metadata_id = 4 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY state DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 4; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, NT_PROD_NEW AS SN
+  WHERE
+    SST.metadata_id = 6 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY state DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 6; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, LT_PROD_NEW AS SN
+  WHERE
+    SST.metadata_id = 7 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY state DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 7; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, SOLAR_NEW AS SN
+  WHERE
+    SST.metadata_id = 10 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY state DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 10; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, GAS_NEW AS SN
+  WHERE
+    SST.metadata_id = 2 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY state DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 2; /* Change */
+
+  
+/* Remove the temporary tables */
+DROP TABLE IF EXISTS NT_ORIG_NEW;
+DROP TABLE IF EXISTS LT_ORIG_NEW;
+DROP TABLE IF EXISTS NT_PROD_NEW;
+DROP TABLE IF EXISTS LT_PROD_NEW;
+DROP TABLE IF EXISTS SOLAR_NEW;
+DROP TABLE IF EXISTS GAS_NEW;
+    
+DROP TABLE IF EXISTS elec_quantity_nt_orig_CurrentElectricityQuantity_5yrhours;
+DROP TABLE IF EXISTS elec_quantity_lt_orig_CurrentElectricityQuantity_5yrhours;
+DROP TABLE IF EXISTS elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours;
+DROP TABLE IF EXISTS elec_quantity_lt_produ_CurrentElectricityQuantity_5yrhours;
+DROP TABLE IF EXISTS elec_solar_quantity_CurrentElectricityQuantity_5yrhours;
+DROP TABLE IF EXISTS elec_quantity_nt_orig_CurrentElectricityQuantity_10yrdays;
+DROP TABLE IF EXISTS elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays;
+DROP TABLE IF EXISTS elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays;
+DROP TABLE IF EXISTS elec_quantity_lt_produ_CurrentElectricityQuantity_10yrdays;
+DROP TABLE IF EXISTS elec_solar_quantity_CurrentElectricityQuantity_10yrdays;
+DROP TABLE IF EXISTS gas_quantity_CurrentGasQuantity_5yrhours;
+DROP TABLE IF EXISTS gas_quantity_CurrentGasQuantity_10yrdays;</sql><current_tab id="0"/></tab_sql></sqlb_project>
