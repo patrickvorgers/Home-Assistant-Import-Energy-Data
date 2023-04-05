@@ -3,6 +3,8 @@ Import historical Toon energy data into Home Assistant so that it can be used in
 
 I have been enjoying the Home Assistant Energy Dashboard feature since it came out. The only downside was that I could not import my historical Toon (Eneco) data which I was using until the Home Assistant Energy Dashboard came out. This SQL script solves that issue and makes it possbile to import historical exported data from Toon into Home Assistant. It adds the statistics data that is missing in Home Assistant and adjusts the existing data.
 
+The SQL could be optimized because it is duplicated 6 times. I decided not to do that because this way it is easier for other users to disable the sensors that are not needed.
+
 **Latest data still correct after import (short_term_statistics work)**
 ![2023](https://user-images.githubusercontent.com/10108665/230038379-8d20d264-c49e-4c98-b1f6-241942306886.JPG)
 
