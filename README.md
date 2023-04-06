@@ -48,6 +48,9 @@ The SQL could be optimized because it is duplicated 6 times. I decided not to do
 	- Used fields in table "short_term_statistics": sum 
 - Import, one at a time, all the extracted Toon data elec* and gas* files (File -> Import -> Table from CSV file...)
   	- It is possible to load data from multiple Toons (for example: Toon 1 and Toon 2). The exported files from the second Toon can be imported into the existing tables. You have to create the table manually (field1, field2) in case a Toon file does not contain any data (0 KB). The name of the table should be the name of the file without ".csv", another option is to comment out the SQL for the specific file.
+	- CSV file definition
+		- Unix epoch time stamp
+		- Sensor value at that time stamp
 - Lookup in the "statistics_meta" table the ID's of the sensors (Browse Data -> Table: statistics_meta; You can use "filter" to find the id of the sensor)
 	- Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
   ```
