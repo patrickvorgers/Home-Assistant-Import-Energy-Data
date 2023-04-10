@@ -2,10 +2,12 @@
 Import Toon files
 
 How to:
-- Download and install: DB Browser for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
+- Download and install: DB Browser for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
+
 - Download and install/configure: WinSCP (https://winscp.net/eng/download.php)
 - Backup and download Toon data  (Instellingen -&gt; Internet -&gt; Toon data)
-- Backup and download Home Assistant data (disable recorder while making the backup -&gt; Developer tools/Services/Call service: Recorder:disable)
+- Backup and download Home Assistant data (disable recorder while making the backup -&gt; Developer tools/Services/Call service: Recorder:disable)
+
 - Stop the Home Assistant core (Developer tools/Services/Call service: Home Assistant Core Integration: Stop)
 - Toon data: &quot;export.zip&quot;
 	extract: &quot;usage.zip&quot;
@@ -23,20 +25,25 @@ How to:
 	extract: &quot;gas_quantity_CurrentGasQuantity_5yrhours.csv&quot;
 	extract: &quot;gas_quantity_CurrentGasQuantity_10yrdays.csv&quot;
 - Home Assistant data: 
-	extract: &quot;home-assistant_v2.db&quot; (from &quot;backup.tar&quot; extract &quot;homeassistant.tar.gz&quot; from &quot;data&quot; folder)
-	As an alternative it is also possible to download the &quot;home-assistant_v2.db&quot; directly from the Home Assistant &quot;config&quot; directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
+	extract: &quot;home-assistant_v2.db&quot; (from &quot;backup.tar&quot; extract &quot;homeassistant.tar.gz&quot; from &quot;data&quot; folder)
+
+	As an alternative it is also possible to download the &quot;home-assistant_v2.db&quot; directly from the Home Assistant &quot;config&quot; directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
+
 	In case of this method make sure to make a copy of the database so that you can always restore this version of the database.
-- Start &quot;DB Browser for SQLite&quot;
-- Open project &quot;Toon.sqbpro&quot;. If the database is not loaded directly you have to open the &quot;home-assistant_v2.db&quot; database manually (&quot;Open Database&quot;).
+- Start &quot;DB Browser for SQLite&quot;
+
+- Open project &quot;Toon.sqbpro&quot;. If the database is not loaded directly you have to open the &quot;home-assistant_v2.db&quot; database manually (&quot;Open Database&quot;).
+
 - Validate the schema version of the database (Browse Data -&gt; Table: schema_version)
-  The script has been tested with schema version 35 . With higher versions you should validate if the structure of the &quot;statistics&quot; and &quot;short_term_statistics&quot; tables have changed.
+  The script has been tested with schema version 41. With higher versions you should validate if the structure of the &quot;statistics&quot; and &quot;short_term_statistics&quot; tables have changed.
   used fields in table &quot;statistics&quot;: metadata_id, state, sum, start_ts, created_ts
   used fields in table &quot;short_term_statistics&quot;: sum 
 - Import, one at a time, all the extracted Toon data elec* and gas* files (File -&gt; Import -&gt; Table from CSV file...)
   It is possible to load data from multiple Toons (for example: Toon 1 and Toon 2). The exported files from the second Toon can be imported into the existing tables.
   You have to create the table manually (field1, field2) in case a Toon file does not contain any data (0 KB). The name of the table should be the name of the file without &quot;.csv&quot;,
   another option is to comment out the SQL for the specific file.
-- Lookup in the &quot;statistics_meta&quot; table the ID's of the sensors (Browse Data -&gt; Table: statistics_meta; You can use &quot;filter&quot; to find the id of the sensor)
+- Lookup in the &quot;statistics_meta&quot; table the ID's of the sensors (Browse Data -&gt; Table: statistics_meta; You can use &quot;filter&quot; to find the id of the sensor)
+
   Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
 	id  statistic_id                                	source      unit_of_measurement
 	2	sensor.gas_meter								recorder	m³
@@ -45,7 +52,8 @@ How to:
 	6	sensor.electricity_meter_feed_out_tariff_1		recorder	kWh
 	7	sensor.electricity_meter_feed_out_tariff_2		recorder	kWh
 	10	sensor.solar_energy_produced_today				recorder	kWh
-- Change the below script and insert the correct ID on the places where the text &quot;* Change *&quot; has been added in the SQL statement.
+- Change the below script and insert the correct ID on the places where the text &quot;* Change *&quot; has been added in the SQL statement.
+
   The script basically has the same SQL statements for each sensor so in case a sensor is not needed you can comment out that specific part (for example: solar, gas)
 - Execute the SQL and wait for it to complete.
 - Commit the changes by selecting &quot;Write changes&quot; in the toolbar, if the script ends without errors. In case of an error select &quot;Revert changes&quot; and correct the error and execute this step again.
