@@ -43,7 +43,7 @@ The SQL could be optimized because it is duplicated 6 times. I decided not to do
 - Open project "Toon.sqbpro".
 	- If the database is not loaded directly you have to open the "home-assistant_v2.db" database manually ("Open Database").
 - Validate the schema version of the database (Browse Data -> Table: schema_version)
-	- The script has been tested with schema version 35 . With higher versions you should validate if the structure of the "statistics" and "short_term_statistics" tables have changed.
+	- The script has been tested with schema version 41. With higher versions you should validate if the structure of the "statistics" and "short_term_statistics" tables have changed.
 	- Used fields in table "statistics": metadata_id, state, sum, start_ts, created_ts
 	- Used fields in table "short_term_statistics": sum 
 - Import, one at a time, all the extracted Toon data elec* and gas* files (File -> Import -> Table from CSV file...)
