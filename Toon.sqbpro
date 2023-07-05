@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="D:/HA/backup/home-assistant_v2.db" readonly="0" foreign_keys="0" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="0" synchronous="1"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="406"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="3862"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,10:mainevent_data"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="GAS_NEW" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="143"/><column index="2" value="60"/><column index="3" value="130"/><column index="4" value="207"/><column index="5" value="69"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="56"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="43"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="43"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_solar_quantity_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="189"/><column index="2" value="63"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_solar_quantity_CurrentElectricityQuantity_5yrhours" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="145"/><column index="2" value="49"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="event_data" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="57"/><column index="2" value="77"/><column index="3" value="300"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="statistics" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="12" mode="0"/></sort><column_widths><column index="1" value="144"/><column index="2" value="59"/><column index="3" value="41"/><column index="4" value="130"/><column index="5" value="46"/><column index="6" value="53"/><column index="7" value="75"/><column index="8" value="86"/><column index="9" value="120"/><column index="10" value="90"/><column index="11" value="150"/><column index="12" value="118"/><column index="13" value="96"/></column_widths><filter_values><column index="10" value="=6"/></filter_values><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="statistics_meta" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="40"/><column index="2" value="300"/><column index="3" value="56"/><column index="4" value="151"/><column index="5" value="74"/><column index="6" value="65"/><column index="7" value="43"/></column_widths><filter_values><column index="2" value="gas"/></filter_values><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Import Toon data">/* 
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="D:/Opensource/Home Assistant/Toon import/home-assistant_v2.db" readonly="0" foreign_keys="0" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="0" synchronous="1"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="406"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="3862"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,10:mainevent_data"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="GAS_NEW" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="143"/><column index="2" value="60"/><column index="3" value="130"/><column index="4" value="207"/><column index="5" value="69"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_lt_orig_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="56"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_nt_produ_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="43"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="77"/><column index="2" value="43"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_solar_quantity_CurrentElectricityQuantity_10yrdays" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="189"/><column index="2" value="63"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="elec_solar_quantity_CurrentElectricityQuantity_5yrhours" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="1" mode="0"/></sort><column_widths><column index="1" value="145"/><column index="2" value="49"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="event_data" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="57"/><column index="2" value="77"/><column index="3" value="300"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="statistics" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="12" mode="0"/></sort><column_widths><column index="1" value="144"/><column index="2" value="59"/><column index="3" value="41"/><column index="4" value="130"/><column index="5" value="46"/><column index="6" value="53"/><column index="7" value="75"/><column index="8" value="86"/><column index="9" value="120"/><column index="10" value="90"/><column index="11" value="150"/><column index="12" value="118"/><column index="13" value="96"/></column_widths><filter_values><column index="10" value="=6"/></filter_values><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="statistics_meta" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="40"/><column index="2" value="300"/><column index="3" value="56"/><column index="4" value="151"/><column index="5" value="74"/><column index="6" value="65"/><column index="7" value="43"/></column_widths><filter_values><column index="2" value="gas"/></filter_values><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Import Toon data">/* 
 Import Toon files
 
 How to:
 - Download and install: DB Browser for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
-
 - Download and install/configure: WinSCP (https://winscp.net/eng/download.php)
 - Backup and download Toon data  (Instellingen -&gt; Internet -&gt; Toon data)
 - Backup and download Home Assistant data (disable recorder while making the backup -&gt; Developer tools/Services/Call service: Recorder:disable)
-
 - Stop the Home Assistant core (Developer tools/Services/Call service: Home Assistant Core Integration: Stop)
 - Toon data: &quot;export.zip&quot;
 	extract: &quot;usage.zip&quot;
@@ -26,14 +24,10 @@ How to:
 	extract: &quot;gas_quantity_CurrentGasQuantity_10yrdays.csv&quot;
 - Home Assistant data: 
 	extract: &quot;home-assistant_v2.db&quot; (from &quot;backup.tar&quot; extract &quot;homeassistant.tar.gz&quot; from &quot;data&quot; folder)
-
 	As an alternative it is also possible to download the &quot;home-assistant_v2.db&quot; directly from the Home Assistant &quot;config&quot; directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
-
 	In case of this method make sure to make a copy of the database so that you can always restore this version of the database.
 - Start &quot;DB Browser for SQLite&quot;
-
 - Open project &quot;Toon.sqbpro&quot;. If the database is not loaded directly you have to open the &quot;home-assistant_v2.db&quot; database manually (&quot;Open Database&quot;).
-
 - Validate the schema version of the database (Browse Data -&gt; Table: schema_version)
   The script has been tested with schema version 41. With higher versions you should validate if the structure of the &quot;statistics&quot; and &quot;short_term_statistics&quot; tables have changed.
   used fields in table &quot;statistics&quot;: metadata_id, state, sum, start_ts, created_ts
@@ -43,7 +37,6 @@ How to:
   You have to create the table manually (field1, field2) in case a Toon file does not contain any data (0 KB). The name of the table should be the name of the file without &quot;.csv&quot;,
   another option is to comment out the SQL for the specific file.
 - Lookup in the &quot;statistics_meta&quot; table the ID's of the sensors (Browse Data -&gt; Table: statistics_meta; You can use &quot;filter&quot; to find the id of the sensor)
-
   Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
 	id  statistic_id                                	source      unit_of_measurement
 	2	sensor.gas_meter								recorder	m³
@@ -53,7 +46,6 @@ How to:
 	7	sensor.electricity_meter_feed_out_tariff_2		recorder	kWh
 	10	sensor.solar_energy_produced_today				recorder	kWh
 - Change the below script and insert the correct ID on the places where the text &quot;* Change *&quot; has been added in the SQL statement.
-
   The script basically has the same SQL statements for each sensor so in case a sensor is not needed you can comment out that specific part (for example: solar, gas)
 - Execute the SQL and wait for it to complete.
 - Commit the changes by selecting &quot;Write changes&quot; in the toolbar, if the script ends without errors. In case of an error select &quot;Revert changes&quot; and correct the error and execute this step again.
@@ -454,7 +446,7 @@ WHERE (diff IS NULL);
 
 UPDATE NT_ORIG_NEW
 SET diff = round(value, 3)
-WHERE (diff &lt; 0.0) AND (value &lt; 10);
+WHERE (diff &lt; 0.0) AND (value &lt; 25);
 
 UPDATE NT_ORIG_NEW
 SET diff = 0
@@ -477,7 +469,7 @@ WHERE (diff IS NULL);
 
 UPDATE LT_ORIG_NEW
 SET diff = round(value, 3)
-WHERE (diff &lt; 0.0) AND (value &lt; 10);
+WHERE (diff &lt; 0.0) AND (value &lt; 25);
 
 UPDATE LT_ORIG_NEW
 SET diff = 0
@@ -500,7 +492,7 @@ WHERE (diff IS NULL);
 
 UPDATE NT_PROD_NEW
 SET diff = round(value, 3)
-WHERE (diff &lt; 0.0) AND (value &lt; 10);
+WHERE (diff &lt; 0.0) AND (value &lt; 25);
 
 UPDATE NT_PROD_NEW
 SET diff = 0
@@ -523,7 +515,7 @@ WHERE (diff IS NULL);
 
 UPDATE LT_PROD_NEW
 SET diff = round(value, 3)
-WHERE (diff &lt; 0.0) AND (value &lt; 10);
+WHERE (diff &lt; 0.0) AND (value &lt; 25);
 
 UPDATE LT_PROD_NEW
 SET diff = 0
@@ -546,7 +538,7 @@ WHERE (diff IS NULL);
 
 UPDATE SOLAR_NEW
 SET diff = value
-WHERE (diff &lt; 0.0) AND (value &lt; 10);
+WHERE (diff &lt; 0.0) AND (value &lt; 25);
 
 UPDATE SOLAR_NEW
 SET diff = 0
@@ -569,7 +561,7 @@ WHERE (diff IS NULL);
 
 UPDATE GAS_NEW
 SET diff = value
-WHERE (diff &lt; 0.0) AND (value &lt; 10);
+WHERE (diff &lt; 0.0) AND (value &lt; 25);
 
 UPDATE GAS_NEW
 SET diff = 0
