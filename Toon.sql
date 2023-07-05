@@ -3,17 +3,15 @@ Import Toon files
 
 How to:
 - Download and install: DB Browser for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
-
 - Download and install/configure: WinSCP (https://winscp.net/eng/download.php)
 - Backup and download Toon data  (Instellingen -> Internet -> Toon data)
 - Backup and download Home Assistant data (disable recorder while making the backup -> Developer tools/Services/Call service: Recorder:disable)
-
 - Stop the Home Assistant core (Developer tools/Services/Call service: Home Assistant Core Integration: Stop)
 - Toon data: "export.zip"
 	extract: "usage.zip"
 - Toon data: "usage.zip"
-	extract: "elec_quantity_nt_orig_CurrentElectricityQuantity_5yrhours.csv"
-	extract: "elec_quantity_lt_orig_CurrentElectricityQuantity_5yrhours.csv"
+    extract: "elec_quantity_nt_orig_CurrentElectricityQuantity_5yrhours.csv"
+    extract: "elec_quantity_lt_orig_CurrentElectricityQuantity_5yrhours.csv"
 	extract: "elec_quantity_nt_produ_CurrentElectricityQuantity_5yrhours.csv"
 	extract: "elec_quantity_lt_produ_CurrentElectricityQuantity_5yrhours.csv"
 	extract: "elec_solar_quantity_CurrentElectricityQuantity_5yrhours.csv"
@@ -40,13 +38,13 @@ How to:
   another option is to comment out the SQL for the specific file.
 - Lookup in the "statistics_meta" table the ID's of the sensors (Browse Data -> Table: statistics_meta; You can use "filter" to find the id of the sensor)
   Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
-	id	statistic_id                                	source      unit_of_measurement
-	2	sensor.gas_meter						recorder	m³
+	id  statistic_id                                	source      unit_of_measurement
+	2	sensor.gas_meter								recorder	m³
 	3	sensor.electricity_meter_feed_in_tariff_1		recorder	kWh
 	4	sensor.electricity_meter_feed_in_tariff_2		recorder	kWh
-	6	sensor.electricity_meter_feed_out_tariff_1	recorder	kWh
-	7	sensor.electricity_meter_feed_out_tariff_2	recorder	kWh
-	10	sensor.solar_energy_produced_today			recorder	kWh
+	6	sensor.electricity_meter_feed_out_tariff_1		recorder	kWh
+	7	sensor.electricity_meter_feed_out_tariff_2		recorder	kWh
+	10	sensor.solar_energy_produced_today				recorder	kWh
 - Change the below script and insert the correct ID on the places where the text "* Change *" has been added in the SQL statement.
   The script basically has the same SQL statements for each sensor so in case a sensor is not needed you can comment out that specific part (for example: solar, gas)
 - Execute the SQL and wait for it to complete.
@@ -448,7 +446,7 @@ WHERE (diff IS NULL);
 
 UPDATE NT_ORIG_NEW
 SET diff = round(value, 3)
-WHERE (diff < 0.0) AND (value < 10);
+WHERE (diff < 0.0) AND (value < 25);
 
 UPDATE NT_ORIG_NEW
 SET diff = 0
@@ -471,7 +469,7 @@ WHERE (diff IS NULL);
 
 UPDATE LT_ORIG_NEW
 SET diff = round(value, 3)
-WHERE (diff < 0.0) AND (value < 10);
+WHERE (diff < 0.0) AND (value < 25);
 
 UPDATE LT_ORIG_NEW
 SET diff = 0
@@ -494,7 +492,7 @@ WHERE (diff IS NULL);
 
 UPDATE NT_PROD_NEW
 SET diff = round(value, 3)
-WHERE (diff < 0.0) AND (value < 10);
+WHERE (diff < 0.0) AND (value < 25);
 
 UPDATE NT_PROD_NEW
 SET diff = 0
@@ -517,7 +515,7 @@ WHERE (diff IS NULL);
 
 UPDATE LT_PROD_NEW
 SET diff = round(value, 3)
-WHERE (diff < 0.0) AND (value < 10);
+WHERE (diff < 0.0) AND (value < 25);
 
 UPDATE LT_PROD_NEW
 SET diff = 0
@@ -540,7 +538,7 @@ WHERE (diff IS NULL);
 
 UPDATE SOLAR_NEW
 SET diff = value
-WHERE (diff < 0.0) AND (value < 10);
+WHERE (diff < 0.0) AND (value < 25);
 
 UPDATE SOLAR_NEW
 SET diff = 0
@@ -563,7 +561,7 @@ WHERE (diff IS NULL);
 
 UPDATE GAS_NEW
 SET diff = value
-WHERE (diff < 0.0) AND (value < 10);
+WHERE (diff < 0.0) AND (value < 25);
 
 UPDATE GAS_NEW
 SET diff = 0
