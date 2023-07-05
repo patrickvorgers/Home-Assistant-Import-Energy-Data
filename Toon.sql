@@ -37,7 +37,8 @@ How to:
   You have to create the table manually (field1, field2) in case a Toon file does not contain any data (0 KB). The name of the table should be the name of the file without ".csv",
   another option is to comment out the SQL for the specific file.
 - Lookup in the "statistics_meta" table the ID's of the sensors (Browse Data -> Table: statistics_meta; You can use "filter" to find the id of the sensor)
-  Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
+  Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration. In case another provider is used the names of the sensors can be looked
+  up in the Energy dashboard (Settings -> Dashboards -> Energy).
 	id  statistic_id                                	source      unit_of_measurement
 	2	sensor.gas_meter								recorder	m³
 	3	sensor.electricity_meter_feed_in_tariff_1		recorder	kWh
