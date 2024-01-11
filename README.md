@@ -16,11 +16,13 @@ The SQL could be optimized because it is duplicated 6 times. I decided not to do
 
 
 **How to:**
-- Download and install: DB Browser for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
+- Download and install: DB Browser (64 bit) for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
 - Download and install/configure: WinSCP (https://winscp.net/eng/download.php)
 - Backup and download Toon data  (Instellingen -> Internet -> Toon data)
-- Backup and download Home Assistant data
-	- Disable recorder while making the backup -> Developer tools/Services/Call service: Recorder:disable
+- Make a backup of your Home Assistant data
+	- Disable recorder before making the backup -> Developer tools/Services/Call service: Recorder:disable
+ 	- Create Backup (DO NOT SKIP!) -> Settings/System/Backups/+ Create Backup
+- Download Home Assistant data
 - Stop the Home Assistant core (Developer tools/Services/Call service: Home Assistant Core Integration: Stop)
 - Toon data: "export.zip"
 	- Extract: "usage.zip"
