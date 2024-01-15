@@ -37,15 +37,14 @@ How to:
   You have to create the table manually (field1, field2) in case a Toon file does not contain any data (0 KB). The name of the table should be the name of the file without ".csv",
   another option is to comment out the SQL for the specific file.
 - Lookup in the "statistics_meta" table the ID's of the sensors (Browse Data -> Table: statistics_meta; You can use "filter" to find the id of the sensor)
-  Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration. In case another provider is used the names of the sensors can be looked
-  up in the Energy dashboard (Settings -> Dashboards -> Energy).
-	id  statistic_id                                	source      unit_of_measurement
-	2	sensor.gas_meter								recorder	m³
-	3	sensor.electricity_meter_feed_in_tariff_1		recorder	kWh
-	4	sensor.electricity_meter_feed_in_tariff_2		recorder	kWh
-	6	sensor.electricity_meter_feed_out_tariff_1		recorder	kWh
-	7	sensor.electricity_meter_feed_out_tariff_2		recorder	kWh
-	10	sensor.solar_energy_produced_today				recorder	kWh
+  Below are the sensors you need to find. The names are the default names from the Home Assistant Toon integration.
+	id	statistic_id                                	source		unit_of_measurement
+	6	sensor.gas_meter				recorder	m³
+	7	sensor.electricity_meter_feed_in_tariff_1	recorder	kWh
+	8	sensor.electricity_meter_feed_in_tariff_2	recorder	kWh
+	9	sensor.electricity_meter_feed_out_tariff_1	recorder	kWh
+	10	sensor.electricity_meter_feed_out_tariff_2	recorder	kWh
+	352	sensor.solar_energy_produced_today				recorder	kWh
 - Change the below script and insert the correct ID on the places where the text "* Change *" has been added in the SQL statement.
   The script basically has the same SQL statements for each sensor so in case a sensor is not needed you can comment out that specific part (for example: solar, gas)
 - Execute the SQL and wait for it to complete.
@@ -214,59 +213,59 @@ WHERE
 /* Remove any overlapping records from Toon which are already in Home Assistant */
 DELETE FROM NT_ORIG_NEW
 WHERE
-ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 3); /* Change */
+ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 7); /* Change */
 
 DELETE FROM LT_ORIG_NEW
 WHERE
-ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 4); /* Change */
+ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 8); /* Change */
 
 DELETE FROM NT_PROD_NEW
 WHERE
-ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 6); /* Change */
+ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 9); /* Change */
 
 DELETE FROM LT_PROD_NEW
 WHERE
-ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 7); /* Change */
+ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 10); /* Change */
 
 DELETE FROM SOLAR_NEW
 WHERE
-ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 10); /* Change */
+ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 352); /* Change */
 
 DELETE FROM GAS_NEW
 WHERE
-ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 2); /* Change */
+ts >= (SELECT MIN(start_ts) FROM statistics WHERE metadata_id = 6); /* Change */
 
 
 /* Insert the data from Home Assistant so that we can adjust the records with the new calculated sum */
 INSERT INTO NT_ORIG_NEW (ts, value, old_sum)
 SELECT start_ts, state, sum
 FROM statistics
-WHERE metadata_id = 3; /* Change */
+WHERE metadata_id = 7; /* Change */
 
 INSERT INTO LT_ORIG_NEW (ts, value, old_sum)
 SELECT start_ts, state, sum
 FROM statistics
-WHERE metadata_id = 4; /* Change */
+WHERE metadata_id = 8; /* Change */
 
 INSERT INTO NT_PROD_NEW (ts, value, old_sum)
 SELECT start_ts, state, sum
 FROM statistics
-WHERE metadata_id = 6; /* Change */
+WHERE metadata_id = 9; /* Change */
 
 INSERT INTO LT_PROD_NEW (ts, value, old_sum)
 SELECT start_ts, state, sum
 FROM statistics
-WHERE metadata_id = 7; /* Change */
+WHERE metadata_id = 10; /* Change */
 
 INSERT INTO SOLAR_NEW (ts, value, old_sum)
 SELECT start_ts, state, sum
 FROM statistics
-WHERE metadata_id = 10; /* Change */
+WHERE metadata_id = 352; /* Change */
 
 INSERT INTO GAS_NEW (ts, value, old_sum)
 SELECT start_ts, state, sum
 FROM statistics
-WHERE metadata_id = 2; /* Change */
+WHERE metadata_id = 6; /* Change */
 
 
 /* 
@@ -644,27 +643,27 @@ The sum is updated in case the record is already in Home Assistant
 "where true" is needed to remove parsing ambiguity
 */
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, 3, ts, ts FROM NT_ORIG_NEW WHERE true /* Change */
+SELECT new_sum, new_sum, 7, ts, ts FROM NT_ORIG_NEW WHERE true /* Change */
 ON CONFLICT DO UPDATE SET sum = excluded.sum;
 
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, 4, ts, ts FROM LT_ORIG_NEW WHERE true /* Change */
+SELECT new_sum, new_sum, 8, ts, ts FROM LT_ORIG_NEW WHERE true /* Change */
 ON CONFLICT DO UPDATE SET sum = excluded.sum;
 
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, 6, ts, ts FROM NT_PROD_NEW WHERE true /* Change */
+SELECT new_sum, new_sum, 9, ts, ts FROM NT_PROD_NEW WHERE true /* Change */
 ON CONFLICT DO UPDATE SET sum = excluded.sum;
 
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, 7, ts, ts FROM LT_PROD_NEW WHERE true /* Change */
+SELECT new_sum, new_sum, 10, ts, ts FROM LT_PROD_NEW WHERE true /* Change */
 ON CONFLICT DO UPDATE SET sum = excluded.sum;
 
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, 10, ts, ts FROM SOLAR_NEW WHERE true /* Change */
+SELECT new_sum, new_sum, 352, ts, ts FROM SOLAR_NEW WHERE true /* Change */
 ON CONFLICT DO UPDATE SET sum = excluded.sum;
 
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, 2, ts, ts FROM GAS_NEW WHERE true /* Change */
+SELECT new_sum, new_sum, 6, ts, ts FROM GAS_NEW WHERE true /* Change */
 ON CONFLICT DO UPDATE SET sum = excluded.sum;
 
 
@@ -677,51 +676,9 @@ SET sum = sum + (
   FROM
     statistics_short_term as SST, NT_ORIG_NEW AS SN
   WHERE
-    SST.metadata_id = 3 AND /* Change */
-    SST.start_ts = SN.ts
-  ORDER BY state DESC
-  LIMIT 1
-)
-WHERE
-  metadata_id = 3; /* Change */
-
-UPDATE statistics_short_term 
-SET sum = sum + (
-  SELECT (new_sum - sum) as correction_factor
-  FROM
-    statistics_short_term as SST, LT_ORIG_NEW AS SN
-  WHERE
-    SST.metadata_id = 4 AND /* Change */
-    SST.start_ts = SN.ts
-  ORDER BY state DESC
-  LIMIT 1
-)
-WHERE
-  metadata_id = 4; /* Change */
-
-UPDATE statistics_short_term 
-SET sum = sum + (
-  SELECT (new_sum - sum) as correction_factor
-  FROM
-    statistics_short_term as SST, NT_PROD_NEW AS SN
-  WHERE
-    SST.metadata_id = 6 AND /* Change */
-    SST.start_ts = SN.ts
-  ORDER BY state DESC
-  LIMIT 1
-)
-WHERE
-  metadata_id = 6; /* Change */
-
-UPDATE statistics_short_term 
-SET sum = sum + (
-  SELECT (new_sum - sum) as correction_factor
-  FROM
-    statistics_short_term as SST, LT_PROD_NEW AS SN
-  WHERE
     SST.metadata_id = 7 AND /* Change */
     SST.start_ts = SN.ts
-  ORDER BY state DESC
+  ORDER BY start_ts DESC
   LIMIT 1
 )
 WHERE
@@ -731,11 +688,39 @@ UPDATE statistics_short_term
 SET sum = sum + (
   SELECT (new_sum - sum) as correction_factor
   FROM
-    statistics_short_term as SST, SOLAR_NEW AS SN
+    statistics_short_term as SST, LT_ORIG_NEW AS SN
+  WHERE
+    SST.metadata_id = 8 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY start_ts DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 8; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, NT_PROD_NEW AS SN
+  WHERE
+    SST.metadata_id = 9 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY start_ts DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 9; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, LT_PROD_NEW AS SN
   WHERE
     SST.metadata_id = 10 AND /* Change */
     SST.start_ts = SN.ts
-  ORDER BY state DESC
+  ORDER BY start_ts DESC
   LIMIT 1
 )
 WHERE
@@ -745,18 +730,33 @@ UPDATE statistics_short_term
 SET sum = sum + (
   SELECT (new_sum - sum) as correction_factor
   FROM
-    statistics_short_term as SST, GAS_NEW AS SN
+    statistics_short_term as SST, SOLAR_NEW AS SN
   WHERE
-    SST.metadata_id = 2 AND /* Change */
+    SST.metadata_id = 352 AND /* Change */
     SST.start_ts = SN.ts
-  ORDER BY state DESC
+  ORDER BY start_ts DESC
   LIMIT 1
 )
 WHERE
-  metadata_id = 2; /* Change */
+  metadata_id = 352; /* Change */
+
+UPDATE statistics_short_term 
+SET sum = sum + (
+  SELECT (new_sum - sum) as correction_factor
+  FROM
+    statistics_short_term as SST, GAS_NEW AS SN
+  WHERE
+    SST.metadata_id = 6 AND /* Change */
+    SST.start_ts = SN.ts
+  ORDER BY start_ts DESC
+  LIMIT 1
+)
+WHERE
+  metadata_id = 6; /* Change */
 
   
 /* Remove the temporary tables */
+/*
 DROP TABLE IF EXISTS NT_ORIG_NEW;
 DROP TABLE IF EXISTS LT_ORIG_NEW;
 DROP TABLE IF EXISTS NT_PROD_NEW;
@@ -776,3 +776,4 @@ DROP TABLE IF EXISTS elec_quantity_lt_produ_CurrentElectricityQuantity_10yrdays;
 DROP TABLE IF EXISTS elec_solar_quantity_CurrentElectricityQuantity_10yrdays;
 DROP TABLE IF EXISTS gas_quantity_CurrentGasQuantity_5yrhours;
 DROP TABLE IF EXISTS gas_quantity_CurrentGasQuantity_10yrdays;
+*/
