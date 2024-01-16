@@ -62,7 +62,7 @@ if exist Export.zip (
 
   echo Done
 ) else (
-  echo Error: Could not find file Export.zip in the current directory.
+  echo Error: Could not find file export.zip in the current directory.
   goto _terminate
 )
 
