@@ -153,9 +153,9 @@ Both tables need to be updated according to the new imported data which changes 
 
 /* Create a temp table to hold the used sensor metadata */
 DROP TABLE IF EXISTS SENSORS;
-CREATE TEMP TABLE SENSORS ("name" TEXT PRIMARY KEY, "sensor_id" INTEGER, "correction" FLOAT);
+CREATE TEMP TABLE SENSORS (name TEXT PRIMARY KEY, sensor_id INTEGER, correction FLOAT);
 /* In case the provided data is in L and sensor is in m³ then the correction is 1000.0 */
-INSERT INTO SENSORS VALUES ('sensor_id_gas',			6,		1000.0);	/* Change */
+INSERT INTO SENSORS VALUES ('sensor_id_gas',					6,		1000.0);	/* Change */
 /* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_in_tariff_1',	7,		1000.0);	/* Change */
 /* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
@@ -165,12 +165,12 @@ INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_1',	9,		1000.0);	/* 
 /* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_2',	10,		1000.0);	/* Change */
 /* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_solar',		352,		1000.0);	/* Change */
+INSERT INTO SENSORS VALUES ('sensor_id_elec_solar',				352,	1000.0);	/* Change */
 
 
 /* Create a temp table to hold some variables (SQLite does not support variables so this is a workaround) */
 DROP TABLE IF EXISTS VARS;
-CREATE TEMP TABLE VARS ("name" TEXT PRIMARY KEY, "value" FLOAT);
+CREATE TEMP TABLE VARS (name TEXT PRIMARY KEY, value FLOAT);
 INSERT INTO VARS VALUES ('cutoff_new_meter', 25);	/* Change this in case your new meter started with a higher start value (especially when the unit_of_measurement is not kWh!)	*/
 INSERT INTO VARS VALUES ('cutoff_invalid_value', 1000);	/* Change this in case a higher/lower diff cutoff is needed to mark a value invalid												*/
 
@@ -179,28 +179,28 @@ INSERT INTO VARS VALUES ('cutoff_invalid_value', 1000);	/* Change this in case a
 
 
 /* Create empty temp import tables if they do not exist so that the SQL statements do not break in case the table is not imported */
-CREATE TABLE IF NOT EXISTS "elec_feed_in_tariff_1_high_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TABLE IF NOT EXISTS "elec_feed_in_tariff_1_low_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TABLE IF NOT EXISTS "elec_feed_in_tariff_2_high_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_in_tariff_2
-CREATE TABLE IF NOT EXISTS "elec_feed_in_tariff_2_low_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_in_tariff_2
-CREATE TABLE IF NOT EXISTS "elec_feed_out_tariff_1_high_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_out_tariff_1
-CREATE TABLE IF NOT EXISTS "elec_feed_out_tariff_1_low_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_out_tariff_1
-CREATE TABLE IF NOT EXISTS "elec_feed_out_tariff_2_high_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_out_tariff_2
-CREATE TABLE IF NOT EXISTS "elec_feed_out_tariff_2_low_resolution"	("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_feed_out_tariff_2
-CREATE TABLE IF NOT EXISTS "elec_solar_high_resolution"			("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_solar
-CREATE TABLE IF NOT EXISTS "elec_solar_low_resolution"			("field1" INTEGER, "field2" INTEGER); -- sensor_id_elec_solar
-CREATE TABLE IF NOT EXISTS "gas_high_resolution"			("field1" INTEGER, "field2" INTEGER); -- sensor_id_gas
-CREATE TABLE IF NOT EXISTS "gas_low_resolution"				("field1" INTEGER, "field2" INTEGER); -- sensor_id_gas
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_1_high_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_1 
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_1_low_resolution		(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_1 
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_2_high_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_2
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_2_low_resolution		(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_2
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_1_high_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_1
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_1_low_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_1
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_2
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_2
+CREATE TABLE IF NOT EXISTS elec_solar_high_resolution				(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
+CREATE TABLE IF NOT EXISTS elec_solar_low_resolution				(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
+CREATE TABLE IF NOT EXISTS gas_high_resolution						(field1 FLOAT, field2 FLOAT); -- sensor_id_gas
+CREATE TABLE IF NOT EXISTS gas_low_resolution						(field1 FLOAT, field2 FLOAT); -- sensor_id_gas
 
 /* Create temp tables that can hold the difference between the measurements and create a new sum */
 DROP TABLE IF EXISTS STATS_NEW;
 CREATE TEMP TABLE STATS_NEW (
-	"sensor_id"	INTEGER,
-	"ts"		INTEGER,
-	"value"		FLOAT,
-	"diff"		FLOAT,
-	"old_sum"	FLOAT,
-	"new_sum"	FLOAT
+	sensor_id	INTEGER,
+	ts			FLOAT,
+	value		FLOAT,
+	diff		FLOAT,
+	old_sum		FLOAT,
+	new_sum		FLOAT
 );
 
 
@@ -208,42 +208,42 @@ CREATE TEMP TABLE STATS_NEW (
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3)
 FROM elec_feed_in_tariff_1_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3)
 FROM elec_feed_in_tariff_2_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3)
 FROM elec_feed_out_tariff_1_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3)
 FROM elec_feed_out_tariff_2_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
 FROM elec_solar_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
 FROM gas_high_resolution;
 
@@ -254,7 +254,7 @@ FROM gas_high_resolution;
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3)
 FROM elec_feed_in_tariff_1_low_resolution  
 WHERE
@@ -263,7 +263,7 @@ WHERE
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3)
 FROM elec_feed_in_tariff_2_low_resolution  
 WHERE
@@ -272,7 +272,7 @@ WHERE
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3)
 FROM elec_feed_out_tariff_1_low_resolution  
 WHERE
@@ -281,7 +281,7 @@ WHERE
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3)
 FROM elec_feed_out_tariff_2_low_resolution  
 WHERE
@@ -290,7 +290,7 @@ WHERE
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_solar' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
 FROM elec_solar_low_resolution  
 WHERE
@@ -299,7 +299,7 @@ WHERE
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
 	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1),
-	field1,
+	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
 FROM gas_low_resolution  
 WHERE
