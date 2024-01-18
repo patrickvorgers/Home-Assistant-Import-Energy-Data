@@ -4,7 +4,7 @@ REM requires Windows 10 or up
 
 echo Toon Data Prepare
 echo:
-echo This script prepares Toon data for import into Home Assistant.
+echo This windows script prepares Toon data for import into Home Assistant.
 echo Make sure that the export.zip file is in the current directory.
 echo The files will be prepared in the current directory any previous files will be overwritten!
 echo:
