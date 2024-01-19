@@ -1,6 +1,6 @@
 # Energy provider: Eneco (Toon)
 
-Eneco (Toon) offers the option to export the below data from the Toon device. This data can be transformed and used to import into Home Assistant.
+Eneco (Toon) offers the option to export data from the Toon device. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (hour interval) - Wh
