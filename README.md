@@ -192,7 +192,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 ```
 - Change the script and remove/comment out the lines of the sensors that are not needed. They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
 - Change the script and update the ID's according to the found ID's in the ```statistics_meta``` table.
-  They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement. Determine also the correction factor in case the ```unit_of_measurement``` of the sensor differs from the provided data.
+  They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement. Determine also the correction factor in case the ```unit_of_measurement``` of the sensor differs from the used datasource. The unit of measurement of the datasource can be found in the readme of the datasource.
 - Execute the SQL and wait for it to complete. (Please be patient because this can take some time!)
 - Commit the changes by selecting "Write changes" in the toolbar, if the script ends without errors. In case of an error select ```Revert changes``` and correct the error and execute the script again.
 

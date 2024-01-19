@@ -3,18 +3,18 @@
 Eneco (Toon) offers the option to export the below data from the Toon device. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
-- Electricity consumption - Tariff 1 - High resolution (hour interval)
-- Electricity consumption - Tariff 1 - Low resolution (day interval)
-- Electricity consumption - Tariff 2 - High resolution (hour interval)
-- Electricity consumption - Tariff 2 - Low resolution (day interval)
-- Electricity production - Tariff 1 - High resolution (hour interval)
-- Electricity production - Tariff 1 - Low resolution (day interval)
-- Electricity production - Tariff 2 - High resolution (hour interval)
-- Electricity production - Tariff 2 - Low resolution (day interval)
-- Solar production - High resolution (hour interval)
-- Solar production - Low resolution (day interval)
-- Gas consumption - High resolution (hour interval)
-- Gas consumption - Low resolution (day interval)
+- Electricity consumption - Tariff 1 - High resolution (hour interval) - Wh
+- Electricity consumption - Tariff 1 - Low resolution (day interval) - Wh
+- Electricity consumption - Tariff 2 - High resolution (hour interval) - Wh
+- Electricity consumption - Tariff 2 - Low resolution (day interval) - Wh
+- Electricity production - Tariff 1 - High resolution (hour interval) - Wh
+- Electricity production - Tariff 1 - Low resolution (day interval) - Wh
+- Electricity production - Tariff 2 - High resolution (hour interval) - Wh
+- Electricity production - Tariff 2 - Low resolution (day interval) - Wh
+- Solar production - High resolution (hour interval) - Wh
+- Solar production - Low resolution (day interval) - Wh
+- Gas consumption - High resolution (hour interval) - m³
+- Gas consumption - Low resolution (day interval) - m³
 
 **How-to:**
 - Backup and download Toon data (Instellingen -> Internet -> Toon data)

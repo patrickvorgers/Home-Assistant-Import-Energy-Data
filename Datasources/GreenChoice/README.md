@@ -3,10 +3,10 @@
 Greenchoice offers the option to export the below data from the website. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
-- Electricity consumption - Tariff 1 - High resolution (day interval)
-- Electricity consumption - Tariff 2 - High resolution (day interval)
-- Electricity production - Tariff 1 - High resolution (day interval)
-- Electricity production - Tariff 2 - High resolution (day interval)
+- Electricity consumption - Tariff 1 - High resolution (day interval) - kWh
+- Electricity consumption - Tariff 2 - High resolution (day interval) - kWh
+- Electricity production - Tariff 1 - High resolution (day interval) - kWh
+- Electricity production - Tariff 2 - High resolution (day interval) - kWh
 
 **Tooling needed**
 - Python 3
