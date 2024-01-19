@@ -18,8 +18,9 @@ def generateImportDataFiles(path, inputFileName):
         _, inputFileNameExtension = os.path.splitext(inputFileName);
         if (inputFileNameExtension == '.xlsx'):
             print('Opening input XLSX data')
-            # Open the specified file 
-            dataFrame = pd.read_excel(inputFile, decimal = ',', parse_dates = ['Date Time UTC'])
+            # Open the specified file
+            # First row contains header so we don't have to skip rows
+            dataFrame = pd.read_excel(inputFile, decimal = ',', skiprows = 0, parse_dates = ['Date Time UTC'])
         
             print('Loading data');
             # Define start and end date

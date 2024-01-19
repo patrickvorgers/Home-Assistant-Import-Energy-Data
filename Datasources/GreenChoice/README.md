@@ -1,6 +1,6 @@
 # Energy provider: GreenChoice
 
-Greenchoice offers the option to export data from the website. This data can be transformed and used to import into Home Assistant.
+Greenchoice offers the option to export data from their website. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (day interval) - kWh
