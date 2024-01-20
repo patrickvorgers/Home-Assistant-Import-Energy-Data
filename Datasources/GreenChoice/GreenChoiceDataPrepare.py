@@ -1,11 +1,23 @@
 import os, sys, datetime
 import pandas as pd
 
+def prepareData(dataFrame):
+    print('Preparing data');
+
+    # Define start and end date
+    df = dataFrame.loc[(dataFrame['OpnameDatum'] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame['OpnameDatum'] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
+    
+    # Transform the date into unix timestamp for Home-Assistant
+    df['OpnameDatum'] = (df['OpnameDatum'].view('int64') / 1000000000).astype('int64')
+    return df
+
+
 def generateImportDataFile(dataFrame, outputFile, filterColumn):
     # Create file the file
     print('Creating file: ' + outputFile);
     dataFrameFiltered = dataFrame.filter(['OpnameDatum', filterColumn])
     dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+
 
 def generateImportDataFiles(path, inputFileName):
 
@@ -15,19 +27,13 @@ def generateImportDataFiles(path, inputFileName):
         
         _, inputFileNameExtension = os.path.splitext(inputFileName);
         if (inputFileNameExtension == '.csv'):
-            print('Opening input CSV data')
+            print('Loading CSV data');
             # Open the specified file
-            # First row contains header so we don't have to skip rows
-            dataFrame = pd.read_csv(inputFile, sep = ';', decimal = '.', skiprows = 0, parse_dates = ['OpnameDatum'])
-        
-            print('Loading data');
-            # Define start and end date
-            startDate = '01-01-1970'
-            endDate = '31-12-2099'
-            dataFrame = dataFrame.loc[(dataFrame['OpnameDatum'] >= datetime.datetime.strptime(startDate, '%d-%m-%Y')) & (dataFrame['OpnameDatum'] <= datetime.datetime.strptime(endDate, '%d-%m-%Y'))]
-    
-            # Transform the date into unix timestamp for Home-Assistant
-            dataFrame['OpnameDatum'] = (dataFrame['OpnameDatum'].view('int64') / 1000000000).astype('int64')
+            # First row contains header so we don't have to skip rows, last row does not contain totals so we do not have to skip the footer
+            dataFrame = pd.read_csv(inputFile, sep = ';', decimal = '.', skiprows = 0, skipfooter = 0, parse_dates = ['OpnameDatum'], date_format = '%Y-%m-%d')
+ 
+            # Prepare the data
+            dataFrame = prepareData(dataFrame)
 
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
             generateImportDataFile(dataFrame, path + os.sep + 'elec_feed_in_tariff_1_high_resolution.csv', 'StandNormaal')

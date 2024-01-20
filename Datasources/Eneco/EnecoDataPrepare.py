@@ -1,11 +1,23 @@
 import os, sys, datetime
 import pandas as pd
 
+def prepareData(dataFrame):
+    print('Preparing data');
+
+    # Define start and end date
+    df = dataFrame.loc[(dataFrame['Datum'] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame['Datum'] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
+    
+    # Transform the date into unix timestamp for Home-Assistant
+    df['Datum'] = (df['Datum'].view('int64') / 1000000000).astype('int64')
+    return df
+
+
 def generateImportDataFile(dataFrame, outputFile, filterColumn):
     # Create file the file
     print('Creating file: ' + outputFile);
     dataFrameFiltered = dataFrame.filter(['Datum', filterColumn])
     dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+
 
 def generateImportDataFiles(path, inputFileName):
 
@@ -15,20 +27,14 @@ def generateImportDataFiles(path, inputFileName):
 
         _, inputFileNameExtension = os.path.splitext(inputFileName);
         if (inputFileNameExtension == '.xlsx'):
-            print('Opening input XLSX data')
+            print('Loading XLSX data');
             # Open the specified file
-            # Second row contains header so skip the first row
-            dataFrame = pd.read_excel(inputFile, decimal = ',', skiprows = 1, parse_dates = ['Datum'])
-        
-            print('Loading data');
-            # Define start and end date
-            startDate = '01-01-1970'
-            endDate = '31-12-2099'
-            dataFrame = dataFrame.loc[(dataFrame['Datum'] >= datetime.datetime.strptime(startDate, '%d-%m-%Y')) & (dataFrame['Datum'] <= datetime.datetime.strptime(endDate, '%d-%m-%Y'))]
-    
-            # Transform the date into unix timestamp for Home-Assistant
-            dataFrame['Datum'] = (dataFrame['Datum'].view('int64') / 1000000000).astype('int64')
-            
+            # Second row contains header so skip the first row, last row does not contain totals so we do not have to skip the footer
+            dataFrame = pd.read_excel(inputFile, decimal = ',', skiprows = 1, skipfooter = 0, parse_dates = ['Datum'])
+                    
+            # Prepare the data
+            dataFrame = prepareData(dataFrame)
+          
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
             generateImportDataFile(dataFrame, path + os.sep + 'elec_feed_in_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 2)')
 
