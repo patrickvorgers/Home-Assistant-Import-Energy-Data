@@ -42,7 +42,7 @@ def generateImportDataFiles(path, inputFileName):
             # Prepare the data
             dataFrame = prepareData(dataFrame)
   
-            # Create file: elec_feed_in_tariff_1_high_resolution.csv
+            # Create file: elec_solar_high_resolution.csv
             generateImportDataFile(dataFrame, path + os.sep + 'elec_solar_high_resolution.csv', 'Energy Produced (Wh)')
         
             print('Done')
