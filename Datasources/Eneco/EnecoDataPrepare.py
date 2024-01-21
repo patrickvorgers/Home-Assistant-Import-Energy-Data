@@ -1,14 +1,19 @@
-import os, sys, datetime
+import os, sys, datetime, glob
 import pandas as pd
+
 
 def prepareData(dataFrame):
     print('Preparing data');
 
-    # Define start and end date
+    # Select only correct dates
     df = dataFrame.loc[(dataFrame['Datum'] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame['Datum'] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
     
+    # Make sure that the data is correctly sorted
+    df.sort_values(by = 'Datum', ascending = True, inplace = True)
+
     # Transform the date into unix timestamp for Home-Assistant
     df['Datum'] = (df['Datum'].view('int64') / 1000000000).astype('int64')
+    
     return df
 
 
@@ -19,41 +24,58 @@ def generateImportDataFile(dataFrame, outputFile, filterColumn):
     dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
 
 
-def generateImportDataFiles(path, inputFileName):
+def fileRead(inputFileName):
+    # Read the specified file
+    print('Loading data: ' + inputFileName)
+    
+    # Second row contains header so skip the first row, last row does not contain totals so we do not have to skip the footer
+    df = pd.read_excel(inputFileName, decimal = ',', skiprows = 1, skipfooter = 0)
+    df['Datum'] = pd.to_datetime(df['Datum'], format = '%d-%m-%Y')
+    
+    return df
 
-    inputFile = path + os.sep + inputFileName
-    if os.path.exists(inputFile):
-        print('Found file: ' + inputFile)
 
-        _, inputFileNameExtension = os.path.splitext(inputFileName);
-        if (inputFileNameExtension == '.xlsx'):
-            print('Loading XLSX data');
-            # Open the specified file
-            # Second row contains header so skip the first row, last row does not contain totals so we do not have to skip the footer
-            dataFrame = pd.read_excel(inputFile, decimal = ',', skiprows = 1, skipfooter = 0, parse_dates = ['Datum'])
-                    
+def correctFileExtensions(fileNames):
+    # Check all filenames for the right extension
+    for fileName in fileNames:
+        _, fileNameExtension = os.path.splitext(fileName);
+        if (fileNameExtension != '.xlsx'):
+            return False
+    return True
+
+
+def generateImportDataFiles(inputFileNames):
+    # Find the file(s)
+    fileNames = glob.glob(inputFileNames)
+    if len(fileNames) > 0:
+        print('Found files based on: ' + inputFileNames)
+        # Check if all the found files are of the correct type
+        if correctFileExtensions(fileNames):
+            # Read all the found files and concat them
+            dataFrame = pd.concat(map(fileRead, fileNames), ignore_index = True, sort = True)
+        
             # Prepare the data
             dataFrame = prepareData(dataFrame)
-          
+
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, path + os.sep + 'elec_feed_in_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 2)')
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 2)')
 
             # Create file: elec_feed_in_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, path + os.sep + 'elec_feed_in_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 1)')
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 1)')
 
             # Create file: elec_feed_out_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, path + os.sep + 'elec_feed_out_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 4)')
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 4)')
 
             # Create file: elec_feed_out_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, path + os.sep + 'elec_feed_out_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 3)')   
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 3)')   
 
             print('Done')
         else:
-            print('Only .xlsx files are supported')
+            print('Only .xlsx datafiles are allowed');    
     else:
-        print('Could not find file: ' + inputFile)
-        
+        print('No files found based on : ' + inputFileNames)
 
+        
 if __name__ == '__main__':
     print('Eneco Data Prepare');
     print('');
@@ -62,7 +84,7 @@ if __name__ == '__main__':
     print('')
     if len(sys.argv) == 2:
         if input('Are you sure you want to continue [Y/N]?: ').lower().strip()[:1] == 'y':
-            generateImportDataFiles(os.getcwd(), sys.argv[1])
+            generateImportDataFiles(sys.argv[1])
     else:
         print('EnecoPrepareData usage:')
-        print('EnecoPrepareData <Eneco xlsx filename>')
+        print('EnecoPrepareData <Eneco .xlsx filename (wildcard)>')
