@@ -23,10 +23,14 @@ def prepareData(dataFrame):
 
 
 def generateImportDataFile(dataFrame, outputFile, filterColumn):
-    # Create file the file
-    print('Creating file: ' + outputFile);
-    dataFrameFiltered = dataFrame.filter(['Date/Time', filterColumn])
-    dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+    # Check if the column exists
+    if filterColumn in dataFrame.columns:
+        # Create file the file
+        print('Creating file: ' + outputFile);
+        dataFrameFiltered = dataFrame.filter(['Date/Time', filterColumn])
+        dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+    else:
+        print('Could not create file: ' + outputFile + ' because column: ' + filterColumn + ' does not exist')
 
 
 def fileRead(inputFileName):

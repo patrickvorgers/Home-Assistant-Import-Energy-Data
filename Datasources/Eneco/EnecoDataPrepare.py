@@ -18,10 +18,14 @@ def prepareData(dataFrame):
 
 
 def generateImportDataFile(dataFrame, outputFile, filterColumn):
-    # Create file the file
-    print('Creating file: ' + outputFile);
-    dataFrameFiltered = dataFrame.filter(['Datum', filterColumn])
-    dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+    # Check if the column exists
+    if filterColumn in dataFrame.columns:
+        # Create file the file
+        print('Creating file: ' + outputFile);
+        dataFrameFiltered = dataFrame.filter(['Datum', filterColumn])
+        dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+    else:
+        print('Could not create file: ' + outputFile + ' because column: ' + filterColumn + ' does not exist')
 
 
 def fileRead(inputFileName):
@@ -68,6 +72,9 @@ def generateImportDataFiles(inputFileNames):
 
             # Create file: elec_feed_out_tariff_2_high_resolution.csv
             generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 3)')   
+
+            # Create file: gas_high_resolution.csv
+            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'Meterstand')   
 
             print('Done')
         else:
