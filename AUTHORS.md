@@ -15,3 +15,7 @@ Please share scripts or how-to guides if you have built an integration with a ne
 
 * Nick de Wijer (https://github.com/ndewijer)
     * Initial implementation: GreenChoice
+* vGelder (https://github.com/vGelder)
+    * Sample files for: Oxxio
+    * Sample files for: Liander
+    * Sample files for: Engie
