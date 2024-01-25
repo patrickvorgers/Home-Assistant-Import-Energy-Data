@@ -17,7 +17,7 @@ def prepareData(dataFrame):
 
     # Transform the date into unix timestamp for Home-Assistant
     df['Datum'] = (df['Datum'].view('int64') / 1000000000).astype('int64')
-    
+
     return df
 
 
@@ -41,7 +41,7 @@ def recalculateData(dataFrame, dataColumn):
         previousRowIndex = index
         
     return df
-
+     
 
 def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
     # Check if the column exists
@@ -61,12 +61,12 @@ def fileRead(inputFileName):
     # Read the specified file
     print('Loading data: ' + inputFileName)
     
-    # Second row contains header so skip the first row, last row does not contain totals so we do not have to skip the footer
-    df = pd.read_excel(inputFileName, decimal = ',', skiprows = 1, skipfooter = 0)
-    df['Datum'] = pd.to_datetime(df['Datum'], format = '%d-%m-%Y')
+    # First row contains header so we don't have to skip rows, last row does not contain totals so we do not have to skip the footer
+    df = pd.read_csv(inputFileName, sep = ',', decimal = '.', skiprows = 0, skipfooter = 0)
+    df['Datum'] = pd.to_datetime(df['Datum'], format = '%Y-%m-%dT%H:%M:%S%z', utc = True)
     # Remove the timezone (if it exists)
     df['Datum'] = df['Datum'].dt.tz_localize(None)
-    
+                                 
     return df
 
 
@@ -74,7 +74,7 @@ def correctFileExtensions(fileNames):
     # Check all filenames for the right extension
     for fileName in fileNames:
         _, fileNameExtension = os.path.splitext(fileName);
-        if (fileNameExtension != '.xlsx'):
+        if (fileNameExtension != '.csv'):
             return False
     return True
 
@@ -93,36 +93,32 @@ def generateImportDataFiles(inputFileNames):
             dataFrame = prepareData(dataFrame)
 
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 2)', [], False)
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Verbruik', [DataFilter('Type', 'Elektriciteit', True), DataFilter('Piek', 'true', True)], True)
 
             # Create file: elec_feed_in_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 1)', [], False)
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'Verbruik', [DataFilter('Type', 'Elektriciteit', True), DataFilter('Piek', 'false', True)], True)
 
-            # Create file: elec_feed_out_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 4)', [], False)
-
-            # Create file: elec_feed_out_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 3)', [], False)
-
+            # SAMPLE FILE NEEDED TO VALIDATE PRODUCTION OF DATA!
+            
             # Create file: gas_high_resolution.csv
-            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'Meterstand', [], False)
+            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'Verbruik', [DataFilter('Type', 'Gas', True)], True)
 
             print('Done')
         else:
-            print('Only .xlsx datafiles are allowed');    
+            print('Only .csv datafiles are allowed');    
     else:
         print('No files found based on : ' + inputFileNames)
 
-        
+
 if __name__ == '__main__':
-    print('Eneco Data Prepare');
+    print('Engie Data Prepare');
     print('');
-    print('This python script prepares Eneco data for import into Home Assistant.')
+    print('This python script prepares Engie data for import into Home Assistant.')
     print('The files will be prepared in the current directory any previous files will be overwritten!')
     print('')
     if len(sys.argv) == 2:
         if input('Are you sure you want to continue [Y/N]?: ').lower().strip()[:1] == 'y':
             generateImportDataFiles(sys.argv[1])
     else:
-        print('EnecoPrepareData usage:')
-        print('EnecoPrepareData <Eneco .xlsx filename (wildcard)>')
+        print('EngiePrepareData usage:')
+        print('EngiePrepareData <Engie .csv filename (wildcard)>')

@@ -1,5 +1,9 @@
 import os, sys, datetime, glob
 import pandas as pd
+from collections import namedtuple
+
+
+DataFilter = namedtuple('DataFilter', ['column', 'value', 'equal'])
 
 
 def prepareData(dataFrame):
@@ -17,15 +21,40 @@ def prepareData(dataFrame):
     return df
 
 
-def generateImportDataFile(dataFrame, outputFile, filterColumn):
+def filterData(dataFrame, filters):
+    df = dataFrame
+    for dataFilter in filters:
+        df = df[df[dataFilter.column] == dataFilter.value] if dataFilter.equal else df[df[dataFilter.column] != dataFilter.value]
+
+    return df
+
+
+def recalculateData(dataFrame, dataColumn):
+    df = dataFrame
+    
+    # Make the value column increasing (skip first row)
+    previousRowIndex = -1
+    for index, _ in df.iterrows():
+        if previousRowIndex > -1:
+            # Add the value of the previous row to the current row
+            df.at[index, dataColumn] = round(df.at[index, dataColumn] + df.at[previousRowIndex, dataColumn], 3)
+        previousRowIndex = index
+        
+    return df
+    
+
+def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
     # Check if the column exists
-    if filterColumn in dataFrame.columns:
+    if dataColumn in dataFrame.columns:
         # Create file the file
         print('Creating file: ' + outputFile);
-        dataFrameFiltered = dataFrame.filter(['Datum', filterColumn])
+        dataFrameFiltered = filterData(dataFrame, filters)
+        if recalculate:
+            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumn)
+        dataFrameFiltered = dataFrameFiltered.filter(['Datum', dataColumn])
         dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
     else:
-        print('Could not create file: ' + outputFile + ' because column: ' + filterColumn + ' does not exist')
+        print('Could not create file: ' + outputFile + ' because column: ' + dataColumn + ' does not exist')
 
 
 def fileRead(inputFileName):
@@ -35,7 +64,9 @@ def fileRead(inputFileName):
     # Second row contains header so skip the first row, last row does not contain totals so we do not have to skip the footer
     df = pd.read_excel(inputFileName, decimal = ',', skiprows = 1, skipfooter = 0)
     df['Datum'] = pd.to_datetime(df['Datum'], format = '%d-%m-%Y')
-    
+    # Remove the timezone (if it exists)
+    df['Datum'] = df['Datum'].dt.tz_localize(None)
+                                 
     return df
 
 
@@ -62,19 +93,19 @@ def generateImportDataFiles(inputFileNames):
             dataFrame = prepareData(dataFrame)
 
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 2)')
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 2)', [], False)
 
             # Create file: elec_feed_in_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 1)')
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 1)', [], False)
 
             # Create file: elec_feed_out_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 4)')
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'Meterstand hoogtarief (El 4)', [], False)
 
             # Create file: elec_feed_out_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 3)')   
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'Meterstand laagtarief (El 3)', [], False)
 
             # Create file: gas_high_resolution.csv
-            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'Meterstand')   
+            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'Meterstand', [], False)
 
             print('Done')
         else:

@@ -7,7 +7,7 @@ Eneco offers the option to export data from the [Mijn Eneco](https://inloggen.en
 - Electricity consumption - Tariff 2 - High resolution (day interval) - kWh
 - Electricity production - Tariff 1 - High resolution (day interval) - kWh
 - Electricity production - Tariff 2 - High resolution (day interval) - kWh
-- Gas consumption - High resolution (hour interval) - m³
+- Gas consumption - High resolution (day interval) - m³
 
 **Tooling needed**
 - Python 3

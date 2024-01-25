@@ -1,5 +1,10 @@
 import os, sys, datetime, glob
 import pandas as pd
+from collections import namedtuple
+
+
+DataFilter = namedtuple('DataFilter', ['column', 'value', 'equal'])
+
 
 def prepareData(dataFrame):
     print('Preparing data');
@@ -16,13 +21,40 @@ def prepareData(dataFrame):
     return df
 
 
-def generateImportDataFile(dataFrame, outputFile, isGas, isConsumption):
-    # Create file the file
-    print('Creating file: ' + outputFile);
-    dataFrameFiltered = dataFrame[dataFrame['Unit'] == 'm3'] if isGas else dataFrame[dataFrame['Unit'] != 'm3']
-    dataFrameFiltered = dataFrameFiltered[dataFrameFiltered['Direction'] == 'levering'] if isConsumption else dataFrameFiltered[dataFrameFiltered['Direction'] != 'levering']
-    dataFrameFiltered = dataFrameFiltered.filter(['Date Time UTC', 'Reading Start'])
-    dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+def filterData(dataFrame, filters):
+    df = dataFrame
+    for dataFilter in filters:
+        df = df[df[dataFilter.column] == dataFilter.value] if dataFilter.equal else df[df[dataFilter.column] != dataFilter.value]
+
+    return df
+
+
+def recalculateData(dataFrame, dataColumn):
+    df = dataFrame
+    
+    # Make the value column increasing (skip first row)
+    previousRowIndex = -1
+    for index, _ in df.iterrows():
+        if previousRowIndex > -1:
+            # Add the value of the previous row to the current row
+            df.at[index, dataColumn] = round(df.at[index, dataColumn] + df.at[previousRowIndex, dataColumn], 3)
+        previousRowIndex = index
+        
+    return df
+
+
+def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
+    # Check if the column exists
+    if dataColumn in dataFrame.columns:
+        # Create file the file
+        print('Creating file: ' + outputFile);
+        dataFrameFiltered = filterData(dataFrame, filters)
+        if recalculate:
+            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumn)
+        dataFrameFiltered = dataFrameFiltered.filter(['Date Time UTC', dataColumn])
+        dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
+    else:
+        print('Could not create file: ' + outputFile + ' because column: ' + dataColumn + ' does not exist')
 
 
 def fileRead(inputFileName):
@@ -32,7 +64,9 @@ def fileRead(inputFileName):
     # First row contains header so we don't have to skip rows, last row does not contain totals so we do not have to skip the footer
     df = pd.read_excel(inputFileName, decimal = ',', skiprows = 0, skipfooter = 0)
     df['Date Time UTC'] = pd.to_datetime(df['Date Time UTC'], format = '%d-%m-%Y %H:%M:%S')
-    
+    # Remove the timezone (if it exists)
+    df['Date Time UTC'] = df['Date Time UTC'].dt.tz_localize(None)
+                                 
     return df
 
 
@@ -59,13 +93,14 @@ def generateImportDataFiles(inputFileNames):
             dataFrame = prepareData(dataFrame)
 
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', False, True)
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', False), DataFilter('Direction', 'levering', True)], False)
+            
 
             # Create file: elec_feed_out_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', False, False)
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', False), DataFilter('Direction', 'levering', False)], False)
 
             # Create file: gas_high_resolution.csv
-            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', True, True)
+            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', True), DataFilter('Direction', 'levering', True)], False)
 
             print('Done')
         else:

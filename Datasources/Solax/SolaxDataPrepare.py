@@ -1,5 +1,9 @@
 import os, sys, datetime, glob
 import pandas as pd
+from collections import namedtuple
+
+
+DataFilter = namedtuple('DataFilter', ['column', 'value', 'equal'])
 
 
 def prepareData(dataFrame):
@@ -13,23 +17,44 @@ def prepareData(dataFrame):
 
     # Transform the date into unix timestamp for Home-Assistant
     df['Time'] = (df['Time'].view('int64') / 1000000000).astype('int64')
-    
-    # Make the value column increasing (skip first row)
-    for index in range(1, len(dataFrame)):
-        df.loc[index, 'PV Yield Energy (kWh)'] = round(df.loc[index - 1, 'PV Yield Energy (kWh)'] + df.loc[index, 'PV Yield Energy (kWh)'], 1)
             
     return df
 
 
-def generateImportDataFile(dataFrame, outputFile, filterColumn):
+def filterData(dataFrame, filters):
+    df = dataFrame
+    for dataFilter in filters:
+        df = df[df[dataFilter.column] == dataFilter.value] if dataFilter.equal else df[df[dataFilter.column] != dataFilter.value]
+
+    return df
+
+
+def recalculateData(dataFrame, dataColumn):
+    df = dataFrame
+    
+    # Make the value column increasing (skip first row)
+    previousRowIndex = -1
+    for index, _ in df.iterrows():
+        if previousRowIndex > -1:
+            # Add the value of the previous row to the current row
+            df.at[index, dataColumn] = round(df.at[index, dataColumn] + df.at[previousRowIndex, dataColumn], 3)
+        previousRowIndex = index
+        
+    return df
+
+
+def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
     # Check if the column exists
-    if filterColumn in dataFrame.columns:
+    if dataColumn in dataFrame.columns:
         # Create file the file
         print('Creating file: ' + outputFile);
-        dataFrameFiltered = dataFrame.filter(['Time', filterColumn])
+        dataFrameFiltered = filterData(dataFrame, filters)
+        if recalculate:
+            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumn)
+        dataFrameFiltered = dataFrameFiltered.filter(['Time', dataColumn])
         dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
     else:
-        print('Could not create file: ' + outputFile + ' because column: ' + filterColumn + ' does not exist')
+        print('Could not create file: ' + outputFile + ' because column: ' + dataColumn + ' does not exist')
 
 
 def fileRead(inputFileName):
@@ -39,7 +64,9 @@ def fileRead(inputFileName):
     # Fourth row contains header so we have to skip 3 rows, last row does not contain totals so we do not have to skip the footer
     df = pd.read_excel(inputFileName, decimal = ',', skiprows = 3, skipfooter = 0)
     df['Time'] = pd.to_datetime(df['Time'], format = '%Y-%m-%d')
-    
+    # Remove the timezone (if it exists)
+    df['Time'] = df['Time'].dt.tz_localize(None)
+                                 
     return df
 
 
@@ -66,7 +93,7 @@ def generateImportDataFiles(inputFileNames):
             dataFrame = prepareData(dataFrame)
 
             # Create file: elec_solar_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_solar_high_resolution.csv', 'PV Yield Energy (kWh)')
+            generateImportDataFile(dataFrame, 'elec_solar_high_resolution.csv', 'PV Yield Energy (kWh)', [], True)
 
             print('Done')
         else:

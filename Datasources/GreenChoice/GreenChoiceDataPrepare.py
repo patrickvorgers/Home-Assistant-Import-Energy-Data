@@ -1,5 +1,10 @@
 import os, sys, datetime, glob
 import pandas as pd
+from collections import namedtuple
+
+
+DataFilter = namedtuple('DataFilter', ['column', 'value', 'equal'])
+
 
 def prepareData(dataFrame):
     print('Preparing data');
@@ -16,15 +21,40 @@ def prepareData(dataFrame):
     return df
 
 
-def generateImportDataFile(dataFrame, outputFile, filterColumn):
+def filterData(dataFrame, filters):
+    df = dataFrame
+    for dataFilter in filters:
+        df = df[df[dataFilter.column] == dataFilter.value] if dataFilter.equal else df[df[dataFilter.column] != dataFilter.value]
+
+    return df
+
+
+def recalculateData(dataFrame, dataColumn):
+    df = dataFrame
+    
+    # Make the value column increasing (skip first row)
+    previousRowIndex = -1
+    for index, _ in df.iterrows():
+        if previousRowIndex > -1:
+            # Add the value of the previous row to the current row
+            df.at[index, dataColumn] = round(df.at[index, dataColumn] + df.at[previousRowIndex, dataColumn], 3)
+        previousRowIndex = index
+        
+    return df
+
+
+def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
     # Check if the column exists
-    if filterColumn in dataFrame.columns:
+    if dataColumn in dataFrame.columns:
         # Create file the file
         print('Creating file: ' + outputFile);
-        dataFrameFiltered = dataFrame.filter(['OpnameDatum', filterColumn])
+        dataFrameFiltered = filterData(dataFrame, filters)
+        if recalculate:
+            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumn)
+        dataFrameFiltered = dataFrameFiltered.filter(['OpnameDatum', dataColumn])
         dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
     else:
-        print('Could not create file: ' + outputFile + ' because column: ' + filterColumn + ' does not exist')
+        print('Could not create file: ' + outputFile + ' because column: ' + dataColumn + ' does not exist')
 
 
 def fileRead(inputFileName):
@@ -34,6 +64,8 @@ def fileRead(inputFileName):
     # First row contains header so we don't have to skip rows, last row does not contain totals so we do not have to skip the footer
     df = pd.read_csv(inputFileName, sep = ';', decimal = '.', skiprows = 0, skipfooter = 0)
     df['OpnameDatum'] = pd.to_datetime(df['OpnameDatum'], format = '%Y-%m-%d')
+    # Remove the timezone (if it exists)
+    df['OpnameDatum'] = df['OpnameDatum'].dt.tz_localize(None)
     
     return df
 
@@ -61,16 +93,16 @@ def generateImportDataFiles(inputFileNames):
             dataFrame = prepareData(dataFrame)
 
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'StandNormaal')
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'StandNormaal', [], False)
 
             # Create file: elec_feed_in_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'StandDal')
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'StandDal', [], False)
 
             # Create file: elec_feed_out_tariff_1_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'TerugleveringNormaal')
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'TerugleveringNormaal', [], False)
 
             # Create file: elec_feed_out_tariff_2_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'TerugleveringDal')            
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'TerugleveringDal', [], False)
 
             print('Done')
         else:
