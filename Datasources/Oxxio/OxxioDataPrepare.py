@@ -24,7 +24,10 @@ def prepareData(dataFrame):
 def filterData(dataFrame, filters):
     df = dataFrame
     for dataFilter in filters:
-        df = df[df[dataFilter.column] == dataFilter.value] if dataFilter.equal else df[df[dataFilter.column] != dataFilter.value]
+        series = df[dataFilter.column].astype(str).str.contains(dataFilter.value, regex = True)
+        if not dataFilter.equal:
+            series = ~series
+        df = df[series]
 
     return df
 

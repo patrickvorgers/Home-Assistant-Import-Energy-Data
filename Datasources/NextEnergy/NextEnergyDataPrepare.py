@@ -24,7 +24,10 @@ def prepareData(dataFrame):
 def filterData(dataFrame, filters):
     df = dataFrame
     for dataFilter in filters:
-        df = df[df[dataFilter.column] == dataFilter.value] if dataFilter.equal else df[df[dataFilter.column] != dataFilter.value]
+        series = df[dataFilter.column].astype(str).str.contains(dataFilter.value, regex = True)
+        if not dataFilter.equal:
+            series = ~series
+        df = df[series]
 
     return df
 
@@ -94,7 +97,6 @@ def generateImportDataFiles(inputFileNames):
 
             # Create file: elec_feed_in_tariff_1_high_resolution.csv
             generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', False), DataFilter('Direction', 'levering', True)], False)
-            
 
             # Create file: elec_feed_out_tariff_1_high_resolution.csv
             generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', False), DataFilter('Direction', 'levering', False)], False)

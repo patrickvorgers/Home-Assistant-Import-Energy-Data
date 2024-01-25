@@ -10,16 +10,13 @@ def prepareData(dataFrame):
     print('Preparing data');
 
     # Select only correct dates
-    df = dataFrame.loc[(dataFrame['Date/Time'] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame['Date/Time'] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
-
+    df = dataFrame.loc[(dataFrame['meterreadingdate'] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame['meterreadingdate'] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
+    
     # Make sure that the data is correctly sorted
-    df.sort_values(by = 'Date/Time', ascending = True, inplace = True)
+    df.sort_values(by = 'meterreadingdate', ascending = True, inplace = True)
 
     # Transform the date into unix timestamp for Home-Assistant
-    df['Date/Time'] = (df['Date/Time'].view('int64') / 1000000000).astype('int64')
-    
-    # Clean up the value column by removing the string quotes and locale indicator
-    df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(",", "").replace('"', '').astype(int)
+    df['meterreadingdate'] = (df['meterreadingdate'].view('int64') / 1000000000).astype('int64')
 
     return df
 
@@ -30,7 +27,7 @@ def filterData(dataFrame, filters):
         series = df[dataFilter.column].astype(str).str.contains(dataFilter.value, regex = True)
         if not dataFilter.equal:
             series = ~series
-        df = df[series]
+        df = df[series]  
 
     return df
 
@@ -47,7 +44,7 @@ def recalculateData(dataFrame, dataColumn):
         previousRowIndex = index
         
     return df
-
+     
 
 def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
     # Check if the column exists
@@ -57,7 +54,7 @@ def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalcula
         dataFrameFiltered = filterData(dataFrame, filters)
         if recalculate:
             dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumn)
-        dataFrameFiltered = dataFrameFiltered.filter(['Date/Time', dataColumn])
+        dataFrameFiltered = dataFrameFiltered.filter(['meterreadingdate', dataColumn])
         dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
     else:
         print('Could not create file: ' + outputFile + ' because column: ' + dataColumn + ' does not exist')
@@ -67,12 +64,12 @@ def fileRead(inputFileName):
     # Read the specified file
     print('Loading data: ' + inputFileName)
     
-    # First row contains header so we don't have to skip rows, last row contains totals so we have to skip the footer. This is only supported by the 'python' engine
-    df = pd.read_csv(inputFileName, sep = ',', decimal = '.', skiprows = 0, skipfooter = 1, engine='python')
-    df['Date/Time'] = pd.to_datetime(df['Date/Time'], format = '%m/%d/%Y')
+    # First row contains header so we don't have to skip rows, last row does not contain totals so we do not have to skip the footer
+    df = pd.read_csv(inputFileName, sep = ',', decimal = '.', skiprows = 0, skipfooter = 0)
+    df['meterreadingdate'] = pd.to_datetime(df['meterreadingdate'], format = '%d-%m-%Y', utc = True)
     # Remove the timezone (if it exists)
-    df['Date/Time'] = df['Date/Time'].dt.tz_localize(None)
-    
+    df['meterreadingdate'] = df['meterreadingdate'].dt.tz_localize(None)
+                                 
     return df
 
 
@@ -98,8 +95,20 @@ def generateImportDataFiles(inputFileNames):
             # Prepare the data
             dataFrame = prepareData(dataFrame)
 
-            # Create file: elec_solar_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)
+            # Create file: elec_feed_in_tariff_1_high_resolution.csv
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_1_high_resolution.csv', 'reading2', [DataFilter('meternummer', '^E', True)], False)
+
+            # Create file: elec_feed_in_tariff_2_high_resolution.csv
+            generateImportDataFile(dataFrame, 'elec_feed_in_tariff_2_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^E', True)], False)
+
+            # Create file: elec_feed_out_tariff_1_high_resolution.csv
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_1_high_resolution.csv', 'reading4', [DataFilter('meternummer', '^E', True)], False)
+
+            # Create file: elec_feed_out_tariff_2_high_resolution.csv
+            generateImportDataFile(dataFrame, 'elec_feed_out_tariff_2_high_resolution.csv', 'reading3', [DataFilter('meternummer', '^E', True)], False)
+
+            # Create file: gas_high_resolution.csv
+            generateImportDataFile(dataFrame, 'gas_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^G', True)], False)
 
             print('Done')
         else:
@@ -109,14 +118,14 @@ def generateImportDataFiles(inputFileNames):
 
 
 if __name__ == '__main__':
-    print('Enphase Data Prepare');
+    print('Liander Data Prepare');
     print('');
-    print('This python script prepares Enphase data for import into Home Assistant.')
+    print('This python script prepares Liander data for import into Home Assistant.')
     print('The files will be prepared in the current directory any previous files will be overwritten!')
     print('')
     if len(sys.argv) == 2:
         if input('Are you sure you want to continue [Y/N]?: ').lower().strip()[:1] == 'y':
             generateImportDataFiles(sys.argv[1])
     else:
-        print('EnphasePrepareData usage:')
-        print('EnphasePrepareData <Enphase .csv filename (wildcard)>')
+        print('LianderPrepareData usage:')
+        print('LianderPrepareData <Liander .csv filename (wildcard)>')
