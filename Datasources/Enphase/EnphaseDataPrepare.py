@@ -2,40 +2,91 @@ import os, sys, datetime, glob
 import pandas as pd
 from collections import namedtuple
 
-
+# DataFilter named tuple definition
+#   column: The name of the column on which the filter should be applied
+#   value: The value on which should be filtered (regular expressions can be used)
+#   equal: Boolean value indicating whether the filter should be inclusive or exclusive (True/False) 
 DataFilter = namedtuple('DataFilter', ['column', 'value', 'equal'])
 
+# OutputFileDefinition named tuple definition
+#   outputFileName: The name of the output file
+#   valueColumnName: The name of the column holding the value
+#   dataFilters: A list of datafilters (see above the definition of a datafilter)
+#   recalculate: Boolean value indication whether the data should be recalculated because the source is not an increasing value
+OutputFileDefinition = namedtuple('FileDefinition', ['outputFileName', 'valueColumnName', 'dataFilters', 'recalculate'])
 
-def prepareData(dataFrame):
+
+#*******************************************************************************************************************************************************
+# TEMPLATE SETUP
+#*******************************************************************************************************************************************************
+
+# Name of the energy provider
+energyProviderName = 'Enphase'
+
+# Inputfile(s): filename extension
+inputFilleNameExtension = '.csv'
+# Inputfile(s): Name of the column containing the date of the reading
+inputFileDateColumnName = 'Date/Time'
+# Inputfile(s): Date format used in the datacolumn
+inputFileDateColumnFormat = '%m/%d/%Y'
+# Inputfile(s): Data seperator being used in the .csv input file
+inputfileDataSeperator = ','
+# Inputfile(s): Decimal token being used in the input file
+inputFileDataDecimal = '.'
+# Inputfile(s): Number of header rows in the input file
+inputFileNumHeaderRows = 0
+# Inputfile(s): Number of footer rows in the input file
+inputFileNumFooterRows = 1
+
+# Provide any data preparation code (if needed)
+# Clean up the value column by removing the string quotes and locale indicator
+dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
+
+# List of one or more output file definitions
+outputFiles = [OutputFileDefinition('elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)]
+
+#*******************************************************************************************************************************************************
+
+
+
+# Prepare the input data
+def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     print('Preparing data');
 
     # Select only correct dates
-    df = dataFrame.loc[(dataFrame['Date/Time'] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame['Date/Time'] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
-
+    df = dataFrame.loc[(dataFrame[inputFileDateColumnName] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame[inputFileDateColumnName] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
+    
     # Make sure that the data is correctly sorted
-    df.sort_values(by = 'Date/Time', ascending = True, inplace = True)
+    df.sort_values(by = inputFileDateColumnName, ascending = True, inplace = True)
 
     # Transform the date into unix timestamp for Home-Assistant
-    df['Date/Time'] = (df['Date/Time'].view('int64') / 1000000000).astype('int64')
+    df[inputFileDateColumnName] = (df[inputFileDateColumnName].view('int64') / 1000000000).astype('int64')
     
-    # Clean up the value column by removing the string quotes and locale indicator
-    df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(",", "").replace('"', '').astype(int)
+    # Execute any datapreparation code if provided
+    exec(dataPreparation)
 
     return df
 
 
-def filterData(dataFrame, filters):
+# Filter the data based on the provided dataFilter(s)
+def filterData(dataFrame: pd.DataFrame, filters: DataFilter) -> pd.DataFrame:
     df = dataFrame
+    # Iterate all the provided filters
     for dataFilter in filters:
+        # Determine the subset based on the provided filter (regular expression)
         series = df[dataFilter.column].astype(str).str.contains(dataFilter.value, regex = True)
+        
+        # Validate whether the data is included or excluded
         if not dataFilter.equal:
             series = ~series
+            
         df = df[series]
 
     return df
 
 
-def recalculateData(dataFrame, dataColumn):
+# Recalculate the data so that the value increases
+def recalculateData(dataFrame :pd.DataFrame, dataColumnName: str) -> pd.DataFrame:
     df = dataFrame
     
     # Make the value column increasing (skip first row)
@@ -43,80 +94,100 @@ def recalculateData(dataFrame, dataColumn):
     for index, _ in df.iterrows():
         if previousRowIndex > -1:
             # Add the value of the previous row to the current row
-            df.at[index, dataColumn] = round(df.at[index, dataColumn] + df.at[previousRowIndex, dataColumn], 3)
+            df.at[index, dataColumnName] = round(df.at[index, dataColumnName] + df.at[previousRowIndex, dataColumnName], 3)
         previousRowIndex = index
         
     return df
 
 
-def generateImportDataFile(dataFrame, outputFile, dataColumn, filters, recalculate):
+# Generate the datafile which can be imported
+def generateImportDataFile(dataFrame: pd.DataFrame, outputFile: str, dataColumnName: str, filters: list[DataFilter], recalculate: bool):
     # Check if the column exists
-    if dataColumn in dataFrame.columns:
-        # Create file the file
+    if dataColumnName in dataFrame.columns:
         print('Creating file: ' + outputFile);
         dataFrameFiltered = filterData(dataFrame, filters)
+        
+        # Check if we have to recalculate the data
         if recalculate:
-            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumn)
-        dataFrameFiltered = dataFrameFiltered.filter(['Date/Time', dataColumn])
+            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
+            
+        # Select only the needed data
+        dataFrameFiltered = dataFrameFiltered.filter([inputFileDateColumnName, dataColumnName])
+
+        # Create the output file
         dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
     else:
-        print('Could not create file: ' + outputFile + ' because column: ' + dataColumn + ' does not exist')
+        print('Could not create file: ' + outputFile + ' because column: ' + dataColumnName + ' does not exist')
 
 
-def fileRead(inputFileName):
+# Read the inputfile 
+def readInputFile(inputFileName: str) -> pd.DataFrame:
     # Read the specified file
     print('Loading data: ' + inputFileName)
-    
-    # First row contains header so we don't have to skip rows, last row contains totals so we have to skip the footer. This is only supported by the 'python' engine
-    df = pd.read_csv(inputFileName, sep = ',', decimal = '.', skiprows = 0, skipfooter = 1, engine='python')
-    df['Date/Time'] = pd.to_datetime(df['Date/Time'], format = '%m/%d/%Y')
+
+    # Check if we have a supported extension
+    if inputFilleNameExtension == '.csv':
+        # Read the CSV file
+        df = pd.read_csv(inputFileName, sep = inputfileDataSeperator, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows, engine='python')
+    elif ((inputFilleNameExtension == '.xlsx') or (inputFilleNameExtension == '.xls')):
+        # Read the XLSX/XLS file
+        df = pd.read_excel(inputFileName, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows)
+    else:
+        raise Exception('Unsupported extension: ' + inputFilleNameExtension)
+
+    df[inputFileDateColumnName] = pd.to_datetime(df[inputFileDateColumnName], format = inputFileDateColumnFormat, utc = True)
     # Remove the timezone (if it exists)
-    df['Date/Time'] = df['Date/Time'].dt.tz_localize(None)
+    df[inputFileDateColumnName] = df[inputFileDateColumnName].dt.tz_localize(None)
     
     return df
 
 
-def correctFileExtensions(fileNames):
+# Check if all the provided files have the correct extension
+def correctFileExtensions(fileNames: list[str]) -> bool:
     # Check all filenames for the right extension
     for fileName in fileNames:
         _, fileNameExtension = os.path.splitext(fileName);
-        if (fileNameExtension != '.csv'):
+        if (fileNameExtension != inputFilleNameExtension):
             return False
     return True
 
 
-def generateImportDataFiles(inputFileNames):
+# Generate the datafiles which can be imported
+def generateImportDataFiles(inputFileNames: str):
     # Find the file(s)
     fileNames = glob.glob(inputFileNames)
     if len(fileNames) > 0:
         print('Found files based on: ' + inputFileNames)
+        
         # Check if all the found files are of the correct type
         if correctFileExtensions(fileNames):
-            # Read all the found files and concat them
-            dataFrame = pd.concat(map(fileRead, fileNames), ignore_index = True, sort = True)
+            # Read all the found files and concat the data
+            dataFrame = pd.concat(map(readInputFile, fileNames), ignore_index = True, sort = True)
         
             # Prepare the data
             dataFrame = prepareData(dataFrame)
 
-            # Create file: elec_solar_high_resolution.csv
-            generateImportDataFile(dataFrame, 'elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)
+            # Create the output files
+            for outputFile in outputFiles:
+                generateImportDataFile(dataFrame, outputFile.outputFileName, outputFile.valueColumnName, outputFile.dataFilters, outputFile.recalculate)
 
             print('Done')
         else:
-            print('Only .csv datafiles are allowed');    
+            print('Only ' + inputFilleNameExtension + ' datafiles are allowed');    
     else:
         print('No files found based on : ' + inputFileNames)
 
 
+# Validate that the script is started from the command prompt
 if __name__ == '__main__':
-    print('Enphase Data Prepare');
+    print(energyProviderName + ' Data Prepare');
     print('');
-    print('This python script prepares Enphase data for import into Home Assistant.')
+    print('This python script prepares ' + energyProviderName + ' data for import into Home Assistant.')
     print('The files will be prepared in the current directory any previous files will be overwritten!')
     print('')
     if len(sys.argv) == 2:
         if input('Are you sure you want to continue [Y/N]?: ').lower().strip()[:1] == 'y':
             generateImportDataFiles(sys.argv[1])
     else:
-        print('EnphasePrepareData usage:')
-        print('EnphasePrepareData <Enphase .csv filename (wildcard)>')
+        print(energyProviderName + 'PrepareData usage:')
+        print(energyProviderName + 'PrepareData <' + energyProviderName + ' ' + inputFilleNameExtension + ' filename (wildcard)>')

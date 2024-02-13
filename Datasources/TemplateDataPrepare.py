@@ -21,18 +21,18 @@ OutputFileDefinition = namedtuple('FileDefinition', ['outputFileName', 'valueCol
 #*******************************************************************************************************************************************************
 
 # Name of the energy provider
-energyProviderName = 'NextEnergy'
+energyProviderName = 'Liander'
 
 # Inputfile(s): filename extension
-inputFilleNameExtension = '.xlsx'
+inputFilleNameExtension = '.csv'
 # Inputfile(s): Name of the column containing the date of the reading
-inputFileDateColumnName = 'Date Time UTC'
+inputFileDateColumnName = 'meterreadingdate'
 # Inputfile(s): Date format used in the datacolumn
-inputFileDateColumnFormat = '%d-%m-%Y %H:%M:%S'
+inputFileDateColumnFormat = '%d-%m-%Y'
 # Inputfile(s): Data seperator being used in the .csv input file
-inputfileDataSeperator = ''
+inputfileDataSeperator = ','
 # Inputfile(s): Decimal token being used in the input file
-inputFileDataDecimal = ','
+inputFileDataDecimal = '.'
 # Inputfile(s): Number of header rows in the input file
 inputFileNumHeaderRows = 0
 # Inputfile(s): Number of footer rows in the input file
@@ -43,9 +43,11 @@ inputFileNumFooterRows = 0
 dataPreparation = ""
 
 # List of one or more output file definitions
-outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', False), DataFilter('Direction', 'levering', True)], False),
-               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', False), DataFilter('Direction', 'levering', False)], False),
-               OutputFileDefinition('gas_high_resolution.csv', 'Reading Start', [DataFilter('Unit', 'm3', True), DataFilter('Direction', 'levering', True)], False)
+outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'reading2', [DataFilter('meternummer', '^E', True)], False),
+               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^E', True)], False),
+               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'reading4', [DataFilter('meternummer', '^E', True)], False),
+               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'reading3', [DataFilter('meternummer', '^E', True)], False),
+               OutputFileDefinition('gas_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^G', True)], False)
               ]
 
 #*******************************************************************************************************************************************************
