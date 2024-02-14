@@ -24,13 +24,13 @@ OutputFileDefinition = namedtuple('FileDefinition', ['outputFileName', 'valueCol
 energyProviderName = 'GreenChoice'
 
 # Inputfile(s): filename extension
-inputFilleNameExtension = '.csv'
+inputFileNameExtension = '.csv'
 # Inputfile(s): Name of the column containing the date of the reading
 inputFileDateColumnName = 'OpnameDatum'
 # Inputfile(s): Date format used in the datacolumn
 inputFileDateColumnFormat = '%Y-%m-%d'
 # Inputfile(s): Data seperator being used in the .csv input file
-inputfileDataSeperator = ';'
+inputFileDataSeperator = ';'
 # Inputfile(s): Decimal token being used in the input file
 inputFileDataDecimal = '.'
 # Inputfile(s): Number of header rows in the input file
@@ -130,14 +130,14 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
     print('Loading data: ' + inputFileName)
 
     # Check if we have a supported extension
-    if inputFilleNameExtension == '.csv':
+    if inputFileNameExtension == '.csv':
         # Read the CSV file
-        df = pd.read_csv(inputFileName, sep = inputfileDataSeperator, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows, engine='python')
-    elif ((inputFilleNameExtension == '.xlsx') or (inputFilleNameExtension == '.xls')):
+        df = pd.read_csv(inputFileName, sep = inputFileDataSeperator, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows, engine='python')
+    elif ((inputFileNameExtension == '.xlsx') or (inputFileNameExtension == '.xls')):
         # Read the XLSX/XLS file
         df = pd.read_excel(inputFileName, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows)
     else:
-        raise Exception('Unsupported extension: ' + inputFilleNameExtension)
+        raise Exception('Unsupported extension: ' + inputFileNameExtension)
 
     df[inputFileDateColumnName] = pd.to_datetime(df[inputFileDateColumnName], format = inputFileDateColumnFormat, utc = True)
     # Remove the timezone (if it exists)
@@ -151,7 +151,7 @@ def correctFileExtensions(fileNames: list[str]) -> bool:
     # Check all filenames for the right extension
     for fileName in fileNames:
         _, fileNameExtension = os.path.splitext(fileName);
-        if (fileNameExtension != inputFilleNameExtension):
+        if (fileNameExtension != inputFileNameExtension):
             return False
     return True
 
@@ -177,7 +177,7 @@ def generateImportDataFiles(inputFileNames: str):
 
             print('Done')
         else:
-            print('Only ' + inputFilleNameExtension + ' datafiles are allowed');    
+            print('Only ' + inputFileNameExtension + ' datafiles are allowed');    
     else:
         print('No files found based on : ' + inputFileNames)
 
@@ -194,4 +194,4 @@ if __name__ == '__main__':
             generateImportDataFiles(sys.argv[1])
     else:
         print(energyProviderName + 'PrepareData usage:')
-        print(energyProviderName + 'PrepareData <' + energyProviderName + ' ' + inputFilleNameExtension + ' filename (wildcard)>')
+        print(energyProviderName + 'PrepareData <' + energyProviderName + ' ' + inputFileNameExtension + ' filename (wildcard)>')
