@@ -23,5 +23,5 @@ Solax offers the option to export data from the [Solax Cloud](https://www.solaxc
     - For each month: Select the month and press export
     - The data for each selected month is now downloaded to your PC as a separate file
 - Download the ```SolaxDataPrepare.py``` file and put it in the same directory as the Solax data
-- Execute the python script with as parameters the name of the directory which contains the files with the exported data for each month and the name of the site ```python EnphaseDataPrepare.py . "Dummy site"```. The python script creates the needed file for the generic import script.
+- Execute the python script with as parameter the name of the directory which contains the files with the exported data ```python SolaxDataPrepare.py *.xls```. The python script creates the needed file for the generic import script.
 - Follow the steps in the overall how-to

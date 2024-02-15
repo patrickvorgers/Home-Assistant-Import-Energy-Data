@@ -1,4 +1,4 @@
-import os, sys, datetime, glob
+import os, sys, datetime, glob, math, json
 import pandas as pd
 from collections import namedtuple
 
@@ -37,9 +37,12 @@ inputFileDataDecimal = ','
 inputFileNumHeaderRows = 0
 # Inputfile(s): Number of footer rows in the input file
 inputFileNumFooterRows = 0
+# Inputfile(s): Json path of the records (only needed for json files)
+# Example: inputFileJsonPath = ['energy', 'values']
+inputFileJsonPath = []
 
 # Provide any data preparation code (if needed)
-# dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
+# Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
 dataPreparation = ""
 
 # List of one or more output file definitions
@@ -95,6 +98,10 @@ def recalculateData(dataFrame :pd.DataFrame, dataColumnName: str) -> pd.DataFram
     # Make the value column increasing (skip first row)
     previousRowIndex = -1
     for index, _ in df.iterrows():
+        # Check if the current row contains a valid value
+        if math.isnan(df.at[index, dataColumnName]):
+            df.at[index, dataColumnName] = 0.0
+
         if previousRowIndex > -1:
             # Add the value of the previous row to the current row
             df.at[index, dataColumnName] = round(df.at[index, dataColumnName] + df.at[previousRowIndex, dataColumnName], 3)
@@ -131,10 +138,14 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
     # Check if we have a supported extension
     if inputFileNameExtension == '.csv':
         # Read the CSV file
-        df = pd.read_csv(inputFileName, sep = inputFileDataSeperator, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows, engine='python')
+        df = pd.read_csv(inputFileName, sep = inputFileDataSeperator, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows, engine = 'python')
     elif ((inputFileNameExtension == '.xlsx') or (inputFileNameExtension == '.xls')):
         # Read the XLSX/XLS file
         df = pd.read_excel(inputFileName, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows)
+    elif inputFileNameExtension == '.json':
+        # Read the JSON file
+        jsonData = json.load(open(inputFileName))
+        df = pd.json_normalize(jsonData, record_path = inputFileJsonPath)
     else:
         raise Exception('Unsupported extension: ' + inputFileNameExtension)
 

@@ -21,16 +21,16 @@ OutputFileDefinition = namedtuple('FileDefinition', ['outputFileName', 'valueCol
 #*******************************************************************************************************************************************************
 
 # Name of the energy provider
-energyProviderName = 'GreenChoice'
+energyProviderName = 'SolarEdge'
 
 # Inputfile(s): filename extension
-inputFileNameExtension = '.csv'
+inputFileNameExtension = '.json'
 # Inputfile(s): Name of the column containing the date of the reading
-inputFileDateColumnName = 'OpnameDatum'
+inputFileDateColumnName = 'date'
 # Inputfile(s): Date format used in the datacolumn
-inputFileDateColumnFormat = '%Y-%m-%d'
+inputFileDateColumnFormat = '%Y-%m-%d %H:%M:%S'
 # Inputfile(s): Data seperator being used in the .csv input file
-inputFileDataSeperator = ';'
+inputFileDataSeperator = ','
 # Inputfile(s): Decimal token being used in the input file
 inputFileDataDecimal = '.'
 # Inputfile(s): Number of header rows in the input file
@@ -39,18 +39,14 @@ inputFileNumHeaderRows = 0
 inputFileNumFooterRows = 0
 # Inputfile(s): Json path of the records (only needed for json files)
 # Example: inputFileJsonPath = ['energy', 'values']
-inputFileJsonPath = []
+inputFileJsonPath = ['energy', 'values']
 
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
 dataPreparation = ""
 
 # List of one or more output file definitions
-outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'StandNormaal', [], False),
-               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'StandDal', [], False),
-               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'TerugleveringNormaal', [], False),
-               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'TerugleveringDal', [], False)
-              ]
+outputFiles = [OutputFileDefinition('elec_solar_high_resolution.csv', 'value', [], True)]
 
 #*******************************************************************************************************************************************************
 
