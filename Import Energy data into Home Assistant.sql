@@ -1,5 +1,5 @@
 /* 
-Import energy data into Home Assistant
+Import energy/water data into Home Assistant
 
 HOW-TO:
 
@@ -14,7 +14,8 @@ Source data preparation
 	Script/How-to does not exist:
 		Determine how to get the data from your energy provider (download/API etc.)
 		Get the data from the energy provider using the identified method
-		Convert the data in the needed CSV files. The definition for the CSV files is very simple. Each row contains: Epoch Unix Timestamp, sensor value
+		Convert the data in the needed CSV files. The generic data conversion script TemplateDataPrepare.py can be used in most cases.
+		In case the CSV files are created manually the CSV files should follow the following simple definition where each row contains: Epoch Unix Timestamp, sensor value
 			Example:
 				1540634400,8120605
 				1540638000,8120808
@@ -56,16 +57,23 @@ Source data preparation
 			elec_solar_high_resolution.csv
 				Contains the highest resolution production data available (for instance: hour resolution)
 				Not needed in case that there are no solar panels
-			elec_solar_low_resolution.csv	
+			elec_solar_low_resolution.csv
 				Contains the lowest resolution production data available (for instance: day resolution)
 				Not needed in case that there are no solar panels
 				Not needed in case that there is only one resolution available.
-			gas_high_resolution.csv			
+			gas_high_resolution.csv
 				Contains the highest resolution production data available (for instance: hour resolution).
 				Not needed in case that there is no gas usage
 			gas_low_resolution.csv
 				Contains the lowest resolution production data available (for instance: day resolution).
 				Not needed in case that there is no gas usage
+				Not needed in case that there is only one resolution available.
+			water_high_resolution.csv
+				Contains the highest resolution production data available (for instance: hour resolution).
+				Not needed in case that there is no water usage
+			water_low_resolution.csv
+				Contains the lowest resolution production data available (for instance: day resolution).
+				Not needed in case that there is no water usage
 				Not needed in case that there is only one resolution available.
 
 Home Assistant preparation
@@ -86,7 +94,7 @@ Import the data
   The script has been tested with schema version 42. With higher versions you should validate if the structure of the "statistics" and "short_term_statistics" tables have changed.
   used fields in table "statistics": metadata_id, state, sum, start_ts, created_ts
   used fields in table "short_term_statistics": sum
-- Import, one at a time, all the created CSV data elec* and gas* files (File -> Import -> Table from CSV file...)
+- Import, one at a time, all the created CSV data elec*, gas* and water* files (File -> Import -> Table from CSV file...)
   It is possible to load data from multiple CSV's with the same name. The data of the second import is than added to the existing tables.
   This can be used in case there are multiple energy source providers for different timeperiods. In this case you first import the files from the first energy provider and than then second etc.
 - Lookup in the "statistics_meta" table the ID's of the sensors (Browse Data -> Table: statistics_meta; You can use "filter" to find the id of the sensor)
@@ -99,6 +107,7 @@ Import the data
 	9	sensor.electricity_meter_feed_out_tariff_1		recorder	kWh
 	10	sensor.electricity_meter_feed_out_tariff_2		recorder	kWh
 	352	sensor.solar_energy_produced_today				recorder	kWh
+	653	sensor.watermeter_quantity_m3					recorder	m³
 - Change the script below and remove/comment out the lines of the sensors that are not needed.
   They can be found at the top of the script by looking up the lines where "* Change *" has been added in the SQL statement.
 - Change the script below and update the ID's according to the found ID's in the "statistics_meta" table.
@@ -141,6 +150,10 @@ Gas meter values
 gas_high_resolution.csv (for instance: hourly)
 gas_low_resolution.csv (for instance: daily)
 
+Water meter values
+water_high_resolution.csv (for instance: hourly)
+water_low_resolution.csv (for instance: daily)
+
 
 Daily reset of values is also handled by the script. This is the same case as a new meter.
 Long term statistics (1 hour interval) => statistics
@@ -154,18 +167,20 @@ Both tables need to be updated according to the new imported data which changes 
 /* Create a temp table to hold the used sensor metadata */
 DROP TABLE IF EXISTS SENSORS;
 CREATE TEMP TABLE SENSORS (name TEXT PRIMARY KEY, sensor_id INTEGER, correction FLOAT);
-/* In case the provided data is in L and sensor is in m³ then the correction is 1000.0 */
+/* In case the provided data is in L and sensor is in m³ then the correction is 1000.0 (no correction -> 1.0) */
 INSERT INTO SENSORS VALUES ('sensor_id_gas',					6,		1000.0);	/* Change */
-/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
+/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 (no correction -> 1.0) */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_in_tariff_1',	7,		1000.0);	/* Change */
-/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
+/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 (no correction -> 1.0) */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_in_tariff_2',	8,		1000.0);	/* Change */
-/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
+/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 (no correction -> 1.0) */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_1',	9,		1000.0);	/* Change */
-/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
+/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 (no correction -> 1.0) */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_2',	10,		1000.0);	/* Change */
-/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 */
+/* In case the provided data is in Wh and sensor is in kWh then the correction is 1000.0 (no correction -> 1.0) */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_solar',				352,	1000.0);	/* Change */
+/* In case the provided data is in L and sensor is in m³ then the correction is 1000.0 (no correction -> 1.0) */
+INSERT INTO SENSORS VALUES ('sensor_id_water',					653,	1000.0);	/* Change */
 
 
 /* Create a temp table to hold some variables (SQLite does not support variables so this is a workaround) */
@@ -191,6 +206,8 @@ CREATE TABLE IF NOT EXISTS elec_solar_high_resolution				(field1 FLOAT, field2 F
 CREATE TABLE IF NOT EXISTS elec_solar_low_resolution				(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
 CREATE TABLE IF NOT EXISTS gas_high_resolution						(field1 FLOAT, field2 FLOAT); -- sensor_id_gas
 CREATE TABLE IF NOT EXISTS gas_low_resolution						(field1 FLOAT, field2 FLOAT); -- sensor_id_gas
+CREATE TABLE IF NOT EXISTS water_high_resolution					(field1 FLOAT, field2 FLOAT); -- sensor_id_water
+CREATE TABLE IF NOT EXISTS water_low_resolution						(field1 FLOAT, field2 FLOAT); -- sensor_id_water
 
 /* Create temp tables that can hold the difference between the measurements and create a new sum */
 DROP TABLE IF EXISTS STATS_NEW;
@@ -246,6 +263,13 @@ SELECT
 	round(field1, 0),
 	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
 FROM gas_high_resolution;
+
+INSERT INTO STATS_NEW (sensor_id, ts, value)
+SELECT
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1),
+	round(field1, 0),
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3)
+FROM water_high_resolution;
 
 
 /* Insert the low resolution records and apply the correction.
@@ -304,6 +328,15 @@ SELECT
 FROM gas_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1));
+
+INSERT INTO STATS_NEW (sensor_id, ts, value)
+SELECT
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1),
+	round(field1, 0),
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3)
+FROM water_low_resolution  
+WHERE
+  field1 < (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1));
 
   
 /* Remove any overlapping records from the imported data that are already in Home Assistant */
@@ -404,8 +437,8 @@ WHERE
 
   
 /* Copy the new information to the statistics table
-id		=> primary key and automatically filled with ROWID
-sum		=> calculated new_sum value
+id			=> primary key and automatically filled with ROWID
+sum			=> calculated new_sum value
 metadata_id	=> the fixed metadata id of this statistics (see top)
 created_ts	=> set to the timestamp of the statistic
 start_ts	=> timestamp of the statistic
@@ -453,3 +486,5 @@ DROP TABLE IF EXISTS elec_feed_out_tariff_2_low_resolution;
 DROP TABLE IF EXISTS elec_solar_low_resolution;
 DROP TABLE IF EXISTS gas_high_resolution;
 DROP TABLE IF EXISTS gas_low_resolution;
+DROP TABLE IF EXISTS water_high_resolution;
+DROP TABLE IF EXISTS water_low_resolution;

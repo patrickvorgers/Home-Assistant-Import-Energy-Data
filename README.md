@@ -29,7 +29,7 @@
 <h1 align="center">Home Assistant Import Historical Energy Data</h1>
 
   <p align="center">
-Import historical energy data from external datasources into Home Assistant so that it can be used in the Energy Dashboard.
+Import historical energy/water data from external datasources into Home Assistant so that it can be used in the Energy Dashboard.
     <br />
     <br />
     <a href="https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/issues">Report Bug</a>
@@ -58,9 +58,11 @@ Import historical energy data from external datasources into Home Assistant so t
 
 ### Background
 
-I have been enjoying the Home Assistant Energy Dashboard feature since it came out. The only downside was that I could not import my historical energy data. I was using "Toon" from my Dutch energyprovider Eneco until the Home Assistant Energy Dashboard came out. This led me to write an import script that could import Toon data into Home Assistant. After I got it working I made this specific import script as is available on GitHub.
+I have been enjoying the Home Assistant Energy Dashboard feature since it came out. The only downside was that I could not import my historical energy/water data. I was using "Toon" from my Dutch energyprovider Eneco until the Home Assistant Energy Dashboard came out. This led me to write an import script that could import Toon data into Home Assistant. After I got it working I made this specific import script as is available on GitHub.
 
-Since then the script has been used and adapted by several people so it could be used with other energy providers. Their feedback led me to the idea to rewrite my initial script and make it more generic and robust so that it can be used easier with other energy providers. The latest version of the script makes it possbile to import historical exported energy data  into Home Assistant. It adds the statistics data that is missing in Home Assistant and adjusts the existing data.
+Since then the import script has been used and adapted by several people so it could be used with other energy providers. Their feedback led me to the idea to rewrite my initial script and make it more generic and robust so that it can be used easier with other energy providers. The latest version of the script is independent from the energy provider and makes it possbile to import historical exported energy data into Home Assistant. It adds the statistics data that is missing in Home Assistant and adjusts the existing data.
+
+The generic import script requires the data to be in a specific simple CSV file format (```Epoch Unix Timestamp```, ```sensor value```). For several energy providers conversion scripts exist that convert the energy provider specific format to the needed format. To make live easier a generic conversion script is available that can handle formats like CSV, XLS, XLSX and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
 
 **Latest data still correct after import (short_term_statistics work)**
 ![2023](https://user-images.githubusercontent.com/10108665/230038379-8d20d264-c49e-4c98-b1f6-241942306886.JPG)
@@ -73,13 +75,15 @@ Since then the script has been used and adapted by several people so it could be
 
 ### Features:
 <ul>
-    <li>Imports correctly historical energy data into Home Assistant</li>
+    <li>Imports correctly historical energy and water data into Home Assistant</li>
     <li>Supports combination of low and high resolution data</li>
     <li>Supports electrical feed in, electrical feed out, solar power and gas data</li>
     <li>Supports data feeds with double tariffs (normal tariff / low tariff)</li>
     <li>One line configuration in case a sensor is not needed</li>
-    <li>Possibility to provide a conversion factor per sensor (for instance conversion between Wh and kWh)</li>
-    <li>Supports reset of sensors (for instance replacement of energy meter) </li>
+    <li>Possibility to provide a conversion factor per sensor (for instance conversion between Wh/kWh or L/m³)</li>
+    <li>Supports reset of sensors (for instance replacement of energy meter)</li>
+    <li>Generic data conversion script for "unsupported" energy providers</li>
+    <li>Growing list of data conversion scripts for different energy providers (most using generic data conversion script)</li>
 </ul>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -105,7 +109,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
     - Script/How-to does not exist:
 	    - Determine how to get the data from your energy provider (download/API etc.)
 		- Get the data from the energy provider using the identified method
-		- Convert the data in the needed CSV files. The definition for the CSV files is very simple. Each row contains: Epoch Unix Timestamp, sensor value
+		- Convert the data in the needed CSV files. The generic data conversion script ```TemplateDataPrepare.py``` can be used in most cases. In case the CSV files are created manually the CSV files should follow the following simple definition where each row contains: ```Epoch Unix Timestamp```, ```sensor value```
 		    - Example:
 		        - 1540634400, 8120605
 		        - 1540638000, 8120808
@@ -158,6 +162,13 @@ Importing historical energy data into Home Assistant is not simple and requires 
 				- Contains the lowest resolution production data available (for instance: day resolution).
 				- Not needed in case that there is no gas usage
 				- Not needed in case that there is only one resolution available.
+			- ```water_high_resolution.csv```
+				- Contains the highest resolution production data available (for instance: hour resolution).
+				- Not needed in case that there is no water usage
+			- ```water_low_resolution.csv```
+				- Contains the lowest resolution production data available (for instance: day resolution).
+				- Not needed in case that there is no water usage
+				- Not needed in case that there is only one resolution available.
 
 #### Home Assistant preparation
 - Create a backup of the Home Assistant database
@@ -176,7 +187,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
     - The script has been tested with schema version 42. With higher versions you should validate if the structure of the ```statistics``` and ```short_term_statistics``` tables have changed.
         - Used fields in table ```statistics```: ```metadata_id```, ```state```, ```sum```, ```start_ts```, ```created_ts```
         - Used fields in table ```short_term_statistics```: ```sum```
-- Import, one at a time, all the created CSV data ```elec*``` and ```gas*``` files (File -> Import -> Table from CSV file...)
+- Import, one at a time, all the created CSV data ```elec*```, ```gas*``` and ```water*``` files (File -> Import -> Table from CSV file...)
     - It is possible to load data from multiple CSV's with the same name. The data of the second import is than added to the existing tables. This can be used in case there are multiple energy source providers for different timeperiods. In this case you first import the files from the first energy provider and than then second etc.
 - Lookup in the ```statistics_meta``` table the ID's of the sensors (Browse Data -> Table: statistics_meta; You can use "filter" to find the id of the sensor)
     - The names of the sensors can be looked up in the Home Assistant Energy dashboard (Settings -> Dashboards -> Energy).
@@ -189,6 +200,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 	    9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
 	    10  sensor.electricity_meter_feed_out_tariff_2  recorder    kWh
 	    352 sensor.solar_energy_produced_today          recorder    kWh
+		653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Change the script and remove/comment out the lines of the sensors that are not needed. They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
 - Change the script and update the ID's according to the found ID's in the ```statistics_meta``` table.
