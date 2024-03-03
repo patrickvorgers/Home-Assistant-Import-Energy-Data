@@ -1,4 +1,4 @@
-# Energy provider: P1Mon (ZTATZ)
+# Energy provider: P1Mon (ZTATZ) WORK IN PROGRESS
 
 P1Mon offers the option to export data from the local database. This data can be transformed and used to import into Home Assistant.
 
