@@ -41,7 +41,7 @@ inputFileNumFooterRows = 0
 # Example: inputFileJsonPath = ['energy', 'values']
 inputFileJsonPath = []
 # Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets; leave at 0 for the first sheet)
-inputFileExcelSheetName = 'e_history_uur'
+inputFileExcelSheetName = 0
 
 
 # Provide any data preparation code (if needed)
@@ -49,12 +49,7 @@ inputFileExcelSheetName = 'e_history_uur'
 dataPreparation = ""
 
 # List of one or more output file definitions
-outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'VERBR_KWH_182', [], False), # High tariff
-               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'VERBR_KWH_181', [], False), # Low tariff
-               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'GELVR_KWH_282', [], False), # High tariff
-               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'GELVR_KWH_281', [], False), # Low tariff
-               OutputFileDefinition('gas_high_resolution.csv', 'VERBR_GAS_2421', [], False)
-              ]
+outputFiles = [OutputFileDefinition('water_high_resolution.csv', 'VERBR_IN_M3_TOTAAL', [], False)]
 
 #*******************************************************************************************************************************************************
 
