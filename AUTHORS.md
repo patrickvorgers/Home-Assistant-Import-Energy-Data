@@ -20,3 +20,5 @@ Please share scripts or how-to guides if you have built an integration with a ne
     * Sample files for: Oxxio
     * Sample files for: Liander
     * Sample files for: Engie
+* Jaap P. (https://github.com/AJediIAm)
+    * Implementation: P1Mon (ZTATZ)
