@@ -21,14 +21,14 @@ OutputFileDefinition = namedtuple('FileDefinition', ['outputFileName', 'valueCol
 #*******************************************************************************************************************************************************
 
 # Name of the energy provider
-energyProviderName = 'Liander'
+energyProviderName = 'P1Mon'
 
 # Inputfile(s): filename extension
-inputFileNameExtension = '.csv'
+inputFileNameExtension = '.xlsx'
 # Inputfile(s): Name of the column containing the date of the reading
-inputFileDateColumnName = 'meterreadingdate'
+inputFileDateColumnName = 'TIMESTAMP'
 # Inputfile(s): Date format used in the datacolumn
-inputFileDateColumnFormat = '%d-%m-%Y'
+inputFileDateColumnFormat = '%Y-%m-%d %H:%M:%S'
 # Inputfile(s): Data seperator being used in the .csv input file
 inputFileDataSeperator = ','
 # Inputfile(s): Decimal token being used in the input file
@@ -41,18 +41,19 @@ inputFileNumFooterRows = 0
 # Example: inputFileJsonPath = ['energy', 'values']
 inputFileJsonPath = []
 # Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets; leave at 0 for the first sheet)
-inputFileExcelSheetName = 0
+inputFileExcelSheetName = 'e_history_uur'
+
 
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
 dataPreparation = ""
 
 # List of one or more output file definitions
-outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'reading2', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'reading4', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'reading3', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('gas_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^G', True)], False)
+outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'VERBR_KWH_182', [], False), # High tariff
+               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'VERBR_KWH_181', [], False), # Low tariff
+               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'GELVR_KWH_282', [], False), # High tariff
+               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'GELVR_KWH_281', [], False), # Low tariff
+               OutputFileDefinition('gas_high_resolution.csv', 'VERBR_GAS_2421', [], False)
               ]
 
 #*******************************************************************************************************************************************************

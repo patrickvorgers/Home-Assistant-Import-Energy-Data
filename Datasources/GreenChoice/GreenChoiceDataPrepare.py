@@ -40,6 +40,8 @@ inputFileNumFooterRows = 0
 # Inputfile(s): Json path of the records (only needed for json files)
 # Example: inputFileJsonPath = ['energy', 'values']
 inputFileJsonPath = []
+# Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets; leave at 0 for the first sheet)
+inputFileExcelSheetName = 0
 
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
@@ -142,7 +144,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
         df = pd.read_csv(inputFileName, sep = inputFileDataSeperator, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows, engine = 'python')
     elif ((inputFileNameExtension == '.xlsx') or (inputFileNameExtension == '.xls')):
         # Read the XLSX/XLS file
-        df = pd.read_excel(inputFileName, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows)
+        df = pd.read_excel(inputFileName, sheet_name = inputFileExcelSheetName, decimal = inputFileDataDecimal, skiprows = inputFileNumHeaderRows, skipfooter = inputFileNumFooterRows)
     elif inputFileNameExtension == '.json':
         # Read the JSON file
         jsonData = json.load(open(inputFileName))
