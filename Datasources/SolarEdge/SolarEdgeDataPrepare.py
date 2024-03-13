@@ -65,7 +65,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     df.sort_values(by = inputFileDateColumnName, ascending = True, inplace = True)
 
     # Transform the date into unix timestamp for Home-Assistant
-    df[inputFileDateColumnName] = (df[inputFileDateColumnName].view('int64') / 1000000000).astype('int64')
+    df[inputFileDateColumnName] = (df[inputFileDateColumnName].astype('int64') / 1000000000).astype('int64')
     
     # Execute any datapreparation code if provided
     exec(dataPreparation)
