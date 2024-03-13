@@ -194,7 +194,7 @@ def generateImportDataFiles(inputFileNames: str):
 # Validate that the script is started from the command prompt
 if __name__ == '__main__':
     print(energyProviderName + ' Data Prepare');
-    print('');
+    print('')
     print('This python script prepares ' + energyProviderName + ' data for import into Home Assistant.')
     print('The files will be prepared in the current directory any previous files will be overwritten!')
     print('')
@@ -204,3 +204,6 @@ if __name__ == '__main__':
     else:
         print(energyProviderName + 'PrepareData usage:')
         print(energyProviderName + 'PrepareData <' + energyProviderName + ' ' + inputFileNameExtension + ' filename (wildcard)>')
+        print()
+        print('Enclose the path/filename in quotes in case wildcards are being used on Linux based systems.')
+        print('Example: ' + energyProviderName + 'PrepareData "*' + inputFileNameExtension + '"')

@@ -204,3 +204,6 @@ if __name__ == '__main__':
     else:
         print(energyProviderName + 'PrepareData usage:')
         print(energyProviderName + 'PrepareData <' + energyProviderName + ' ' + inputFileNameExtension + ' filename (wildcard)>')
+        print()
+        print('Enclose the path/filename in quotes in case wildcards are being used on Linux based systems.')
+        print('Example: ' + energyProviderName + 'PrepareData "*' + inputFileNameExtension + '"')          
