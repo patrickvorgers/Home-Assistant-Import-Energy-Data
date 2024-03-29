@@ -266,5 +266,5 @@ Project Link: [https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Da
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[issues-shield]: https://img.shields.io/github/issues/patrickvorgers/SPC.svg?style=for-the-badge
-[issues-url]: https://github.com/patrickvorgers/SPC/issues
+[issues-shield]: https://img.shields.io/github/issues/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
+[issues-url]: https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/issues
