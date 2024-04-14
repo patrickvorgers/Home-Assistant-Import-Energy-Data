@@ -18,6 +18,11 @@
 -->
 
 [![Issues][issues-shield]][issues-url]
+[![GitHub Activity][commits-shield]][commits]
+[![License][license-shield]](LICENSE)
+
+![Project Maintenance][maintenance-shield]
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -45,6 +50,7 @@ Import historical energy/water data from external datasources into Home Assistan
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#getting-started">Getting Started</a></li>
     <li><a href="#authors">Authors</a></li>
+    <li><a href="#contributions">Contributions</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -231,7 +237,14 @@ Please share scripts or how-to guides if you have built an integration with a ne
 
 * Patrick Vorgers (the Netherlands)
 
-### All other contributors:
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Contributions -->
+<a name="contributions"></a>
+## Contributions are welcome!
+
+If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
+### All contributors:
 
 * Nick de Wijer (https://github.com/ndewijer)
     * Initial implementation: GreenChoice
@@ -266,5 +279,11 @@ Project Link: [https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Da
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[buymecoffee]: https://www.buymeacoffee.com/patrickvorgers
+[buymecoffeebadge]: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
+[commits-shield]: https://img.shields.io/github/commit-activity/y/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
+[commits]: https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/commits/main
 [issues-shield]: https://img.shields.io/github/issues/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
 [issues-url]: https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/issues
+[license-shield]: https://img.shields.io/github/license/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-patrickvorgers-blue.svg?style=for-the-badge
