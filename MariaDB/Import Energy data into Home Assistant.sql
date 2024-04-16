@@ -1,4 +1,4 @@
-/* Start a transaction so that we can rollback any changes if needed, rollback any existing open transaction */
+/* Start a transaction so that we can rollback any changes if needed */
 ROLLBACK;
 START TRANSACTION;
 
@@ -37,20 +37,20 @@ INSERT INTO VARS VALUES ('cutoff_invalid_value', 1000);	/* Change this in case a
 
 /* Create empty temp import tables if they do not exist so that the SQL statements do not break in case the table is not imported */
 SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_1_high_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_1_low_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_2_high_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_2_low_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_in_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_1_high_resolution(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_1
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_1_low_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_1
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution	(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_solar_high_resolution				(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_solar_low_resolution				(field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
-CREATE TEMPORARY TABLE IF NOT EXISTS gas_high_resolution					(field1 FLOAT, field2 FLOAT); -- sensor_id_gas
-CREATE TEMPORARY TABLE IF NOT EXISTS gas_low_resolution						(field1 FLOAT, field2 FLOAT); -- sensor_id_gas
-CREATE TEMPORARY TABLE IF NOT EXISTS water_high_resolution					(field1 FLOAT, field2 FLOAT); -- sensor_id_water
-CREATE TEMPORARY TABLE IF NOT EXISTS water_low_resolution					(field1 FLOAT, field2 FLOAT); -- sensor_id_water
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_1_high_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_1 
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_1_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_1 
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_2_high_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_2
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_2_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_2
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_1_high_resolution (field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_1
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_1_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_1
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution (field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_2
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_2
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_solar_high_resolution				(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_solar
+CREATE TEMPORARY TABLE IF NOT EXISTS elec_solar_low_resolution				(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_solar
+CREATE TEMPORARY TABLE IF NOT EXISTS gas_high_resolution					(field1 DOUBLE, field2 DOUBLE); -- sensor_id_gas
+CREATE TEMPORARY TABLE IF NOT EXISTS gas_low_resolution						(field1 DOUBLE, field2 DOUBLE); -- sensor_id_gas
+CREATE TEMPORARY TABLE IF NOT EXISTS water_high_resolution					(field1 DOUBLE, field2 DOUBLE); -- sensor_id_water
+CREATE TEMPORARY TABLE IF NOT EXISTS water_low_resolution					(field1 DOUBLE, field2 DOUBLE); -- sensor_id_water
 SET sql_notes = 1; /* Enable the warnings again */
 
 
@@ -59,11 +59,11 @@ SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning 
 DROP TABLE IF EXISTS STATS_NEW;
 SET sql_notes = 1; /* Enable the warnings again */
 CREATE TEMPORARY TABLE STATS_NEW (
-	id			INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	id				INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	sensor_id	INTEGER,
-	ts			DOUBLE,
-	VALUE		DOUBLE,
-	diff		DOUBLE,
+	ts				DOUBLE,
+	VALUE			DOUBLE,
+	diff			DOUBLE,
 	old_sum		DOUBLE,
 	new_sum		DOUBLE
 );
@@ -238,7 +238,7 @@ WHERE
 
 /* Cleanup possible wrong values:
       - Remove the first record if no diff could be determined (imported data)
-      - Diff is null  => The point where the imported data goes over to Home Assistant data 
+      - Diff is null	=> The point where the imported data goes over to Home Assistant data 
 		- Diff < 0		=> Probably new meter installed (measurement should be low)
 		- Diff > 1000	=> Incorrect value 
    First handle the first two cases and then correct to 0 when incorrect value
@@ -302,11 +302,14 @@ SET SST.sum = SST.sum + CORRECTION.correction_factor
 WHERE TRUE;
 
 
+SELECT * FROM STATS_NEW;
+
+
 /* Remove the temporary tables */
 SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
 DROP TABLE IF EXISTS SENSORS;
 DROP TABLE IF EXISTS VARS;
-DROP TABLE IF EXISTS STATS_NEW;
+/*DROP TABLE IF EXISTS STATS_NEW;*/
 
 /* Remove the imported tables */
 DROP TABLE IF EXISTS elec_feed_in_tariff_1_high_resolution;
@@ -327,6 +330,3 @@ SET sql_notes = 1; /* Enable the warnings again */
 
 /* Rollback any changes - testing purposes */
 /*ROLLBACK;*/
-
-/* Commit the changes after validation of the results */ 
-/*COMMIT;*/
