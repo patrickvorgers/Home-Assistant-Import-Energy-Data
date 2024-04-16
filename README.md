@@ -220,7 +220,7 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 ## Roadmap
 
 - [ ] Support more datasources
-- [ ] Support MariaDB or provide workaround 
+- [X] Support MariaDB or provide workaround 
 
 See the [open issues](https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/issues) for a full list of proposed features (and known issues).
 
