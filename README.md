@@ -247,3 +247,4 @@ Project Link: [https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Da
 [maintenance-shield]: https://img.shields.io/badge/maintainer-patrickvorgers-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
 [releases]: https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/releases
+
