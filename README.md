@@ -176,8 +176,8 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Database
 - Determine the type of database that the Home Assistant installation uses and continue with that specific how-to. The standard installation of Home Assistant uses SQLite.
-    - [SQLite how-to](SQLite/README.md) 
-	- [MariaDB how-to](MariaDB/README.md)
+    - [SQLite how-to](SQLite) 
+	- [MariaDB how-to](MariaDB)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
