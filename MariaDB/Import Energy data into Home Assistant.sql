@@ -1,8 +1,11 @@
+/* MariaDB: Import Energy data into Home Assistant */
+
+
 /* Start a transaction so that we can rollback any changes if needed */
 ROLLBACK;
 START TRANSACTION;
 
-SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
+SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
 /* Create a temp table to hold the used sensor metadata */
 DROP TEMPORARY TABLE IF EXISTS SENSORS;
 SET sql_notes = 1; /* Enable the warnings again */
@@ -23,7 +26,7 @@ INSERT INTO SENSORS VALUES ('sensor_id_elec_solar',				352,	1000.0);	/* Change *
 INSERT INTO SENSORS VALUES ('sensor_id_water',					653,	1000.0);	/* Change */
 
 
-SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
+SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
 /* Create a temp table to hold some variables (SQLite does not support variables so this is a workaround) */
 DROP TABLE IF EXISTS VARS;
 SET sql_notes = 1; /* Enable the warnings again */
@@ -36,33 +39,34 @@ INSERT INTO VARS VALUES ('cutoff_invalid_value', 1000);	/* Change this in case a
 
 
 /* Create empty temp import tables if they do not exist so that the SQL statements do not break in case the table is not imported */
-SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_1_high_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_1_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_2_high_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_in_tariff_2_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_in_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_1_high_resolution (field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_1
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_1_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_1
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution (field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution	(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_feed_out_tariff_2
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_solar_high_resolution				(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_solar
-CREATE TEMPORARY TABLE IF NOT EXISTS elec_solar_low_resolution				(field1 DOUBLE, field2 DOUBLE); -- sensor_id_elec_solar
-CREATE TEMPORARY TABLE IF NOT EXISTS gas_high_resolution					(field1 DOUBLE, field2 DOUBLE); -- sensor_id_gas
-CREATE TEMPORARY TABLE IF NOT EXISTS gas_low_resolution						(field1 DOUBLE, field2 DOUBLE); -- sensor_id_gas
-CREATE TEMPORARY TABLE IF NOT EXISTS water_high_resolution					(field1 DOUBLE, field2 DOUBLE); -- sensor_id_water
-CREATE TEMPORARY TABLE IF NOT EXISTS water_low_resolution					(field1 DOUBLE, field2 DOUBLE); -- sensor_id_water
+/* We cannot use CREATE TEMPORARY TABLE here because they are session specific and would always be created */
+SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_1_high_resolution	(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_1 
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_1_low_resolution		(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_1 
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_2_high_resolution	(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_2
+CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_2_low_resolution		(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_2
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_1_high_resolution	(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_1
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_1_low_resolution	(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_1
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution	(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_2
+CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution	(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_2
+CREATE TABLE IF NOT EXISTS elec_solar_high_resolution				(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_solar
+CREATE TABLE IF NOT EXISTS elec_solar_low_resolution				(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_solar
+CREATE TABLE IF NOT EXISTS gas_high_resolution						(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_gas
+CREATE TABLE IF NOT EXISTS gas_low_resolution						(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_gas
+CREATE TABLE IF NOT EXISTS water_high_resolution					(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_water
+CREATE TABLE IF NOT EXISTS water_low_resolution						(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_water
 SET sql_notes = 1; /* Enable the warnings again */
 
 
 /* Create temp tables that can hold the difference between the measurements and create a new sum */
-SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
+SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
 DROP TABLE IF EXISTS STATS_NEW;
 SET sql_notes = 1; /* Enable the warnings again */
 CREATE TEMPORARY TABLE STATS_NEW (
 	id				INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	sensor_id	INTEGER,
 	ts				DOUBLE,
-	VALUE			DOUBLE,
+	value			DOUBLE,
 	diff			DOUBLE,
 	old_sum		DOUBLE,
 	new_sum		DOUBLE
@@ -73,51 +77,51 @@ CREATE UNIQUE INDEX idx_sensor_ts ON STATS_NEW (sensor_id, ts);
 /* Insert the high resolution records and apply the correction */
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3) AS value
 FROM elec_feed_in_tariff_1_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3) AS value
 FROM elec_feed_in_tariff_2_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3) AS value
 FROM elec_feed_out_tariff_1_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3) AS value
 FROM elec_feed_out_tariff_2_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3) AS value
 FROM elec_solar_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3) AS value
 FROM gas_high_resolution;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3) AS value
 FROM water_high_resolution;
 
 
@@ -126,63 +130,63 @@ FROM water_high_resolution;
 */
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3) AS value
 FROM elec_feed_in_tariff_1_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1));
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3) AS value
 FROM elec_feed_in_tariff_2_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1));
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3) AS value
 FROM elec_feed_out_tariff_1_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1));
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3) AS value
 FROM elec_feed_out_tariff_2_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1));
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_solar' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_solar' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3) AS value
 FROM elec_solar_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1));
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3) AS value
 FROM gas_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1));
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
-	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1),
-	round(field1, 0),
-	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3)
+	(SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1) AS sensor_id,
+	round(field1, 0) AS ts,
+	round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3) AS value
 FROM water_low_resolution  
 WHERE
   field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1));
@@ -238,7 +242,7 @@ WHERE
 
 /* Cleanup possible wrong values:
       - Remove the first record if no diff could be determined (imported data)
-      - Diff is null	=> The point where the imported data goes over to Home Assistant data 
+      - Diff is null  => The point where the imported data goes over to Home Assistant data 
 		- Diff < 0		=> Probably new meter installed (measurement should be low)
 		- Diff > 1000	=> Incorrect value 
    First handle the first two cases and then correct to 0 when incorrect value
@@ -277,11 +281,11 @@ WHERE
 
   
 /* Copy the new information to the statistics table
-id			=> primary key and automatically filled (autoincrement)
+id				=> primary key and automatically filled (autoincrement)
 sum			=> calculated new_sum value
 metadata_id	=> the fixed metadata id of this statistics (see top)
 created_ts	=> set to the timestamp of the statistic
-start_ts	=> timestamp of the statistic
+start_ts		=> timestamp of the statistic
 The sum is updated in case the record is already in Home Assistant
 */
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
@@ -297,19 +301,17 @@ JOIN (
     SELECT metadata_id, FIRST_VALUE(SN.new_sum - SST.sum) OVER (PARTITION BY SST.metadata_id ORDER BY SST.start_ts DESC) AS correction_factor
     FROM statistics_short_term AS SST
     JOIN STATS_NEW AS SN ON SST.metadata_id = SN.sensor_id AND SST.start_ts = SN.ts
+    GROUP BY metadata_id
 ) AS CORRECTION ON SST.metadata_id = CORRECTION.metadata_id
 SET SST.sum = SST.sum + CORRECTION.correction_factor
 WHERE TRUE;
 
 
-SELECT * FROM STATS_NEW;
-
-
 /* Remove the temporary tables */
-SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exists */ 
+SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
 DROP TABLE IF EXISTS SENSORS;
 DROP TABLE IF EXISTS VARS;
-/*DROP TABLE IF EXISTS STATS_NEW;*/
+DROP TABLE IF EXISTS STATS_NEW;
 
 /* Remove the imported tables */
 DROP TABLE IF EXISTS elec_feed_in_tariff_1_high_resolution;
@@ -328,5 +330,5 @@ DROP TABLE IF EXISTS water_high_resolution;
 DROP TABLE IF EXISTS water_low_resolution;
 SET sql_notes = 1; /* Enable the warnings again */
 
-/* Rollback any changes - testing purposes */
-/*ROLLBACK;*/
+/* Commit the changes - can be commented out while testing */
+COMMIT;

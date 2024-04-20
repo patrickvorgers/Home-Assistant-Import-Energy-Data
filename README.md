@@ -17,6 +17,7 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
+[![GitHub Release][releases-shield]][releases]
 [![Issues][issues-shield]][issues-url]
 [![GitHub Activity][commits-shield]][commits]
 [![License][license-shield]](LICENSE)
@@ -244,3 +245,5 @@ Project Link: [https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Da
 [issues-url]: https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/issues
 [license-shield]: https://img.shields.io/github/license/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/badge/maintainer-patrickvorgers-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/patrickvorgers/Home-Assistant-Import-Energy-Data.svg?style=for-the-badge
+[releases]: https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/releases
