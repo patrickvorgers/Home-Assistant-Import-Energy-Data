@@ -38,7 +38,7 @@ CUTOFF INVALID VALUE:
     Wh  : 1000000.0 Wh
     kWh : 1000.0 kWh
     L   : 1000000.0 L
-    m³  : 25000.0 m³
+    m³  : 1000.0 m³
 
 Examples:
 Wh -&gt; Wh
