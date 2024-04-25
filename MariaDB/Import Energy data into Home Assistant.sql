@@ -45,6 +45,19 @@ CUTOFF INVALID VALUE:
     kWh : 1000.0 kWh
     L   : 1000000.0 L
     m³  : 25000.0 m³
+
+Examples:
+Wh -> Wh
+correction cutoff_new_meter cutoff_invalid_value
+1.0        25000.0          1000000.0
+
+Wh -> kWh
+correction cutoff_new_meter cutoff_invalid_value
+1000.0     25.0             1000.0
+
+L -> m³
+correction cutoff_new_meter cutoff_invalid_value
+1000.0     25.0             1000.0
 */
 
 /*                          name                                sensor_id correction cutoff_new_meter cutoff_invalid_value */
