@@ -213,6 +213,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
     * Sample files for: Engie
 * Jaap P. (https://github.com/AJediIAm)
     * Implementation: P1Mon (ZTATZ)
+* Minze Tolsman (https://github.com/miezie)
+    * Implementation: VanOns
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

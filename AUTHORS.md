@@ -22,3 +22,5 @@ Please share scripts or how-to guides if you have built an integration with a ne
     * Sample files for: Engie
 * Jaap P. (https://github.com/AJediIAm)
     * Implementation: P1Mon (ZTATZ)
+* Minze Tolsman (https://github.com/miezie)
+    * Implementation: VanOns
