@@ -1,4 +1,4 @@
-# Energy provider: GreenChoice
+# Energy provider: VanOns
 
 Greenchoice offers the option to export data from the [VanOns](https://mijn.vanons.org/overview) website. This data can be transformed and used to import into Home Assistant.
 
