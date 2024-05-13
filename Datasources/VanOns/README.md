@@ -1,6 +1,6 @@
 # Energy provider: VanOns
 
-Greenchoice offers the option to export data from the [VanOns](https://mijn.vanons.org/overview) website. This data can be transformed and used to import into Home Assistant.
+VanOns offers the option to export data from the [VanOns](https://mijn.vanons.org/overview) website. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (day interval) - kWh
