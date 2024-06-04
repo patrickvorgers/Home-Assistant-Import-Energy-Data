@@ -19,7 +19,7 @@ SENSOR NAME:
   Fixed, do not change this
 SENSOR ID:
   Identifier (id) of the sensor as defined in the statistics_meta table
-CORRECTIOn FACTOR:
+CORRECTION FACTOR:
   Correction factor in case the provided data uses a different unit of measurement than the target sensor
     Wh  -> Wh  : 1.0
     Wh  -> kWh : 1000.0
@@ -99,69 +99,90 @@ DROP TABLE IF EXISTS STATS_NEW;
 SET sql_notes = 1; /* Enable the warnings again */
 CREATE TEMPORARY TABLE STATS_NEW (
   id        INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  sensor_id INTEGER,
-  ts        DOUBLE,
-  value     DOUBLE,
+  sensor_id INTEGER NOT NULL,
+  ts        DOUBLE NOT NULL,
+  value     DOUBLE NOT NULL,
   diff      DOUBLE,
   old_sum   DOUBLE,
   new_sum   DOUBLE
 );
-CREATE UNIQUE INDEX idx_sensor_ts ON STATS_NEW (sensor_id, ts);
+CREATE UNIQUE INDEX idx_sensor_id_ts ON STATS_NEW (sensor_id, ts);
 
 
-/* Insert the high resolution records and apply the correction */
+/* Insert the high resolution records and apply the correction 
+
+   Invalid rows with null values are ignored
+   Grouping by field1 is done to remove any duplicates
+*/
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3) AS value
-FROM elec_feed_in_tariff_1_high_resolution;
+FROM elec_feed_in_tariff_1_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3) AS value
-FROM elec_feed_in_tariff_2_high_resolution;
+FROM elec_feed_in_tariff_2_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3) AS value
-FROM elec_feed_out_tariff_1_high_resolution;
+FROM elec_feed_out_tariff_1_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3) AS value
-FROM elec_feed_out_tariff_2_high_resolution;
+FROM elec_feed_out_tariff_2_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3) AS value
-FROM elec_solar_high_resolution;
+FROM elec_solar_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3) AS value
-FROM gas_high_resolution;
+FROM gas_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3) AS value
-FROM water_high_resolution;
+FROM water_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 
 /* Insert the low resolution records and apply the correction.
    We only add data that is older than the high resolution records
+
+   Invalid rows with null values are ignored
+   Grouping by field1 is done to remove any duplicates
 */
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -170,7 +191,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3) AS value
 FROM elec_feed_in_tariff_1_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -179,7 +202,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3) AS value
 FROM elec_feed_in_tariff_2_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -188,7 +213,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3) AS value
 FROM elec_feed_out_tariff_1_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -197,7 +224,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3) AS value
 FROM elec_feed_out_tariff_2_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -206,7 +235,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3) AS value
 FROM elec_solar_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -215,7 +246,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3) AS value
 FROM gas_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 INSERT INTO STATS_NEW (sensor_id, ts, value)
 SELECT
@@ -224,7 +257,9 @@ SELECT
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3) AS value
 FROM water_low_resolution  
 WHERE
-  field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1));
+  (field1 < (SELECT COALESCE(MIN(ts), UNIX_TIMESTAMP()) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
 
 
 /* Remove any overlapping records from the imported data that are already in Home Assistant */
@@ -328,7 +363,7 @@ start_ts    => timestamp of the statistic
 The sum is updated in case the record is already in Home Assistant
 */
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT new_sum, new_sum, sensor_id, ts, ts FROM STATS_NEW
+SELECT value, new_sum, sensor_id, ts, ts FROM STATS_NEW
 ON DUPLICATE KEY UPDATE sum = VALUES(sum);
 
 /* Also update the short term statistics. 
