@@ -25,10 +25,12 @@ energyProviderName = 'VanOns'
 
 # Inputfile(s): filename extension
 inputFileNameExtension = '.csv'
-# Inputfile(s): Name of the column containing the date of the reading
+# Inputfile(s): Name of the column containing the date of the reading. Use this in case date and time is combined in one field.
 inputFileDateColumnName = 'datum'
-# Inputfile(s): Date format used in the datacolumn
-inputFileDateColumnFormat = '%d-%m-%Y'
+# Inputfile(s): Name of the column containing the time of the reading. Leave empty in case date and time is combined in one field.
+inputFileTimeColumnName = ''
+# Inputfile(s): Date/time format used in the datacolumn. Combine the format of the date and time in case date and time are two seperate fields.
+inputFileDateTimeColumnFormat = '%d-%m-%Y'
 # Inputfile(s): Data seperator being used in the .csv input file
 inputFileDataSeperator = ';'
 # Inputfile(s): Decimal token being used in the input file
@@ -42,6 +44,9 @@ inputFileNumFooterRows = 0
 inputFileJsonPath = []
 # Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets; leave at 0 for the first sheet)
 inputFileExcelSheetName = 0
+
+# Name used for the temporary date/time field. This needs normally no change only when it conflicts with existing columns.
+dateTimeColumnName = '_DateTime'
 
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
@@ -62,14 +67,24 @@ outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv',
 def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     print('Preparing data');
 
+    # Check if we have to combine a date and time field
+    if (inputFileTimeColumnName != ''):
+      # Take note that the format is changed in case the column was parsed as date.
+      # For excel change the type of the cell to text or adjust the format accordingly, use statement print(dataFrame) to get information about the used format.
+      dataFrame[dateTimeColumnName] = pd.to_datetime(dataFrame[inputFileDateColumnName].astype(str) + ' ' + dataFrame[inputFileTimeColumnName].astype(str), format = inputFileDateTimeColumnFormat, utc = True)
+    else:
+      dataFrame[dateTimeColumnName] = pd.to_datetime(dataFrame[inputFileDateColumnName], format = inputFileDateTimeColumnFormat, utc = True)
+    # Remove the timezone (if it exists)
+    dataFrame[dateTimeColumnName] = dataFrame[dateTimeColumnName].dt.tz_localize(None)
+
     # Select only correct dates
-    df = dataFrame.loc[(dataFrame[inputFileDateColumnName] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame[inputFileDateColumnName] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
-    
+    df = dataFrame.loc[(dataFrame[dateTimeColumnName] >= datetime.datetime.strptime('01-01-1970', '%d-%m-%Y')) & (dataFrame[dateTimeColumnName] <= datetime.datetime.strptime('31-12-2099', '%d-%m-%Y'))]
+
     # Make sure that the data is correctly sorted
-    df.sort_values(by = inputFileDateColumnName, ascending = True, inplace = True)
+    df.sort_values(by = dateTimeColumnName, ascending = True, inplace = True)
 
     # Transform the date into unix timestamp for Home-Assistant
-    df[inputFileDateColumnName] = (df[inputFileDateColumnName].astype('int64') / 1000000000).astype('int64')
+    df[dateTimeColumnName] = (df[dateTimeColumnName].astype('int64') / 1000000000).astype('int64')
     
     # Execute any datapreparation code if provided
     exec(dataPreparation)
@@ -125,7 +140,7 @@ def generateImportDataFile(dataFrame: pd.DataFrame, outputFile: str, dataColumnN
             dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
             
         # Select only the needed data
-        dataFrameFiltered = dataFrameFiltered.filter([inputFileDateColumnName, dataColumnName])
+        dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
 
         # Create the output file
         dataFrameFiltered.to_csv(outputFile, sep = ',', decimal = '.', header = False, index = False)
@@ -152,10 +167,6 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
     else:
         raise Exception('Unsupported extension: ' + inputFileNameExtension)
 
-    df[inputFileDateColumnName] = pd.to_datetime(df[inputFileDateColumnName], format = inputFileDateColumnFormat, utc = True)
-    # Remove the timezone (if it exists)
-    df[inputFileDateColumnName] = df[inputFileDateColumnName].dt.tz_localize(None)
-    
     return df
 
 
@@ -210,4 +221,4 @@ if __name__ == '__main__':
         print(energyProviderName + 'PrepareData <' + energyProviderName + ' ' + inputFileNameExtension + ' filename (wildcard)>')
         print()
         print('Enclose the path/filename in quotes in case wildcards are being used on Linux based systems.')
-        print('Example: ' + energyProviderName + 'PrepareData "*' + inputFileNameExtension + '"')        
+        print('Example: ' + energyProviderName + 'PrepareData "*' + inputFileNameExtension + '"')
