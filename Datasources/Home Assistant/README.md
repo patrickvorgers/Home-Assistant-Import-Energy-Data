@@ -57,7 +57,7 @@ This howto describes how to export data from an existing Home Assistant energy/w
 
 ##### Export the data
 - Start ```HeidiSQL```.
-- Open a session to the Home Assistant MariaDB database, see [MariaDB how-to](../../SQLite/README.md) for information regarding setting up the intial connection and creating a backup of the database.
+- Open a session to the Home Assistant MariaDB database, see [MariaDB how-to](../../MariaDB/README.md) for information regarding setting up the intial connection and creating a backup of the database.
 - Lookup in the ```statistics_meta``` table the ID of the sensor for which the data should be exported (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the id of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```).
 <br>Example:
 ```
