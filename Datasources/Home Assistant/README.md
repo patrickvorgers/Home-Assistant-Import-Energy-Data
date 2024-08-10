@@ -39,7 +39,7 @@ This howto describes how to export data from an existing Home Assistant energy/w
 - Execute the SQL and wait for it to complete.
 - In the ```Execute SQL``` tab select the 4th button from the right (hovertext: ```Save the results view```). In the dropdown box select ```Export to CSV```.
 - Deselect ```Column names in first line``` and use ```,``` as value for ```Field separator``` and press ```Save```.
-- Provide the correct name for the file (see [Generic how-to](../../README.md)) and save the file.
+- Provide the correct name for the file (see [Generic how-to](../../README.md) ```Source data preparation``` section) and save the file.
     - elec_feed_in_tariff_1_high_resolution.csv
     - elec_feed_in_tariff_2_high_resolution.csv
     - elec_feed_out_tariff_1_high_resolution.csv
@@ -80,7 +80,7 @@ This howto describes how to export data from an existing Home Assistant energy/w
     - Row selection: ```Complete```
     - Include column names: ```deselect```
     - Field separator: ```,```
-- Provide the correct name for the file (see [Generic how-to](../../README.md)) and save the file (press ```OK```)
+- Provide the correct name for the file (see [Generic how-to](../../README.md) ```Source data preparation``` section) and save the file (press ```OK```)
     - elec_feed_in_tariff_1_high_resolution.csv
     - elec_feed_in_tariff_2_high_resolution.csv
     - elec_feed_out_tariff_1_high_resolution.csv
