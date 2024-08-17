@@ -37,10 +37,10 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Home Assistant preparation
 - Create a backup of the Home Assistant database
-    - Disable recorder while making the backup -> Developer tools/Services/Call service: Recorder:disable
+    - Disable recorder while making the backup -> ```Developer tools/Actions/Action: Recorder:disable```
 - Download the created backup
 - Stop the Home Assistant core
-    - Developer tools/Services/Call service: Home Assistant Core Integration: Stop
+    - ```Developer tools/Actions/Action: Home Assistant Core Integration: Stop```
 - Home Assistant data: 
     - extract: ```home-assistant_v2.db``` (from ```backup.tar``` extract ```homeassistant.tar.gz``` from ```data``` folder). As an alternative it is also possible to download the ```home-assistant_v2.db``` directly from the Home Assistant ```config``` directory (For example: use WinSCP in combination with the Home Assistant SSH addon). In case of this method make sure that you didn't skip the step to create a backup so that you can always restore this version of the database!
 

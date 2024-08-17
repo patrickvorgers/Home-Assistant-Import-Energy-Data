@@ -36,9 +36,9 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Home Assistant preparation
 - Create a backup of the Home Assistant database
-    - Disable recorder while making the backup -> Developer tools/Services/Call service: Recorder:disable
+    - Disable recorder while making the backup -> ```Developer tools/Actions/Action: Recorder:disable```
 - Stop the Home Assistant core
-    - Developer tools/Services/Call service: Home Assistant Core Integration: Stop
+    - ```Developer tools/Actions/Action: Home Assistant Core Integration: Stop```
 
 #### Import the data
 - Start ```HeidiSQL```
