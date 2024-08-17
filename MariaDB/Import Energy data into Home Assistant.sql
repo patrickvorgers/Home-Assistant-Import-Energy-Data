@@ -20,42 +20,53 @@ SENSOR NAME:
 SENSOR ID:
   Identifier (id) of the sensor as defined in the statistics_meta table
 CORRECTION FACTOR:
-  Correction factor in case the provided data uses a different unit of measurement than the target sensor
+  Correction factor in case the provided data uses a different unit of measurement than the target sensor (import data -> target sensor)
     Wh  -> Wh  : 1.0
     Wh  -> kWh : 1000.0
+    Wh  -> MWh : 1000000.0
     kWh -> Wh  : 0.001
     kWh -> kWh : 1.0
+    kWh -> MWh : 0.001
+    MWh -> Wh  : 0.000001
+    MWh -> kWh : 0.001
+    MWh -> MWh : 1.0
     L   -> L   : 1.0
     L   -> m³  : 1000
     m³  -> L   : 0.001
     m³  -> m³  : 1.0
 CUTOFF NEW METER:
-  This value determines the cutoff value to determine when a new meter is installed. The value depends on the unit of measurement of the target sensor.
+  This value determines the cutoff value to determine when a new meter is installed. The value depends on the unit of measurement of the target sensor!
   Change this in case your new meter started with a higher start value.
   New meter detection: (difference between two sensor states < 0) and (state of sensor < cutoff new meter value)
     Wh  : 25000.0 Wh
     kWh : 25.0 kWh
+    MWh : 0.025 MWh
     L   : 25000.0 L
     m³  : 25.0 m³
 CUTOFF INVALID VALUE:
-  This value determines when a value is considered to be invalid (too large). The value depends on the unit of measurement of the target sensor.
+  This value determines when a value is considered to be invalid (too large). The value depends on the unit of measurement of the target sensor!
   Change this in case a higher/lower diff cutoff is needed to mark a value invalid.
   Invalid value detection: (difference between two sensor states > cutoff invalid value)
     Wh  : 1000000.0 Wh
     kWh : 1000.0 kWh
+    MWh : 1 MWh
     L   : 1000000.0 L
     m³  : 1000.0 m³
 
 Examples:
-Wh -> Wh
+Wh -> Wh (import data is in Wh and target sensor data is in Wh)
 correction cutoff_new_meter cutoff_invalid_value
 1.0        25000.0          1000000.0
 
-Wh -> kWh
+Wh -> kWh (import data is in Wh and target sensor data is in kWh)
 correction cutoff_new_meter cutoff_invalid_value
 1000.0     25.0             1000.0
 
-L -> m³
+Wh -> MWh (import data is in Wh and target sensor data is in MWh)
+correction cutoff_new_meter cutoff_invalid_value
+1000000.0  0.025            1.0
+
+L -> m³ (import data is in L and target sensor data is in m³)
 correction cutoff_new_meter cutoff_invalid_value
 1000.0     25.0             1000.0
 */
