@@ -33,6 +33,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Tooling
 - Download and install: DB Browser (64 bit) for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
+    - Make sure that the minimum SQLite engine version is 3.35.0. The can be checked via: Help -> About
 - Download and install/configure: WinSCP (https://winscp.net/eng/download.php)
 
 #### Home Assistant preparation
