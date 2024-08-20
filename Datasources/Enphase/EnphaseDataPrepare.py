@@ -50,10 +50,19 @@ dateTimeColumnName = '_DateTime'
 
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
-dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
+dataPreparation = """
+if df['Energy Produced (Wh)'].dtype == 'object':
+  df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)
+if (('Exported to Grid (Wh)' in df.columns) and (df['Exported to Grid (Wh)'].dtype == 'object')):
+  df['Exported to Grid (Wh)'] = df['Exported to Grid (Wh)'].str.replace(',', '').replace('\"', '').astype(int)
+if (('Imported from Grid (Wh)' in df.columns) and (df['Imported from Grid (Wh)'].dtype == 'object')):
+  df['Imported from Grid (Wh)'] = df['Imported from Grid (Wh)'].str.replace(',', '').replace('\"', '').astype(int)
+"""
 
 # List of one or more output file definitions
-outputFiles = [OutputFileDefinition('elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)]
+outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'Imported from Grid (Wh)', [], True),
+               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'Exported to Grid (Wh)', [], True),
+               OutputFileDefinition('elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)]
 
 #*******************************************************************************************************************************************************
 
