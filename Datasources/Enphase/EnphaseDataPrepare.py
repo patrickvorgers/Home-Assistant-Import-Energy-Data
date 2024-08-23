@@ -1,6 +1,8 @@
 import os, sys, datetime, glob, math, json
 import pandas as pd
 from collections import namedtuple
+from calendar import weekday
+from datetime import time
 
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
@@ -30,7 +32,7 @@ inputFileDateColumnName = 'Date/Time'
 # Inputfile(s): Name of the column containing the time of the reading. Leave empty in case date and time is combined in one field.
 inputFileTimeColumnName = ''
 # Inputfile(s): Date/time format used in the datacolumn. Combine the format of the date and time in case date and time are two seperate fields.
-inputFileDateTimeColumnFormat = '%m/%d/%Y'
+inputFileDateTimeColumnFormat = '%m/%d/%Y %H:%M'
 # Inputfile(s): Data seperator being used in the .csv input file
 inputFileDataSeperator = ','
 # Inputfile(s): Decimal token being used in the input file
@@ -48,6 +50,9 @@ inputFileExcelSheetName = 0
 # Name used for the temporary date/time field. This needs normally no change only when it conflicts with existing columns.
 dateTimeColumnName = '_DateTime'
 
+# Name used for the temporary recalculate field. This needs normally no change only when it conflicts with existing columns.
+recalculateColumnName = '_Recalculate'
+
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
 dataPreparation = """
@@ -57,12 +62,34 @@ if (('Exported to Grid (Wh)' in df.columns) and (df['Exported to Grid (Wh)'].dty
   df['Exported to Grid (Wh)'] = df['Exported to Grid (Wh)'].str.replace(',', '').replace('\"', '').astype(int)
 if (('Imported from Grid (Wh)' in df.columns) and (df['Imported from Grid (Wh)'].dtype == 'object')):
   df['Imported from Grid (Wh)'] = df['Imported from Grid (Wh)'].str.replace(',', '').replace('\"', '').astype(int)
+
+# Create a tariff column, uncomment the below lines if needed
+#for index, _ in df.iterrows():
+#  recordDateTime = pd.to_datetime(df.at[index, dateTimeColumnName], unit='s')
+#  # Check if it is Monday, Tuesday, Wednesday, Thursday or Friday
+#  if recordDateTime.weekday() in [0, 1, 2, 3, 4, 5]:
+#    # Check if we are between 00:00-6:59 and 23:00-23:59
+#    if ((recordDateTime.time() < time(7,0)) or (recordDateTime.time() >= time(23,0))):
+#      # Low tariff
+#      df.at[index, 'Tariff'] = 2
+#    else:
+#      # High tariff
+#      df.at[index, 'Tariff'] = 1
+#  else:
+#    # Low tariff
+#    df.at[index, 'Tariff'] = 2
 """
 
 # List of one or more output file definitions
 outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'Imported from Grid (Wh)', [], True),
                OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'Exported to Grid (Wh)', [], True),
                OutputFileDefinition('elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)]
+#outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'Energy Produced (Wh)', [DataFilter('Tariff', '1', True)], True),
+#               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'Energy Produced (Wh)', [DataFilter('Tariff', '2', True)], True),
+#               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'Exported to Grid (Wh)', [DataFilter('Tariff', '1', True)], True),
+#               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'Exported to Grid (Wh)', [DataFilter('Tariff', '2', True)], True),
+#               OutputFileDefinition('elec_solar_high_resolution.csv', 'Energy Produced (Wh)', [], True)
+#              ]
 
 #*******************************************************************************************************************************************************
 
