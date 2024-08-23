@@ -50,9 +50,6 @@ inputFileExcelSheetName = 0
 # Name used for the temporary date/time field. This needs normally no change only when it conflicts with existing columns.
 dateTimeColumnName = '_DateTime'
 
-# Name used for the temporary recalculate field. This needs normally no change only when it conflicts with existing columns.
-recalculateColumnName = '_Recalculate'
-
 # Provide any data preparation code (if needed)
 # Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
 dataPreparation = """
