@@ -55,7 +55,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
         - Used fields in table ```short_term_statistics```: ```sum```
 - Import, one at a time, all the created CSV data ```elec*```, ```gas*``` and ```water*``` files (File -> Import -> Table from CSV file...)
     - It is possible to load data from multiple CSV's with the same name. The data of the second import is than added to the existing tables. This can be used in case there are multiple energy source providers for different timeperiods. In this case you first import the files from the first energy provider and than then second etc.
-- Lookup in the ```statistics_meta``` table the ID's of the sensors (Browse Data -> Table: ```statistics_meta```; You can use "filter" to find the id of the sensor)
+- Lookup in the ```statistics_meta``` table the IDs of the sensors (Browse Data -> Table: ```statistics_meta```; You can use "filter" to find the ID of the sensor)
     - The names of the sensors can be looked up in the Home Assistant Energy dashboard (Settings -> Dashboards -> Energy).
 <br>Example:
 ```
@@ -69,7 +69,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
         653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Change the script and remove/comment out the lines of the sensors that are not needed. They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
-- Change the script and update the ID's according to the found ID's in the ```statistics_meta``` table.
+- Change the script and update the IDs according to the found IDs in the ```statistics_meta``` table.
   They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
     - Determine the ```correction``` value based on the ```unit_of_measurement``` of the sensor and the used datasource. The unit of measurement of the datasource can be found in the readme of the datasource.
       The different corrections are described in the script.

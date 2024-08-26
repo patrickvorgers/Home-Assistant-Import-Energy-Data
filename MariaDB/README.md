@@ -91,7 +91,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
         - Press ```Import``` and after successfull completion the logwindow will show how many rows were imported.
     - It is possible to load data from multiple CSV's with the same name. The data of the second import is than added to the existing tables. This can be used in case there are multiple energy source providers for different timeperiods. In this case you first import the files from the first energy provider and than then second etc.
       The ```<new table>``` step can be skipped in this case because the table already exists. Instead of selecting ```<new table>``` select the right table in which the data should be imported.
-- Lookup in the ```statistics_meta``` table the ID's of the sensors (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the id of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```)
+- Lookup in the ```statistics_meta``` table the IDs of the sensors (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the ID of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```)
     - The names of the sensors can be looked up in the Home Assistant Energy dashboard (Settings -> Dashboards -> Energy).
 <br>Example:
 ```
@@ -105,7 +105,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
         653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Change the script and remove/comment out the lines of the sensors that are not needed. They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
-- Change the script and update the ID's according to the found ID's in the ```statistics_meta``` table.
+- Change the script and update the IDs according to the found IDs in the ```statistics_meta``` table.
   They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
     - Determine the ```correction``` value based on the ```unit_of_measurement``` of the sensor and the used datasource. The unit of measurement of the datasource can be found in the readme of the datasource.
       The different corrections are described in the script.

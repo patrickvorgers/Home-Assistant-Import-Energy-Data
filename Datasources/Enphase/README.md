@@ -1,6 +1,6 @@
 # Energy provider: Enphase
 
-Enphase offers the option to export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) website. This data can be transformed and used to import into Home Assistant.
+Enphase offers the option to export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (hour interval) - kWh (Metered version)
@@ -12,8 +12,8 @@ Enphase offers the option to export data from the [Enlighten Enphase Energy](htt
 - Pandas python library ```pip install pandas```
 
 **How-to**
-- Export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) website
-    - Go to the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) website
+- Export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site
+    - Go to the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site
     - Set the language to English (bottom right corner)
     - Login with your account
     - Follow the below substeps in case you have access to the installer version of the site (orange layout)

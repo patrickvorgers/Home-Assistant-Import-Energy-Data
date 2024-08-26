@@ -1,6 +1,6 @@
 # Energy provider: Eneco
 
-Eneco offers the option to export data from the [Mijn Eneco](https://inloggen.eneco.nl/) website. This data can be transformed and used to import into Home Assistant.
+Eneco offers the option to export data from the [Mijn Eneco](https://inloggen.eneco.nl/) site. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (day interval) - kWh
@@ -15,8 +15,8 @@ Eneco offers the option to export data from the [Mijn Eneco](https://inloggen.en
 - OpenPyXL python library ```pip install openpyxl```
 
 **How-to**
-- Export data from the [Mijn Eneco](https://inloggen.eneco.nl/) website
-    - Go to the [Mijn Eneco](https://inloggen.eneco.nl/) website
+- Export data from the [Mijn Eneco](https://inloggen.eneco.nl/) site
+    - Go to the [Mijn Eneco](https://inloggen.eneco.nl/) site
     - Login with your account
     - Select the 'Verbruik' tab
     - On to bottom right select 'Verbruiksgegevens'

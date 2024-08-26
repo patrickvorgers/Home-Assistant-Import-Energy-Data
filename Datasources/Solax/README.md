@@ -1,6 +1,6 @@
 # Energy provider: Solax
 
-Solax offers the option to export data from the [Solax Cloud](https://www.solaxcloud.com/) website. This data can be transformed and used to import into Home Assistant.
+Solax offers the option to export data from the [Solax Cloud](https://www.solaxcloud.com/) site. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Solar production - High resolution (day interval) - kWh
@@ -13,8 +13,8 @@ Solax offers the option to export data from the [Solax Cloud](https://www.solaxc
 
 
 **How-to**
-- Export data from the [Solax Cloud](https://www.solaxcloud.com/) website
-    - Go to the [Solax Cloud](https://www.solaxcloud.com/) website
+- Export data from the [Solax Cloud](https://www.solaxcloud.com/) site
+    - Go to the [Solax Cloud](https://www.solaxcloud.com/) site
     - Login with your account
     - Select 'System&Site'
     - Select your 'Site Name'

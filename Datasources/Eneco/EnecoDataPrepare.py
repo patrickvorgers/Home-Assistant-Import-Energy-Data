@@ -6,7 +6,7 @@ from collections import namedtuple
 #   column: The name of the column on which the filter should be applied
 #   value: The value on which should be filtered (regular expressions can be used)
 #   equal: Boolean value indicating whether the filter should be inclusive or exclusive (True/False) 
-DataFilter = namedtuple('DataFilter', ['column', 'value', 'equal'])
+DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
 
 # OutputFileDefinition named tuple definition
 #   outputFileName: The name of the output file
