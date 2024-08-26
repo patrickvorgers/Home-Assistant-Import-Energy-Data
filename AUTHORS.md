@@ -7,20 +7,20 @@ Hopefully, together with the community, the number of supported energy providers
 
 Please share scripts or how-to guides if you have built an integration with a new energy provider. Your name will be added to the list below as a contributor.
 
-## Project technical leads:
+## Project technical leads
 
 * Patrick Vorgers (the Netherlands)
 
-## All other contributors:
+## All other contributors
 
 * Nick de Wijer (https://github.com/ndewijer)
-    * Initial implementation: GreenChoice
-    * Sample files for: SolarEdge
+  * Initial implementation: GreenChoice
+  * Sample files for: SolarEdge
 * vGelder (https://github.com/vGelder)
-    * Sample files for: Oxxio
-    * Sample files for: Liander
-    * Sample files for: Engie
+  * Sample files for: Oxxio
+  * Sample files for: Liander
+  * Sample files for: Engie
 * Jaap P. (https://github.com/AJediIAm)
-    * Implementation: P1Mon (ZTATZ)
+  * Implementation: P1Mon (ZTATZ)
 * Minze Tolsman (https://github.com/miezie)
-    * Implementation: VanOns
+  * Implementation: VanOns

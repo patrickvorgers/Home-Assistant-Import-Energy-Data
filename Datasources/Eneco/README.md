@@ -16,12 +16,12 @@ Eneco offers the option to export data from the [Mijn Eneco](https://inloggen.en
 
 **How-to**
 - Export data from the [Mijn Eneco](https://inloggen.eneco.nl/) site
-    - Go to the [Mijn Eneco](https://inloggen.eneco.nl/) site
-    - Login with your account
-    - Select the 'Verbruik' tab
-    - On to bottom right select 'Verbruiksgegevens'
-    - Fill in the start and end date and press 'Download'
-    - The data is now downloaded to your PC
+  - Go to the [Mijn Eneco](https://inloggen.eneco.nl/) site
+  - Login with your account
+  - Select the 'Verbruik' tab
+  - On to bottom right select 'Verbruiksgegevens'
+  - Fill in the start and end date and press 'Download'
+  - The data is now downloaded to your PC
 - Download the ```EnecoDataPrepare.py``` file and put it in the same directory as the Eneco data
 - Execute the python script with as parameter the name of the file that contains the exported data ```python EnecoPrepare.py Verbruik_01-01-2020-31-12-2020.xlsx```. The python script creates the needed files for the generic import script.
 - Follow the steps in the overall how-to

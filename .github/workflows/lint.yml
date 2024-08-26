@@ -17,4 +17,5 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_SQL: false
           VALIDATE_SQL_SQLFLUFF: false
+          FILTER_REGEX_EXCLUDE: *.sql
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
