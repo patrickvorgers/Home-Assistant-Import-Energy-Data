@@ -26,9 +26,9 @@ OutputFileDefinition = namedtuple(
     ["outputFileName", "valueColumnName", "dataFilters", "recalculate"],
 )
 
-#**********************************************************************************************************************
+#----------------------------------------------------------------------------------------------------------------------
 # TEMPLATE SETUP
-#**********************************************************************************************************************
+#----------------------------------------------------------------------------------------------------------------------
 
 # Name of the energy provider
 energyProviderName = "Solax"
@@ -64,7 +64,7 @@ inputFileExcelSheetName = 0
 dateTimeColumnName = "_DateTime"
 
 # Provide any data preparation code (if needed)
-# Example: dataPreparation = "df["Energy Produced (Wh)"] = 
+# Example: dataPreparation = "df["Energy Produced (Wh)"] =
 #                                 df["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)"
 dataPreparation = ""
 
@@ -78,8 +78,7 @@ outputFiles = [
     ),
 ]
 
-#**********************************************************************************************************************
-
+#----------------------------------------------------------------------------------------------------------------------
 
 
 # Prepare the input data
@@ -89,7 +88,8 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     # Check if we have to combine a date and time field
     if inputFileTimeColumnName != "":
         # Take note that the format is changed in case the column was parsed as date.
-        # For excel change the type of the cell to text or adjust the format accordingly, use statement print(dataFrame) to get information about the used format.
+        # For excel change the type of the cell to text or adjust the format accordingly,
+        # use statement print(dataFrame) to get information about the used format.
         dataFrame[dateTimeColumnName] = pd.to_datetime(
             dataFrame[inputFileDateColumnName].astype(str)
             + " "
