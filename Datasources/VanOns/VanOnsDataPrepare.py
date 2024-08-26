@@ -5,6 +5,7 @@ import math
 import os
 import sys
 from collections import namedtuple
+from typing import List
 import pandas as pd
 
 # DataFilter named tuple definition
@@ -19,7 +20,7 @@ DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
 #   dataFilters: A list of datafilters (see above the definition of a datafilter)
 #   recalculate: Boolean value indication whether the data should be recalculated because the source is not an increasing value
 OutputFileDefinition = namedtuple(
-    "FileDefinition",
+    "OutputFileDefinition",
     ["outputFileName", "valueColumnName", "dataFilters", "recalculate"],
 )
 
@@ -47,8 +48,8 @@ inputFileNumHeaderRows = 0
 # Inputfile(s): Number of footer rows in the input file
 inputFileNumFooterRows = 0
 # Inputfile(s): Json path of the records (only needed for json files)
-# Example: inputFileJsonPath = ['energy', 'values']
-inputFileJsonPath = []
+# Example: inputFileJsonPath: List[str] = ['energy', 'values']
+inputFileJsonPath: List[str] = []
 # Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets; leave at 0 for the first sheet)
 inputFileExcelSheetName = 0
 
@@ -121,7 +122,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
 
 # Filter the data based on the provided dataFilter(s)
-def filterData(dataFrame: pd.DataFrame, filters: DataFilter) -> pd.DataFrame:
+def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFrame:
     df = dataFrame
     # Iterate all the provided filters
     for dataFilter in filters:
