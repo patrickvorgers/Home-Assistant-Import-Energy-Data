@@ -54,7 +54,7 @@ inputFileNumHeaderRows = 0
 inputFileNumFooterRows = 0
 # Inputfile(s): Json path of the records (only needed for json files)
 # Example: inputFileJsonPath: List[str] = ['energy', 'values']
-inputFileJsonPath: List[str] = ['energy', 'values']
+inputFileJsonPath: List[str] = ["energy", "values"]
 # Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets,
 #               leave at 0 for the first sheet)
 inputFileExcelSheetName = 0

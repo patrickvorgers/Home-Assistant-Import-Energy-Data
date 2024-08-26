@@ -42,8 +42,10 @@ Importing historical energy data into Home Assistant is not simple and requires 
 - Download the created backup
 - Stop the Home Assistant core
   - ```Developer tools/Actions/Action: Home Assistant Core Integration: Stop```
-- Home Assistant data: 
-  - extract: ```home-assistant_v2.db``` (from ```backup.tar``` extract ```homeassistant.tar.gz``` from ```data``` folder). As an alternative it is also possible to download the ```home-assistant_v2.db``` directly from the Home Assistant ```config``` directory (For example: use WinSCP in combination with the Home Assistant SSH addon). In case of this method make sure that you didn't skip the step to create a backup so that you can always restore this version of the database!
+- Home Assistant data:
+  - extract: ```home-assistant_v2.db``` (from ```backup.tar``` extract ```homeassistant.tar.gz``` from ```data``` folder).
+    As an alternative it is also possible to download the ```home-assistant_v2.db``` directly from the Home Assistant ```config``` directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
+    In case of this method make sure that you didn't skip the step to create a backup so that you can always restore this version of the database!
 
 #### Import the data
 - Start ```DB Browser for SQLite```
@@ -79,7 +81,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Replace Home Assistant database
 - Make sure that the Home Assistant core is still stopped (Home Assistant UI does not respond)
-- Upload ```home-assistant_v2.db``` to the Home Assistant ```config``` directory (For example: use WinSCP in combination with the Home Assistant SSH addon). 
+- Upload ```home-assistant_v2.db``` to the Home Assistant ```config``` directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
 - Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the ```reboot``` command)
 - Validate the imported data in the ```Energy Dashboard```
 - Enjoy :-)

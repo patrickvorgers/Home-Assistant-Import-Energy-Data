@@ -45,7 +45,7 @@ inputFileTimeColumnName = ""
 #               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat = "%d-%m-%Y"
 # Inputfile(s): Data seperator being used in the .csv input file
-inputFileDataSeperator = ';'
+inputFileDataSeperator = ";"
 # Inputfile(s): Decimal token being used in the input file
 inputFileDataDecimal = "."
 # Inputfile(s): Number of header rows in the input file

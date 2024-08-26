@@ -65,11 +65,20 @@ Import historical energy/water data from external datasources into Home Assistan
 
 ### Background
 
-I have been enjoying the Home Assistant Energy Dashboard feature since it came out. The only downside was that I could not import my historical energy/water data. I was using "Toon" from my Dutch energyprovider Eneco until the Home Assistant Energy Dashboard came out. This led me to write an import script that could import Toon data into Home Assistant. After I got it working I made this specific import script as is available on GitHub.
+I have been enjoying the Home Assistant Energy Dashboard feature since it came out.
+The only downside was that I could not import my historical energy/water data.
+I was using "Toon" from my Dutch energyprovider Eneco until the Home Assistant Energy Dashboard came out.
+This led me to write an import script that could import Toon data into Home Assistant.
+After I got it working I made this specific import script as is available on GitHub.
 
-Since then the import script has been used and adapted by several people so it could be used with other energy providers. Their feedback led me to the idea to rewrite my initial script and make it more generic and robust so that it can be used easier with other energy providers. The latest version of the script is independent from the energy provider and makes it possbile to import historical exported energy data into Home Assistant. It adds the statistics data that is missing in Home Assistant and adjusts the existing data.
+Since then the import script has been used and adapted by several people so it could be used with other energy providers.
+Their feedback led me to the idea to rewrite my initial script and make it more generic and robust so that it can be used easier with other energy providers.
+The latest version of the script is independent from the energy provider and makes it possbile to import historical exported energy data into Home Assistant.
+It adds the statistics data that is missing in Home Assistant and adjusts the existing data.
 
-The generic import script requires the data to be in a specific simple CSV file format (```Epoch Unix Timestamp```, ```sensor value```). For several energy providers conversion scripts exist that convert the energy provider specific format to the needed format. To make live easier a generic conversion script is available that can handle formats like CSV, XLS, XLSX and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
+The generic import script requires the data to be in a specific simple CSV file format (```Epoch Unix Timestamp```, ```sensor value```).
+For several energy providers conversion scripts exist that convert the energy provider specific format to the needed format.
+To make live easier a generic conversion script is available that can handle formats like CSV, XLS, XLSX and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
 
 **Latest data still correct after import (short_term_statistics work)**
 ![2023](https://user-images.githubusercontent.com/10108665/230038379-8d20d264-c49e-4c98-b1f6-241942306886.JPG)
@@ -80,18 +89,18 @@ The generic import script requires the data to be in a specific simple CSV file 
 **Data of 2015 - Imported using low resolution interval data (daily) - statistics work**
 ![2015](https://user-images.githubusercontent.com/10108665/230038421-3833847a-79a4-40a2-8937-2b5f2ae3f3cc.JPG)
 
-### Features:
+### Features
 <ul>
-    <li>Imports correctly historical energy and water data into Home Assistant</li>
-    <li>Supports combination of low and high resolution data</li>
-    <li>Supports electrical feed in, electrical feed out, solar power, gas and water data</li>
-    <li>Supports data feeds with double tariffs (normal tariff / low tariff)</li>
-    <li>One line configuration in case a sensor is not needed</li>
-    <li>Possibility to provide a conversion factor per sensor (for instance conversion between Wh/kWh or L/m³)</li>
-    <li>Supports reset of sensors (for instance replacement of energy meter)</li>
-    <li>Support for SQLite (standard Home Assistant database) and MariaDB</li>
-    <li>Generic data conversion script for "unsupported" energy providers</li>
-    <li>Growing list of data conversion scripts for different energy providers (most using generic data conversion script)</li>
+  <li>Imports correctly historical energy and water data into Home Assistant</li>
+  <li>Supports combination of low and high resolution data</li>
+  <li>Supports electrical feed in, electrical feed out, solar power, gas and water data</li>
+  <li>Supports data feeds with double tariffs (normal tariff / low tariff)</li>
+  <li>One line configuration in case a sensor is not needed</li>
+  <li>Possibility to provide a conversion factor per sensor (for instance conversion between Wh/kWh or L/m³)</li>
+  <li>Supports reset of sensors (for instance replacement of energy meter)</li>
+  <li>Support for SQLite (standard Home Assistant database) and MariaDB</li>
+  <li>Generic data conversion script for "unsupported" energy providers</li>
+  <li>Growing list of data conversion scripts for different energy providers (most using generic data conversion script)</li>
 </ul>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

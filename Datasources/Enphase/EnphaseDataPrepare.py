@@ -4,9 +4,11 @@ import json
 import math
 import os
 import sys
-#from calendar import weekday
+
+# from calendar import weekday
 from collections import namedtuple
-#from datetime import time
+
+# from datetime import time
 from typing import List
 
 import pandas as pd
@@ -97,55 +99,55 @@ if (("Imported from Grid (Wh)" in df.columns) and (df["Imported from Grid (Wh)"]
 outputFiles = [
     OutputFileDefinition(
         "elec_feed_in_tariff_1_high_resolution.csv",
-       "Imported from Grid (Wh)",
-       [],
-       True,
+        "Imported from Grid (Wh)",
+        [],
+        True,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "Exported to Grid (Wh)",
-       [],
-      True,
+        [],
+        True,
     ),
     OutputFileDefinition(
         "elec_solar_high_resolution.csv",
-       "Energy Produced (Wh)",
-      [],
-      True,
+        "Energy Produced (Wh)",
+        [],
+        True,
     ),
 ]
-#outputFiles = [
-#    OutputFileDefinition(
-#        "elec_feed_in_tariff_1_high_resolution.csv",
-#       "Imported from Grid (Wh)",
-#       [DataFilter('Tariff', '1', True)],
-#       True,
-#    ),
-#    OutputFileDefinition(
-#        "elec_feed_in_tariff_2_high_resolution.csv",
-#       "Imported from Grid (Wh)",
-#       [DataFilter('Tariff', '2', True)],
-#       True,
-#    ),
-#    OutputFileDefinition(
-#        "elec_feed_out_tariff_1_high_resolution.csv",
-#        "Exported to Grid (Wh)",
-#       [DataFilter('Tariff', '1', True)],
-#      True,
-#    ),
-#    OutputFileDefinition(
-#        "elec_feed_out_tariff_2_high_resolution.csv",
-#        "Exported to Grid (Wh)",
-#       [DataFilter('Tariff', '2', True)],
-#      True,
-#    ),
-#    OutputFileDefinition(
-#        "elec_solar_high_resolution.csv",
-#       "Energy Produced (Wh)",
-#      [],
-#      True,
-#    ),
-#]
+# outputFiles = [
+#     OutputFileDefinition(
+#         "elec_feed_in_tariff_1_high_resolution.csv",
+#         "Imported from Grid (Wh)",
+#         [DataFilter('Tariff', '1', True)],
+#         True,
+#     ),
+#     OutputFileDefinition(
+#         "elec_feed_in_tariff_2_high_resolution.csv",
+#         "Imported from Grid (Wh)",
+#         [DataFilter('Tariff', '2', True)],
+#         True,
+#     ),
+#     OutputFileDefinition(
+#         "elec_feed_out_tariff_1_high_resolution.csv",
+#         "Exported to Grid (Wh)",
+#         [DataFilter('Tariff', '1', True)],
+#         True,
+#     ),
+#     OutputFileDefinition(
+#         "elec_feed_out_tariff_2_high_resolution.csv",
+#         "Exported to Grid (Wh)",
+#         [DataFilter('Tariff', '2', True)],
+#         True,
+#     ),
+#     OutputFileDefinition(
+#         "elec_solar_high_resolution.csv",
+#         "Energy Produced (Wh)",
+#         [],
+#         True,
+#     ),
+# ]
 
 # ---------------------------------------------------------------------------------------------------------------------
 

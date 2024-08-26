@@ -84,9 +84,9 @@ outputFiles = [
     ),  # Low tariff
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
-       "GELVR_KWH_282",
-       [],
-       False,
+        "GELVR_KWH_282",
+        [],
+        False,
     ),  # High tariff
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
