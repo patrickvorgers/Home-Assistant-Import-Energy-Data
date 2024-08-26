@@ -1,6 +1,11 @@
-import os, sys, datetime, glob, math, json
-import pandas as pd
+import datetime
+import glob
+import json
+import math
+import os
+import sys
 from collections import namedtuple
+import pandas as pd
 
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
