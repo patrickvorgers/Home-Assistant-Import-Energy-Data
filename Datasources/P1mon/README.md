@@ -17,7 +17,7 @@ P1Mon offers the option to export data from the local database. This data can be
 
 **How-to**
 - Export data from P1Mon.
-  - Go to P1Mon's local IP address or URL. 
+  - Go to P1Mon's local IP address or URL
   - Go to ```configuation and Settings``` and login with the password
   - Select the 'in-export' tab
   - Select 'Excel Export' and choose 'e_historie.db'

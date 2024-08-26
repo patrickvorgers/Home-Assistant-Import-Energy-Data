@@ -94,12 +94,7 @@ outputFiles = [
         [],
         False,
     ),
-    OutputFileDefinition(
-        "gas_high_resolution.csv",
-        "Meterstand",
-        [],
-        False
-    ),
+    OutputFileDefinition("gas_high_resolution.csv", "Meterstand", [], False),
 ]
 
 # ---------------------------------------------------------------------------------------------------------------------
