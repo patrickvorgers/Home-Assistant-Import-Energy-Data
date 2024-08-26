@@ -6,38 +6,43 @@ import os
 import sys
 from collections import namedtuple
 from typing import List
+
 import pandas as pd
 
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
 #   value: The value on which should be filtered (regular expressions can be used)
-#   equal: Boolean value indicating whether the filter should be inclusive or exclusive (True/False) 
+#   equal: Boolean value indicating whether the filter should be inclusive or exclusive (True/False)
 DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
 
 # OutputFileDefinition named tuple definition
 #   outputFileName: The name of the output file
 #   valueColumnName: The name of the column holding the value
 #   dataFilters: A list of datafilters (see above the definition of a datafilter)
-#   recalculate: Boolean value indication whether the data should be recalculated because the source is not an increasing value
+#   recalculate: Boolean value indication whether the data should be recalculated,
+#                because the source is not an increasing value
 OutputFileDefinition = namedtuple(
     "OutputFileDefinition",
     ["outputFileName", "valueColumnName", "dataFilters", "recalculate"],
 )
 
-#*******************************************************************************************************************************************************
+#**********************************************************************************************************************
 # TEMPLATE SETUP
-#*******************************************************************************************************************************************************
+#**********************************************************************************************************************
 
 # Name of the energy provider
 energyProviderName = "Liander"
 
 # Inputfile(s): filename extension
 inputFileNameExtension = ".csv"
-# Inputfile(s): Name of the column containing the date of the reading. Use this in case date and time is combined in one field.
+# Inputfile(s): Name of the column containing the date of the reading.
+#               Use this in case date and time is combined in one field.
 inputFileDateColumnName = "meterreadingdate"
-# Inputfile(s): Name of the column containing the time of the reading. Leave empty in case date and time is combined in one field.
+# Inputfile(s): Name of the column containing the time of the reading.
+#               Leave empty in case date and time is combined in one field.
 inputFileTimeColumnName = ""
-# Inputfile(s): Date/time format used in the datacolumn. Combine the format of the date and time in case date and time are two seperate fields.
+# Inputfile(s): Date/time format used in the datacolumn.
+#               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat = "%d-%m-%Y"
 # Inputfile(s): Data seperator being used in the input file
 inputFileDataSeperator = ","
@@ -50,25 +55,54 @@ inputFileNumFooterRows = 0
 # Inputfile(s): Json path of the records (only needed for json files)
 # Example: inputFileJsonPath: List[str] = ['energy', 'values']
 inputFileJsonPath: List[str] = []
-# Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets; leave at 0 for the first sheet)
+# Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets,
+#               leave at 0 for the first sheet)
 inputFileExcelSheetName = 0
 
-# Name used for the temporary date/time field. This needs normally no change only when it conflicts with existing columns.
+# Name used for the temporary date/time field.
+# This needs normally no change only when it conflicts with existing columns.
 dateTimeColumnName = "_DateTime"
 
 # Provide any data preparation code (if needed)
-# Example: dataPreparation = "df['Energy Produced (Wh)'] = df['Energy Produced (Wh)'].str.replace(',', '').replace('\"', '').astype(int)"
+# Example: dataPreparation = "df["Energy Produced (Wh)"] = 
+#                                 df["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)"
 dataPreparation = ""
 
 # List of one or more output file definitions
-outputFiles = [OutputFileDefinition('elec_feed_in_tariff_1_high_resolution.csv', 'reading2', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('elec_feed_in_tariff_2_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('elec_feed_out_tariff_1_high_resolution.csv', 'reading4', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('elec_feed_out_tariff_2_high_resolution.csv', 'reading3', [DataFilter('meternummer', '^E', True)], False),
-               OutputFileDefinition('gas_high_resolution.csv', 'reading1', [DataFilter('meternummer', '^G', True)], False)
-              ]
+outputFiles = [
+    OutputFileDefinition(
+        "elec_feed_in_tariff_1_high_resolution.csv",
+        "reading2",
+        [DataFilter("meternummer", "^E", True)],
+        False,
+    ),
+    OutputFileDefinition(
+        "elec_feed_in_tariff_2_high_resolution.csv",
+        "reading1",
+        [DataFilter("meternummer", "^E", True)],
+        False,
+    ),
+    OutputFileDefinition(
+        "elec_feed_out_tariff_1_high_resolution.csv",
+        "reading4",
+        [DataFilter("meternummer", "^E", True)],
+        False,
+    ),
+    OutputFileDefinition(
+        "elec_feed_out_tariff_2_high_resolution.csv",
+        "reading3",
+        [DataFilter("meternummer", "^E", True)],
+        False,
+    ),
+    OutputFileDefinition(
+        "gas_high_resolution.csv",
+        "reading1",
+        [DataFilter("meternummer", "^G", True)],
+        False,
+    ),
+]
 
-#*******************************************************************************************************************************************************
+#**********************************************************************************************************************
 
 
 
@@ -110,7 +144,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Make sure that the data is correctly sorted
     df.sort_values(by=dateTimeColumnName, ascending=True, inplace=True)
- 
+
     # Transform the date into unix timestamp for Home-Assistant
     df[dateTimeColumnName] = (
         df[dateTimeColumnName].astype("int64") / 1000000000
@@ -131,7 +165,7 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
         series = (
             df[dataFilter.column].astype(str).str.contains(dataFilter.value, regex=True)
         )
- 
+
         # Validate whether the data is included or excluded
         if not dataFilter.equal:
             series = ~series
@@ -144,7 +178,7 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 # Recalculate the data so that the value increases
 def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFrame:
     df = dataFrame
- 
+
     # Make the value column increasing (skip first row)
     previousRowIndex = -1
     for index, _ in df.iterrows():
@@ -199,7 +233,7 @@ def generateImportDataFile(
         )
 
 
-# Read the inputfile 
+# Read the inputfile
 def readInputFile(inputFileName: str) -> pd.DataFrame:
     # Read the specified file
     print("Loading data: " + inputFileName)
@@ -227,7 +261,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
     elif inputFileNameExtension == ".json":
         # Read the JSON file
         jsonData = json.load(open(inputFileName))
-        df = pd.json_normalize(jsonData, record_path = inputFileJsonPath)
+        df = pd.json_normalize(jsonData, record_path=inputFileJsonPath)
     else:
         raise Exception("Unsupported extension: " + inputFileNameExtension)
 
@@ -273,7 +307,7 @@ def generateImportDataFiles(inputFileNames: str):
 
             print("Done")
         else:
-            print("Only " + inputFileNameExtension + " datafiles are allowed")    
+            print("Only " + inputFileNameExtension + " datafiles are allowed")
     else:
         print("No files found based on : " + inputFileNames)
 
