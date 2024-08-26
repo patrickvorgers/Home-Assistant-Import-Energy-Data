@@ -1,6 +1,6 @@
 # Energy provider: Liander
 
-Liander doesn't offer the option to export data from their website or mobile app, but it is possible to request data via customer service. This data can be transformed and used to import into Home Assistant.
+Liander doesn't offer the option to export data from their site or mobile app, but it is possible to request data via customer service. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (day interval) - kWh

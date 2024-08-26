@@ -40,13 +40,13 @@ This howto describes how to export data from an existing Home Assistant energy/w
 - In the ```Execute SQL``` tab select the 4th button from the right (hovertext: ```Save the results view```). In the dropdown box select ```Export to CSV```.
 - Deselect ```Column names in first line``` and use ```,``` as value for ```Field separator``` and press ```Save```.
 - Provide the correct name for the file (see [Generic how-to](../../README.md) ```Source data preparation``` section) and save the file.
-    - elec_feed_in_tariff_1_high_resolution.csv
-    - elec_feed_in_tariff_2_high_resolution.csv
-    - elec_feed_out_tariff_1_high_resolution.csv
-    - elec_feed_out_tariff_2_high_resolution.csv
-    - elec_solar_high_resolution.csv
-    - gas_high_resolution.csv
-    - water_high_resolution.csv
+  - elec_feed_in_tariff_1_high_resolution.csv
+  - elec_feed_in_tariff_2_high_resolution.csv
+  - elec_feed_out_tariff_1_high_resolution.csv
+  - elec_feed_out_tariff_2_high_resolution.csv
+  - elec_solar_high_resolution.csv
+  - gas_high_resolution.csv
+  - water_high_resolution.csv
 
 <br>
 
@@ -58,7 +58,7 @@ This howto describes how to export data from an existing Home Assistant energy/w
 ##### Export the data
 - Start ```HeidiSQL```.
 - Open a session to the Home Assistant MariaDB database, see [MariaDB how-to](../../MariaDB/README.md) for information regarding setting up the intial connection and creating a backup of the database.
-- Lookup in the ```statistics_meta``` table the ID of the sensor for which the data should be exported (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the id of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```).
+- Lookup in the ```statistics_meta``` table the ID of the sensor for which the data should be exported (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the ID of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```).
 <br>Example:
 ```
         id  statistic_id                                source      unit_of_measurement
@@ -75,16 +75,16 @@ This howto describes how to export data from an existing Home Assistant energy/w
 - Execute the SQL and wait for it to complete (Shortcut: F9).
 - Right click in the results tab and select ```Export grid rows```.
 - Apply the following settings:
-    - Encoding: ```UTF-8```
-    - Output format: ```Delimited text```
-    - Row selection: ```Complete```
-    - Include column names: ```deselect```
-    - Field separator: ```,```
+  - Encoding: ```UTF-8```
+  - Output format: ```Delimited text```
+  - Row selection: ```Complete```
+  - Include column names: ```deselect```
+  - Field separator: ```,```
 - Provide the correct name for the file (see [Generic how-to](../../README.md) ```Source data preparation``` section) and save the file (press ```OK```)
-    - elec_feed_in_tariff_1_high_resolution.csv
-    - elec_feed_in_tariff_2_high_resolution.csv
-    - elec_feed_out_tariff_1_high_resolution.csv
-    - elec_feed_out_tariff_2_high_resolution.csv
-    - elec_solar_high_resolution.csv
-    - gas_high_resolution.csv
-    - water_high_resolution.csv
+  - elec_feed_in_tariff_1_high_resolution.csv
+  - elec_feed_in_tariff_2_high_resolution.csv
+  - elec_feed_out_tariff_1_high_resolution.csv
+  - elec_feed_out_tariff_2_high_resolution.csv
+  - elec_solar_high_resolution.csv
+  - gas_high_resolution.csv
+  - water_high_resolution.csv

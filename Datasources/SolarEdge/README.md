@@ -1,6 +1,6 @@
 # Energy provider: SolarEdge
 
-SolarEdge offers the option to export data from the [Solar Edge](https://www.solaredge.com/) website through an API. This data can be transformed and used to import into Home Assistant.
+SolarEdge offers the option to export data from the [Solar Edge](https://www.solaredge.com/) site through an API. This data can be transformed and used to import into Home Assistant.
 
 **Data provided**
 - Solar production - High resolution (hour interval) - Wh

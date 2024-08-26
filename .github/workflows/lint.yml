@@ -1,0 +1,21 @@
+name: Super-Linter
+
+on: push
+
+jobs:
+  super-lint:
+    name: Lint code base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Super-Linter
+        uses: github/super-linter@latest
+        env:
+          DEFAULT_BRANCH: main
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_SQL: false
+          VALIDATE_SQL_SQLFLUFF: false
+          FILTER_REGEX_EXCLUDE: .*\.sql$|.*\.md$
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
