@@ -72,11 +72,11 @@ dateTimeColumnName = "_DateTime"
 #                                 df["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)"
 dataPreparation = """
 if df["Energy Produced (Wh)"].dtype == "object":
-    df["Energy Produced (Wh)"] = df["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)
+    df["Energy Produced (Wh)"] = df["Energy Produced (Wh)"].str.replace(",", "").replace("\\"", "").astype(int)
 if (("Exported to Grid (Wh)" in df.columns) and (df["Exported to Grid (Wh)"].dtype == "object")):
-    df["Exported to Grid (Wh)"] = df["Exported to Grid (Wh)"].str.replace(",", "").replace("\"", "").astype(int)
+    df["Exported to Grid (Wh)"] = df["Exported to Grid (Wh)"].str.replace(",", "").replace("\\"", "").astype(int)
 if (("Imported from Grid (Wh)" in df.columns) and (df["Imported from Grid (Wh)"].dtype == "object")):
-    df["Imported from Grid (Wh)"] = df["Imported from Grid (Wh)"].str.replace(",", "").replace("\"", "").astype(int)
+    df["Imported from Grid (Wh)"] = df["Imported from Grid (Wh)"].str.replace(",", "").replace("\\"", "").astype(int)
 
 # Create a tariff column, uncomment the below lines if needed
 #for index, _ in df.iterrows():
