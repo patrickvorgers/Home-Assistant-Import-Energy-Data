@@ -24,5 +24,7 @@ The SlimmeMeterPortal offers the option to export data from the SlimmeMeterPorta
       - Select the meter and year and click on `BESTAND OPVRAGEN`
       - Download the generated file
 - Download the ```SlimmeMeterPortalDataPrepare.py``` and/or ```SlimmeMeterPortalGasDataPrepare.py``` file and put it in the same directory as the P1Mon data
-- Execute the python script with as parameter the name of the file that contains the exported data ```python SlimmeMeterPortalDataPrepare.py data_20??_871687120058657526.xlsx```. The python script creates the needed files for the generic import script.
+- Execute the python script with as parameter the name of the file that contains the exported data ```python SlimmeMeterPortalDataPrepare.py data_20??_871687120058657526.xlsx```.
+  The python script creates the needed files for the generic import script.
+  To import data for multiple years, use `?` or `*` in the filename to match multiple files.
 - Follow the steps in the overall how-to
