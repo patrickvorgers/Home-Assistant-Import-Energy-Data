@@ -15,6 +15,7 @@ Enphase offers the option to export data from the [Enlighten Enphase Energy](htt
 - Export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site
   - Go to the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site
   - Set the language to English (bottom right corner)
+      - Goto account and set the language to English in case the language is not set correctly during logon
   - Login with your account
   - Follow the below substeps in case you have access to the installer version of the site (orange layout)
     - Select your system
