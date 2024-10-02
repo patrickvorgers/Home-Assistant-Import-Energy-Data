@@ -76,7 +76,7 @@ outputFiles = [
         [
             DataFilter("Register", "Afname Dag", True),
             DataFilter("Eenheid", "kWh", True),
-            DataFilter("Validatiestatus", "Gevalideerd", True)
+            DataFilter("Validatiestatus", "Gevalideerd", True),
         ],
         True,
     ),
@@ -86,7 +86,7 @@ outputFiles = [
         [
             DataFilter("Register", "Afname Nacht", True),
             DataFilter("Eenheid", "kWh", True),
-            DataFilter("Validatiestatus", "Gevalideerd", True)
+            DataFilter("Validatiestatus", "Gevalideerd", True),
         ],
         True,
     ),
@@ -96,7 +96,7 @@ outputFiles = [
         [
             DataFilter("Register", "Injectie Dag", True),
             DataFilter("Eenheid", "kWh", True),
-            DataFilter("Validatiestatus", "Gevalideerd", True)
+            DataFilter("Validatiestatus", "Gevalideerd", True),
         ],
         True,
     ),
@@ -106,7 +106,7 @@ outputFiles = [
         [
             DataFilter("Register", "Injectie Nacht", True),
             DataFilter("Eenheid", "kWh", True),
-            DataFilter("Validatiestatus", "Gevalideerd", True)
+            DataFilter("Validatiestatus", "Gevalideerd", True),
         ],
         True,
     ),
@@ -116,7 +116,7 @@ outputFiles = [
         [
             DataFilter("Register", "Afname", True),
             DataFilter("Eenheid", "m³", True),
-            DataFilter("Validatiestatus", "Gevalideerd", True)
+            DataFilter("Validatiestatus", "Gevalideerd", True),
         ],
         True,
     ),
