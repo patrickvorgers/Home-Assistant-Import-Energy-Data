@@ -73,33 +73,53 @@ outputFiles = [
     OutputFileDefinition(
         "elec_feed_in_tariff_1_high_resolution.csv",
         "Volume",
-        [DataFilter("Register", "Afname Dag", True), DataFilter("Eenheid", "kWh", True), DataFilter("Validatiestatus", "Gevalideerd", True)],
+        [
+            DataFilter("Register", "Afname Dag", True),
+            DataFilter("Eenheid", "kWh", True),
+            DataFilter("Validatiestatus", "Gevalideerd", True)
+        ],
         True,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
         "Volume",
-        [DataFilter("Register", "Afname Nacht", True), DataFilter("Eenheid", "kWh", True), DataFilter("Validatiestatus", "Gevalideerd", True)],
+        [
+            DataFilter("Register", "Afname Nacht", True),
+            DataFilter("Eenheid", "kWh", True),
+            DataFilter("Validatiestatus", "Gevalideerd", True)
+        ],
         True,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "Volume",
-        [DataFilter("Register", "Injectie Dag", True), DataFilter("Eenheid", "kWh", True), DataFilter("Validatiestatus", "Gevalideerd", True)],
+        [
+            DataFilter("Register", "Injectie Dag", True),
+            DataFilter("Eenheid", "kWh", True),
+            DataFilter("Validatiestatus", "Gevalideerd", True)
+        ],
         True,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
         "Volume",
-        [DataFilter("Register", "Injectie Nacht", True), DataFilter("Eenheid", "kWh", True), DataFilter("Validatiestatus", "Gevalideerd", True)],
+        [
+            DataFilter("Register", "Injectie Nacht", True),
+            DataFilter("Eenheid", "kWh", True),
+            DataFilter("Validatiestatus", "Gevalideerd", True)
+        ],
         True,
-    ),    
+    ),
     OutputFileDefinition(
         "gas_high_resolution.csv",
         "Volume",
-        [DataFilter("Register", "Afname", True), DataFilter("Eenheid", "m³", True), DataFilter("Validatiestatus", "Gevalideerd", True)],
+        [
+            DataFilter("Register", "Afname", True),
+            DataFilter("Eenheid", "m³", True),
+            DataFilter("Validatiestatus", "Gevalideerd", True)
+        ],
         True,
-    ),    
+    ),
 ]
 
 # ---------------------------------------------------------------------------------------------------------------------
