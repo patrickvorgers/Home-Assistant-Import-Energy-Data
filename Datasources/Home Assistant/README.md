@@ -14,7 +14,26 @@ This howto describes how to export data from an existing Home Assistant energy/w
 - Gas consumption - High resolution (hour interval)
 - Water consumption - High resolution (hour interval)
 
-**How-to (SQLite):**
+**How-to (Home Assistant):**
+
+This scenario can be used in case Home Assistant is available and can be used to export data.
+
+##### Export and import the data
+- Goto `Home Assistant`
+- Go to the `History` tab
+- Select `Choose entity` and select the Energy Dashboard entity you want to export
+- Adjust the `Start date` and `End date`
+- In the top-right corner select the 3-dots
+- Select `Download data`
+- Download the `HomeAssistantDataPrepare.py` file and put it in the same directory as the Home Assistant history data
+- Execute the python script with as parameter the name of the file that contains the exported data `python HomeAssistantDataPrepare.py history.csv`.
+  The python script creates the needed file for the generic import script.
+  To import data from multiple exports, use `?` or `*` in the filename to match multiple files.
+- Follow the steps in the overall how-to
+
+**How-to (SQLite database):**
+
+This scenario can be used in case the SQLite database is available and Home Assistant is not available anymore.
 
 ##### Tooling
 - Download and install: DB Browser (64 bit) for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
@@ -50,7 +69,9 @@ This howto describes how to export data from an existing Home Assistant energy/w
 
 <br>
 
-**How-to (MariaDB):**
+**How-to (MariaDB database):**
+
+This scenario can be used in case the MariaDB database is available and Home Assistant is not available anymore.
 
 ##### Tooling
 - Download and install: HeidiSQL https://www.heidisql.com/
