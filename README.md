@@ -224,6 +224,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
   * Implementation: P1Mon (ZTATZ)
 * Minze Tolsman (https://github.com/miezie)
   * Implementation: VanOns
+* Slyoldfox (https://github.com/slyoldfox)
+  * Implementation: Fluvius
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
