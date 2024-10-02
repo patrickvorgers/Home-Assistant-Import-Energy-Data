@@ -5,11 +5,11 @@ Fluvius offers the option to export data from the [Mijn Fluvius](https://mijn.fl
 It is recommended to create a quarter hourly (15 minute) export request so you can export the quarter hourly totals.
 
 **Data provided**
-- Electricity consumption - Tariff 1 - High resolution (15 minute interval) - kWh (Metered version)
-- Electricity consumption - Tariff 2 - High resolution (15 minute interval) - kWh (Metered version)
-- Electricity production - Tariff 1 - High resolution (15 minute interval) - kWh (Metered version)
-- Electricity production - Tariff 2 - High resolution (15 minute interval) - kWh (Metered version)
-- Gas consumption - High resolution (hour interval) - m³ or kWh (Metered version)
+- Electricity consumption - Tariff 1 - High resolution (15 minute interval) - kWh
+- Electricity consumption - Tariff 2 - High resolution (15 minute interval) - kWh
+- Electricity production - Tariff 1 - High resolution (15 minute interval) - kWh
+- Electricity production - Tariff 2 - High resolution (15 minute interval) - kWh
+- Gas consumption - High resolution (hour interval) - m³ or kWh
 
 **Tooling needed**
 - Python 3

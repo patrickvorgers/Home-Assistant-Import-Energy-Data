@@ -24,3 +24,5 @@ Please share scripts or how-to guides if you have built an integration with a ne
   * Implementation: P1Mon (ZTATZ)
 * Minze Tolsman (https://github.com/miezie)
   * Implementation: VanOns
+* Slyoldfox (https://github.com/slyoldfox)
+  * Implementation: Fluvius
