@@ -26,3 +26,5 @@ Please share scripts or how-to guides if you have built an integration with a ne
   * Implementation: VanOns
 * Slyoldfox (https://github.com/slyoldfox)
   * Implementation: Fluvius
+* TylonHH (https://github.com/TylonHH)
+  * Implementation: EnergyControl (app)
