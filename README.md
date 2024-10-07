@@ -226,6 +226,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
   * Implementation: VanOns
 * Slyoldfox (https://github.com/slyoldfox)
   * Implementation: Fluvius
+* TylonHH (https://github.com/TylonHH)
+  * Implementation: EnergyControl (app)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
