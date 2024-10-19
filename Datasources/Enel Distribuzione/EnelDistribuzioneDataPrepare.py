@@ -80,10 +80,14 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Extract the 'from' part of each column header (before the hyphen)
     # If the column doesn't contain a hyphen, leave it as is
-    df_clean.columns = [time.split('-')[0] if '-' in time else time for time in df_clean.columns]
+    df_clean.columns = [
+        time.split("-")[0] if "-" in time else time for time in df_clean.columns
+    ]
 
     # Melt the DataFrame to create 'Date', 'Time', and 'Value' columns
-    df_melted = pd.melt(df_clean, id_vars=['Giorno'], var_name='_Time', value_name='_Value')
+    df_melted = pd.melt(
+        df_clean, id_vars=["Giorno"], var_name="_Time", value_name="_Value"
+    )
 
     return df_melted
 
@@ -98,6 +102,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
 # Template version number
 versionNumber = "1.5.0"
+
 
 # Prepare the input data
 def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
@@ -148,7 +153,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     ).astype("int64")
 
     # Handle any custom dataframe manipulation (Post)
-    df = customPrepareDataPost(df);
+    df = customPrepareDataPost(df)
 
     return df
 
