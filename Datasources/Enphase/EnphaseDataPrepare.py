@@ -135,14 +135,33 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # Prepare the input data (after date/time manipulation)
 def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
     if dataFrame["Energy Produced (Wh)"].dtype == "object":
-        dataFrame["Energy Produced (Wh)"] = dataFrame["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)
-    if (("Exported to Grid (Wh)" in dataFrame.columns) and (dataFrame["Exported to Grid (Wh)"].dtype == "object")):
-        dataFrame["Exported to Grid (Wh)"] = dataFrame["Exported to Grid (Wh)"].str.replace(",", "").replace("\"", "").astype(int)
-    if (("Imported from Grid (Wh)" in dataFrame.columns) and (dataFrame["Imported from Grid (Wh)"].dtype == "object")):
-        dataFrame["Imported from Grid (Wh)"] = dataFrame["Imported from Grid (Wh)"].str.replace(",", "").replace("\"", "").astype(int)
+        dataFrame["Energy Produced (Wh)"] = (
+            dataFrame["Energy Produced (Wh)"]
+            .str.replace(",", "")
+            .replace('"', "")
+            .astype(int)
+        )
+    if ("Exported to Grid (Wh)" in dataFrame.columns) and (
+        dataFrame["Exported to Grid (Wh)"].dtype == "object"
+    ):
+        dataFrame["Exported to Grid (Wh)"] = (
+            dataFrame["Exported to Grid (Wh)"]
+            .str.replace(",", "")
+            .replace('"', "")
+            .astype(int)
+        )
+    if ("Imported from Grid (Wh)" in dataFrame.columns) and (
+        dataFrame["Imported from Grid (Wh)"].dtype == "object"
+    ):
+        dataFrame["Imported from Grid (Wh)"] = (
+            dataFrame["Imported from Grid (Wh)"]
+            .str.replace(",", "")
+            .replace('"', "")
+            .astype(int)
+        )
 
     # Create a tariff column, uncomment the below lines if needed
-    #for index, _ in dataFrame.iterrows():
+    # for index, _ in dataFrame.iterrows():
     #    recordDateTime = pd.to_datetime(dataFrame.at[index, dateTimeColumnName], unit='s')
     #    # Check if it is Monday, Tuesday, Wednesday, Thursday or Friday
     #    if recordDateTime.weekday() in [0, 1, 2, 3, 4, 5]:
