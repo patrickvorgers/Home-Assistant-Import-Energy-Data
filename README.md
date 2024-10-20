@@ -228,6 +228,9 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
   * Implementation: Fluvius
 * TylonHH (https://github.com/TylonHH)
   * Implementation: EnergyControl (app)
+* Nikolaj Hendel (https://github.com/nikolajhendel)
+  * How to for: iSolarCloud (Sungrow)
+  * Sample files for: iSolarCloud (Sungrow)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
