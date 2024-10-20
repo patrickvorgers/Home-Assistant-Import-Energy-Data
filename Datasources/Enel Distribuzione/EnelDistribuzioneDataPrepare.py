@@ -73,6 +73,10 @@ outputFiles = [
     ),
 ]
 
+# Use the below functions in case data has to be manipulated after the data has been read.
+# Use the customPrepareDataPre function in case the time/date data has to be manipulated.
+# Use the customPrepareDataPost function in all other cases
+
 
 # Prepare the input data (before date/time manipulation)
 def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
