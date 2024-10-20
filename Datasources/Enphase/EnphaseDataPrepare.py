@@ -67,34 +67,6 @@ inputFileExcelSheetName = 0
 # This needs normally no change only when it conflicts with existing columns.
 dateTimeColumnName = "_DateTime"
 
-# Provide any data preparation code (if needed)
-# Example: dataPreparation = "df["Energy Produced (Wh)"] =
-#                                 df["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)"
-dataPreparation = """
-if df["Energy Produced (Wh)"].dtype == "object":
-    df["Energy Produced (Wh)"] = df["Energy Produced (Wh)"].str.replace(",", "").replace("\\"", "").astype(int)
-if (("Exported to Grid (Wh)" in df.columns) and (df["Exported to Grid (Wh)"].dtype == "object")):
-    df["Exported to Grid (Wh)"] = df["Exported to Grid (Wh)"].str.replace(",", "").replace("\\"", "").astype(int)
-if (("Imported from Grid (Wh)" in df.columns) and (df["Imported from Grid (Wh)"].dtype == "object")):
-    df["Imported from Grid (Wh)"] = df["Imported from Grid (Wh)"].str.replace(",", "").replace("\\"", "").astype(int)
-
-# Create a tariff column, uncomment the below lines if needed
-#for index, _ in df.iterrows():
-#    recordDateTime = pd.to_datetime(df.at[index, dateTimeColumnName], unit='s')
-#    # Check if it is Monday, Tuesday, Wednesday, Thursday or Friday
-#    if recordDateTime.weekday() in [0, 1, 2, 3, 4, 5]:
-#        # Check if we are between 00:00-6:59 and 23:00-23:59
-#        if ((recordDateTime.time() < time(7,0)) or (recordDateTime.time() >= time(23,0))):
-#            # Low tariff
-#            df.at[index, 'Tariff'] = 2
-#        else:
-#            # High tariff
-#            df.at[index, 'Tariff'] = 1
-#    else:
-#        # Low tariff
-#        df.at[index, 'Tariff'] = 2
-"""
-
 # List of one or more output file definitions
 outputFiles = [
     OutputFileDefinition(
@@ -116,6 +88,7 @@ outputFiles = [
         True,
     ),
 ]
+# Use this output file definitions in case separate tariffs are needed
 # outputFiles = [
 #     OutputFileDefinition(
 #         "elec_feed_in_tariff_1_high_resolution.csv",
@@ -149,12 +122,74 @@ outputFiles = [
 #     ),
 # ]
 
+# Use the below functions in case data has to be manipulated after the data has been read.
+# Use the customPrepareDataPre function in case the time/date data has to be manipulated.
+# Use the customPrepareDataPost function in all other cases
+
+
+# Prepare the input data (before date/time manipulation)
+def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
+    return dataFrame
+
+
+# Prepare the input data (after date/time manipulation)
+def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
+    if dataFrame["Energy Produced (Wh)"].dtype == "object":
+        dataFrame["Energy Produced (Wh)"] = (
+            dataFrame["Energy Produced (Wh)"]
+            .str.replace(",", "")
+            .replace('"', "")
+            .astype(int)
+        )
+    if ("Exported to Grid (Wh)" in dataFrame.columns) and (
+        dataFrame["Exported to Grid (Wh)"].dtype == "object"
+    ):
+        dataFrame["Exported to Grid (Wh)"] = (
+            dataFrame["Exported to Grid (Wh)"]
+            .str.replace(",", "")
+            .replace('"', "")
+            .astype(int)
+        )
+    if ("Imported from Grid (Wh)" in dataFrame.columns) and (
+        dataFrame["Imported from Grid (Wh)"].dtype == "object"
+    ):
+        dataFrame["Imported from Grid (Wh)"] = (
+            dataFrame["Imported from Grid (Wh)"]
+            .str.replace(",", "")
+            .replace('"', "")
+            .astype(int)
+        )
+
+    # Create a tariff column, uncomment the below lines if needed
+    # for index, _ in dataFrame.iterrows():
+    #    recordDateTime = pd.to_datetime(dataFrame.at[index, dateTimeColumnName], unit='s')
+    #    # Check if it is Monday, Tuesday, Wednesday, Thursday or Friday
+    #    if recordDateTime.weekday() in [0, 1, 2, 3, 4, 5]:
+    #        # Check if we are between 00:00-6:59 and 23:00-23:59
+    #        if ((recordDateTime.time() < time(7,0)) or (recordDateTime.time() >= time(23,0))):
+    #            # Low tariff
+    #            dataFrame.at[index, 'Tariff'] = 2
+    #        else:
+    #            # High tariff
+    #            dataFrame.at[index, 'Tariff'] = 1
+    #    else:
+    #        # Low tariff
+    #        dataFrame.at[index, 'Tariff'] = 2
+    return dataFrame
+
+
 # ---------------------------------------------------------------------------------------------------------------------
+
+# Template version number
+versionNumber = "1.5.0"
 
 
 # Prepare the input data
 def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     print("Preparing data")
+
+    # Handle any custom dataframe manipulation (Pre)
+    dataFrame = customPrepareDataPre(dataFrame)
 
     # Check if we have to combine a date and time field
     if inputFileTimeColumnName != "":
@@ -197,8 +232,8 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
         df[dateTimeColumnName].astype("int64") / 1000000000
     ).astype("int64")
 
-    # Execute any datapreparation code if provided
-    exec(dataPreparation)
+    # Handle any custom dataframe manipulation (Post)
+    df = customPrepareDataPost(df)
 
     return df
 
@@ -294,6 +329,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
             decimal=inputFileDataDecimal,
             skiprows=inputFileNumHeaderRows,
             skipfooter=inputFileNumFooterRows,
+            index_col=False,
             engine="python",
         )
     elif (inputFileNameExtension == ".xlsx") or (inputFileNameExtension == ".xls"):

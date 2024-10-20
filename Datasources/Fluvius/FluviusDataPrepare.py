@@ -63,11 +63,6 @@ inputFileExcelSheetName = 0
 # This needs normally no change only when it conflicts with existing columns.
 dateTimeColumnName = "_DateTime"
 
-# Provide any data preparation code (if needed)
-# Example: dataPreparation = "df["Energy Produced (Wh)"] =
-#                                 df["Energy Produced (Wh)"].str.replace(",", "").replace("\"", "").astype(int)"
-dataPreparation = ""
-
 # List of one or more output file definitions
 outputFiles = [
     OutputFileDefinition(
@@ -122,12 +117,38 @@ outputFiles = [
     ),
 ]
 
+# Use the below functions in case data has to be manipulated after the data has been read.
+# Use the customPrepareDataPre function in case the time/date data has to be manipulated.
+# Use the customPrepareDataPost function in all other cases
+
+
+# Prepare the input data (before date/time manipulation)
+def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
+    return dataFrame
+
+
+# Prepare the input data (after date/time manipulation)
+def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
+    # Default no manipulation, add code if needed
+
+    # Example:
+    #   dataFrame["Energy Produced (Wh)"] =
+    #       dataFrame["Energy Produced (Wh)"].str.replace(',', '').replace('\"', '').astype(int)
+    return dataFrame
+
+
 # ---------------------------------------------------------------------------------------------------------------------
+
+# Template version number
+versionNumber = "1.5.0"
 
 
 # Prepare the input data
 def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     print("Preparing data")
+
+    # Handle any custom dataframe manipulation (Pre)
+    dataFrame = customPrepareDataPre(dataFrame)
 
     # Check if we have to combine a date and time field
     if inputFileTimeColumnName != "":
@@ -170,8 +191,8 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
         df[dateTimeColumnName].astype("int64") / 1000000000
     ).astype("int64")
 
-    # Execute any datapreparation code if provided
-    exec(dataPreparation)
+    # Handle any custom dataframe manipulation (Post)
+    df = customPrepareDataPost(df)
 
     return df
 
@@ -267,6 +288,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
             decimal=inputFileDataDecimal,
             skiprows=inputFileNumHeaderRows,
             skipfooter=inputFileNumFooterRows,
+            index_col=False,
             engine="python",
         )
     elif (inputFileNameExtension == ".xlsx") or (inputFileNameExtension == ".xls"):
