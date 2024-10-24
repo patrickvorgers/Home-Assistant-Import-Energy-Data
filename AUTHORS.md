@@ -28,3 +28,8 @@ Please share scripts or how-to guides if you have built an integration with a ne
   * Implementation: Fluvius
 * TylonHH (https://github.com/TylonHH)
   * Implementation: EnergyControl (app)
+* Nikolaj Hendel (https://github.com/nikolajhendel)
+  * How to for: iSolarCloud (Sungrow)
+  * Sample files for: iSolarCloud (Sungrow)
+
+  
