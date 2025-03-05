@@ -171,7 +171,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Transform the date into unix timestamp for Home-Assistant
     df[dateTimeColumnName] = (df[dateTimeColumnName].astype("datetime64[ns]")).astype(
-        'int64'
+        "int64"
     ) // 10**9
 
     # Handle any custom dataframe manipulation (Post)
@@ -233,7 +233,7 @@ def generateImportDataFile(
 
     # Select only the needed data
     dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
-        
+
     if inputFileDateTimeOnlyUseHourly:
         # Filter only rows where the timestamp is an exact multiple of 3600 (full-hour intervals)
         dataFrameFiltered = dataFrameFiltered[
@@ -351,9 +351,9 @@ Notes:
 - Enclose the path/filename in quotes in case wildcards are being used on Linux-based systems.
 - Example: {energyProviderName}DataPrepare "*{inputFileNameExtension}"
     """,
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
-    
+
     parser.add_argument(
         "input_file",
         type=str,
@@ -375,9 +375,9 @@ Notes:
     )
 
     if (
-        input("Are you sure you want to continue [Y/N]?: ").
-        strip().
-        lower().
-        startswith("y")
+        input("Are you sure you want to continue [Y/N]?: ")
+        .strip()
+        .lower()
+        .startswith("y")
     ):
         generateImportDataFiles(args.input_file, args.output_file)
