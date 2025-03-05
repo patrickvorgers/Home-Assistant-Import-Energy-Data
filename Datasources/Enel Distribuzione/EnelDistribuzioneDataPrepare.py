@@ -1,7 +1,7 @@
+import argparse
 import datetime
 import glob
 import json
-import math
 import os
 import sys
 from collections import namedtuple
@@ -17,7 +17,8 @@ DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
 
 # OutputFileDefinition named tuple definition
 #   outputFileName: The name of the output file
-#   valueColumnName: The name of the column holding the value
+#   valueColumnName: The name of the column holding the value.
+#                    Use the column index in case the column name is not available.
 #   dataFilters: A list of datafilters (see above the definition of a datafilter)
 #   recalculate: Boolean value indication whether the data should be recalculated,
 #                because the source is not an increasing value
@@ -37,6 +38,7 @@ energyProviderName = "Enel Distribuzione"
 inputFileNameExtension = ".csv"
 # Inputfile(s): Name of the column containing the date of the reading.
 #               Use this in case date and time is combined in one field.
+#               Use the numerical column index in case the column name is not available.
 inputFileDateColumnName = "Giorno"
 # Inputfile(s): Name of the column containing the time of the reading.
 #               Leave empty in case date and time is combined in one field.
@@ -44,10 +46,17 @@ inputFileTimeColumnName = "_Time"
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat = "%d/%m/%Y %H:%M"
-# Inputfile(s): Data seperator being used in the .csv input file
-inputFileDataSeperator = ";"
+# Inputfile(s): Only use hourly data (True) or use the data as is (False)
+#               In case of True, the data will be filtered to only include hourly data.
+#               It takes into account in case the data needs to be recalculated (source data not increasing).
+#               Home Assistant uses hourly data, higher resolution will work but will impact performance.
+inputFileDateTimeOnlyUseHourly = False
+# Inputfile(s): Data separator being used in the .csv input file
+inputFileDataSeparator = ";"
 # Inputfile(s): Decimal token being used in the input file
 inputFileDataDecimal = ","
+# Inputfile(s): Whether the input file has a header row from which header names can be derived
+inputFileHasHeaderNameRow = True
 # Inputfile(s): Number of header rows in the input file
 inputFileNumHeaderRows = 0
 # Inputfile(s): Number of footer rows in the input file
@@ -105,7 +114,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.5.0"
+versionNumber = "1.6.0"
 
 
 # Prepare the input data
@@ -138,23 +147,17 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Select only correct dates
     df = dataFrame.loc[
-        (
-            dataFrame[dateTimeColumnName]
-            >= datetime.datetime.strptime("01-01-1970", "%d-%m-%Y")
-        )
-        & (
-            dataFrame[dateTimeColumnName]
-            <= datetime.datetime.strptime("31-12-2099", "%d-%m-%Y")
-        )
+        (dataFrame[dateTimeColumnName] >= datetime.datetime(1970, 1, 1))
+        & (dataFrame[dateTimeColumnName] <= datetime.datetime(2099, 12, 31))
     ]
 
     # Make sure that the data is correctly sorted
     df.sort_values(by=dateTimeColumnName, ascending=True, inplace=True)
 
     # Transform the date into unix timestamp for Home-Assistant
-    df[dateTimeColumnName] = (
-        df[dateTimeColumnName].astype("int64") / 1000000000
-    ).astype("int64")
+    df[dateTimeColumnName] = (df[dateTimeColumnName].astype("datetime64[ns]")).astype(
+        "int64"
+    ) // 10**9
 
     # Handle any custom dataframe manipulation (Post)
     df = customPrepareDataPost(df)
@@ -183,23 +186,10 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 
 # Recalculate the data so that the value increases
 def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFrame:
-    df = dataFrame
-
-    # Make the value column increasing (skip first row)
-    previousRowIndex = -1
-    for index, _ in df.iterrows():
-        # Check if the current row contains a valid value
-        if math.isnan(df.at[index, dataColumnName]):
-            df.at[index, dataColumnName] = 0.0
-
-        if previousRowIndex > -1:
-            # Add the value of the previous row to the current row
-            df.at[index, dataColumnName] = round(
-                df.at[index, dataColumnName] + df.at[previousRowIndex, dataColumnName],
-                3,
-            )
-        previousRowIndex = index
-
+    # Work on a copy to ensure we're not modifying a slice of the original DataFrame
+    df = dataFrame.copy()
+    # First replace all NaN values with 0 and then calculate the cumulative sum with 3 decimals
+    df[dataColumnName] = df[dataColumnName].fillna(0).cumsum().round(3)
     return df
 
 
@@ -212,67 +202,81 @@ def generateImportDataFile(
     recalculate: bool,
 ):
     # Check if the column exists
-    if dataColumnName in dataFrame.columns:
-        print("Creating file: " + outputFile)
-        dataFrameFiltered = filterData(dataFrame, filters)
-
-        # Check if we have to recalculate the data
-        if recalculate:
-            dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
-
-        # Select only the needed data
-        dataFrameFiltered = dataFrameFiltered.filter(
-            [dateTimeColumnName, dataColumnName]
-        )
-
-        # Create the output file
-        dataFrameFiltered.to_csv(
-            outputFile, sep=",", decimal=".", header=False, index=False
-        )
-    else:
+    if dataColumnName not in dataFrame.columns:
         print(
-            "Could not create file: "
-            + outputFile
-            + " because column: "
-            + dataColumnName
-            + " does not exist"
+            f"Could not create file: {outputFile} because column: {dataColumnName} does not exist"
         )
+        return
+
+    # Column exists, continue
+    print("Creating file: " + outputFile)
+    dataFrameFiltered = filterData(dataFrame, filters)
+
+    # Check if we have to recalculate the data
+    if recalculate:
+        dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
+
+    # Select only the needed data
+    dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
+
+    if inputFileDateTimeOnlyUseHourly:
+        # Filter only rows where the timestamp is an exact multiple of 3600 (full-hour intervals)
+        dataFrameFiltered = dataFrameFiltered[
+            dataFrameFiltered[dateTimeColumnName] % 3600 == 0
+        ].copy()
+
+    # Create the output file
+    dataFrameFiltered.to_csv(
+        outputFile,
+        sep=",",
+        decimal=".",
+        header=False,
+        index=False,
+        encoding="utf-8",
+    )
 
 
 # Read the inputfile
 def readInputFile(inputFileName: str) -> pd.DataFrame:
     # Read the specified file
-    print("Loading data: " + inputFileName)
+    print(f"Loading data: {inputFileName}")
 
-    # Check if we have a supported extension
-    if inputFileNameExtension == ".csv":
-        # Read the CSV file
-        df = pd.read_csv(
-            inputFileName,
-            sep=inputFileDataSeperator,
-            decimal=inputFileDataDecimal,
-            skiprows=inputFileNumHeaderRows,
-            skipfooter=inputFileNumFooterRows,
-            index_col=False,
-            engine="python",
-        )
-    elif (inputFileNameExtension == ".xlsx") or (inputFileNameExtension == ".xls"):
-        # Read the XLSX/XLS file
-        df = pd.read_excel(
-            inputFileName,
-            sheet_name=inputFileExcelSheetName,
-            decimal=inputFileDataDecimal,
-            skiprows=inputFileNumHeaderRows,
-            skipfooter=inputFileNumFooterRows,
-        )
-    elif inputFileNameExtension == ".json":
-        # Read the JSON file
-        jsonData = json.load(open(inputFileName))
-        df = pd.json_normalize(jsonData, record_path=inputFileJsonPath)
-    else:
-        raise Exception("Unsupported extension: " + inputFileNameExtension)
+    try:
+        # Check if we have a supported extension
+        if inputFileNameExtension == ".csv":
+            # Read the CSV file
+            df = pd.read_csv(
+                inputFileName,
+                sep=inputFileDataSeparator,
+                decimal=inputFileDataDecimal,
+                skiprows=inputFileNumHeaderRows,
+                skipfooter=inputFileNumFooterRows,
+                index_col=False,
+                na_values=["N/A"],
+                header="infer" if inputFileHasHeaderNameRow else None,
+                engine="python",
+            )
+        elif (inputFileNameExtension == ".xlsx") or (inputFileNameExtension == ".xls"):
+            # Read the XLSX/XLS file
+            df = pd.read_excel(
+                inputFileName,
+                sheet_name=inputFileExcelSheetName,
+                decimal=inputFileDataDecimal,
+                skiprows=inputFileNumHeaderRows,
+                skipfooter=inputFileNumFooterRows,
+            )
+        elif inputFileNameExtension == ".json":
+            # Read the JSON file
+            with open(inputFileName, "r", encoding="utf-8") as f:
+                jsonData = json.load(f)
+            df = pd.json_normalize(jsonData, record_path=inputFileJsonPath)
+        else:
+            raise Exception(f"Unsupported extension: {inputFileNameExtension}")
 
-    return df
+        return df
+    except Exception as e:
+        print(f"Error reading file {inputFileName}: {e}")
+        sys.exit(1)
 
 
 # Check if all the provided files have the correct extension
@@ -286,76 +290,79 @@ def correctFileExtensions(fileNames: list[str]) -> bool:
 
 
 # Generate the datafiles which can be imported
-def generateImportDataFiles(inputFileNames: str):
+def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = None):
     # Find the file(s)
     fileNames = glob.glob(inputFileNames)
-    if len(fileNames) > 0:
-        print("Found files based on: " + inputFileNames)
+    if not fileNames:
+        print(f"No files found based on: {inputFileNames}")
+        return
 
-        # Check if all the found files are of the correct type
-        if correctFileExtensions(fileNames):
-            # Read all the found files and concat the data
-            dataFrame = pd.concat(
-                map(readInputFile, fileNames), ignore_index=True, sort=True
+    print(f"Found {len(fileNames)} files based on: {inputFileNames}")
+
+    if not correctFileExtensions(fileNames):
+        print(f"Only {inputFileNameExtension} data files are allowed.")
+        return
+
+    # Read all the found files and concat the data
+    dataFrame = pd.concat(map(readInputFile, fileNames), ignore_index=True, sort=True)
+
+    # Prepare the data
+    dataFrame = prepareData(dataFrame)
+
+    # Create the output files
+    for outputFile in outputFiles:
+        # Check if we have to generate a specific output file
+        if outputFileName is None or outputFile.outputFileName == outputFileName:
+            # Generate the import data file and ensure dataFrame is not modified between definitions
+            generateImportDataFile(
+                dataFrame.copy(),
+                outputFile.outputFileName,
+                outputFile.valueColumnName,
+                outputFile.dataFilters,
+                outputFile.recalculate,
             )
-
-            # Prepare the data
-            dataFrame = prepareData(dataFrame)
-
-            # Create the output files
-            for outputFile in outputFiles:
-                generateImportDataFile(
-                    dataFrame,
-                    outputFile.outputFileName,
-                    outputFile.valueColumnName,
-                    outputFile.dataFilters,
-                    outputFile.recalculate,
-                )
-
-            print("Done")
-        else:
-            print("Only " + inputFileNameExtension + " datafiles are allowed")
-    else:
-        print("No files found based on : " + inputFileNames)
+    print("Processing complete.")
 
 
 # Validate that the script is started from the command prompt
 if __name__ == "__main__":
-    print(energyProviderName + " Data Prepare")
-    print("")
+    print(f"{energyProviderName} Data Prepare\n")
     print(
-        "This python script prepares "
-        + energyProviderName
-        + " data for import into Home Assistant."
+        f"This python script prepares {energyProviderName} data for import into Home Assistant.\n"
     )
+    parser = argparse.ArgumentParser(
+        description=f"""
+Notes:
+- Enclose the path/filename in quotes in case wildcards are being used on Linux-based systems.
+- Example: {energyProviderName}DataPrepare "*{inputFileNameExtension}"
+    """,
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+
+    parser.add_argument(
+        "input_file",
+        type=str,
+        help=f"Path to the {energyProviderName} {inputFileNameExtension} file(s) (supports wildcards).",
+    )
+
+    parser.add_argument(
+        "output_file",
+        nargs="?",
+        type=str,
+        default=None,
+        help="Optional: Name of the specific output file to generate (default: all).",
+    )
+
+    args = parser.parse_args()
+
     print(
-        "The files will be prepared in the current directory any previous files will be overwritten!"
+        "The files will be prepared in the current directory. Any previous files will be overwritten!\n"
     )
-    print("")
-    if len(sys.argv) == 2:
-        if (
-            input("Are you sure you want to continue [Y/N]?: ").lower().strip()[:1]
-            == "y"
-        ):
-            generateImportDataFiles(sys.argv[1])
-    else:
-        print(energyProviderName + "PrepareData usage:")
-        print(
-            energyProviderName
-            + "PrepareData <"
-            + energyProviderName
-            + " "
-            + inputFileNameExtension
-            + " filename (wildcard)>"
-        )
-        print()
-        print(
-            "Enclose the path/filename in quotes in case wildcards are being used on Linux based systems."
-        )
-        print(
-            "Example: "
-            + energyProviderName
-            + 'PrepareData "*'
-            + inputFileNameExtension
-            + '"'
-        )
+
+    if (
+        input("Are you sure you want to continue [Y/N]?: ")
+        .strip()
+        .lower()
+        .startswith("y")
+    ):
+        generateImportDataFiles(args.input_file, args.output_file)
