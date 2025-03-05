@@ -363,7 +363,7 @@ def correctFileExtensions(fileNames: list[str]) -> bool:
 
 
 # Generate the datafiles which can be imported
-def generateImportDataFiles(inputFileNames: str, outputFileName: str = None):
+def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = None):
     # Find the file(s)
     fileNames = glob.glob(inputFileNames)
     if not fileNames:
