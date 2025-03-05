@@ -147,21 +147,17 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Select only correct dates
     df = dataFrame.loc[
-        (
-            dataFrame[dateTimeColumnName] >= datetime.datetime(1970, 1, 1)
-        )
-        & (
-            dataFrame[dateTimeColumnName] <= datetime.datetime(2099, 12, 31)
-        )
+        (dataFrame[dateTimeColumnName] >= datetime.datetime(1970, 1, 1))
+        & (dataFrame[dateTimeColumnName] <= datetime.datetime(2099, 12, 31))
     ]
 
     # Make sure that the data is correctly sorted
     df.sort_values(by=dateTimeColumnName, ascending=True, inplace=True)
 
     # Transform the date into unix timestamp for Home-Assistant
-    df[dateTimeColumnName] = (
-        df[dateTimeColumnName].astype("datetime64[ns]")
-    ).astype('int64') // 10**9
+    df[dateTimeColumnName] = (df[dateTimeColumnName].astype("datetime64[ns]")).astype(
+        'int64'
+    ) // 10**9
 
     # Handle any custom dataframe manipulation (Post)
     df = customPrepareDataPost(df)
@@ -207,7 +203,9 @@ def generateImportDataFile(
 ):
     # Check if the column exists
     if dataColumnName not in dataFrame.columns:
-        print(f"Could not create file: {outputFile} because column: {dataColumnName} does not exist")
+        print(
+            f"Could not create file: {outputFile} because column: {dataColumnName} does not exist"
+        )
         return
 
     # Column exists, continue
@@ -219,9 +217,7 @@ def generateImportDataFile(
         dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
 
     # Select only the needed data
-    dataFrameFiltered = dataFrameFiltered.filter(
-        [dateTimeColumnName, dataColumnName]
-    )
+    dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
         
     if inputFileDateTimeOnlyUseHourly:
         # Filter only rows where the timestamp is an exact multiple of 3600 (full-hour intervals)
@@ -256,8 +252,8 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
                 skiprows=inputFileNumHeaderRows,
                 skipfooter=inputFileNumFooterRows,
                 index_col=False,
-                na_values=['N/A'],
-                header='infer' if inputFileHasHeaderNameRow else None,
+                na_values=["N/A"],
+                header="infer" if inputFileHasHeaderNameRow else None,
                 engine="python",
             )
         elif (inputFileNameExtension == ".xlsx") or (inputFileNameExtension == ".xls"):
@@ -302,15 +298,13 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str = None):
         return
 
     print(f"Found {len(fileNames)} files based on: {inputFileNames}")
-    
+
     if not correctFileExtensions(fileNames):
         print(f"Only {inputFileNameExtension} data files are allowed.")
         return
 
     # Read all the found files and concat the data
-    dataFrame = pd.concat(
-        map(readInputFile, fileNames), ignore_index=True, sort=True
-    )
+    dataFrame = pd.concat(map(readInputFile, fileNames), ignore_index=True, sort=True)
 
     # Prepare the data
     dataFrame = prepareData(dataFrame)
@@ -333,19 +327,22 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str = None):
 # Validate that the script is started from the command prompt
 if __name__ == "__main__":
     print(f"{energyProviderName} Data Prepare\n")
-    print(f"This python script prepares {energyProviderName} data for import into Home Assistant.\n")
+    print(
+        f"This python script prepares {energyProviderName} data for import into Home Assistant.\n"
+    )
     parser = argparse.ArgumentParser(
         description=f"""
 Notes:
 - Enclose the path/filename in quotes in case wildcards are being used on Linux-based systems.
 - Example: {energyProviderName}DataPrepare "*{inputFileNameExtension}"
-    """, formatter_class=argparse.RawTextHelpFormatter
+    """,
+        formatter_class=argparse.RawTextHelpFormatter
     )
     
     parser.add_argument(
         "input_file",
         type=str,
-        help=f"Path to the {energyProviderName} {inputFileNameExtension} file(s) (supports wildcards)."
+        help=f"Path to the {energyProviderName} {inputFileNameExtension} file(s) (supports wildcards).",
     )
 
     parser.add_argument(
@@ -353,12 +350,19 @@ Notes:
         nargs="?",
         type=str,
         default=None,
-        help="Optional: Name of the specific output file to generate (default: all)."
+        help="Optional: Name of the specific output file to generate (default: all).",
     )
 
     args = parser.parse_args()
 
-    print("The files will be prepared in the current directory. Any previous files will be overwritten!\n")
+    print(
+        "The files will be prepared in the current directory. Any previous files will be overwritten!\n"
+    )
 
-    if input("Are you sure you want to continue [Y/N]?: ").strip().lower().startswith("y"):
+    if (
+        input("Are you sure you want to continue [Y/N]?: ").
+        strip().
+        lower().
+        startswith("y")
+    ):
         generateImportDataFiles(args.input_file, args.output_file)
