@@ -226,15 +226,14 @@ def generateImportDataFile(
     if inputFileDateTimeOnlyUseHourly:
         # Floor each timestamp to the start of its hour.
         # For instance, all readings with a timestamp in [16:00, 17:00) become 16:00.
-        dataFrameFiltered[dateTimeColumnName] = dataFrameFiltered[dateTimeColumnName].apply(
-            lambda x: (x // 3600) * 3600
-        )
+        dataFrameFiltered[dateTimeColumnName] = dataFrameFiltered[
+            dateTimeColumnName
+        ].apply(lambda x: (x // 3600) * 3600)
 
         # Group by the floored hourly timestamp and select the last reading in each group.
-        dataFrameFiltered = (
-            dataFrameFiltered.groupby(dateTimeColumnName, as_index=False)[dataColumnName]
-            .last()
-        )
+        dataFrameFiltered = dataFrameFiltered.groupby(
+            dateTimeColumnName, as_index=False
+        )[dataColumnName].last()
 
     # Create the output file
     dataFrameFiltered.to_csv(
