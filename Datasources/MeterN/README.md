@@ -3,14 +3,14 @@
 MeterN is a lightweight set of PHP/JS files that makes a Home energy metering & monitoring solution (see [MeterN site](https://github.com/jeanmarc77/meterN) for more information).
 It offers the option to export the data of each tracked energymeter in a CSV file. This data can be transformed and used to import into Home Assistant.
 
-[![meterN demo](https://filedn.eu/lA1ykXBhnSe0rOKmNzxOM2H/images/mN/mn_ss.png)]
+![meterN demo](https://filedn.eu/lA1ykXBhnSe0rOKmNzxOM2H/images/mN/mn_ss.png)
 
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (day interval) - kWh
 - Electricity production - Tariff 1 - High resolution (day interval) - kWh
 - Solar production - High resolution (day interval) - kWh
-- Gas consumption - High resolution (day interval) - m³
-- Water consumption - High resolution (day interval) - m³
+- Gas consumption - High resolution (day interval) - mÂ³
+- Water consumption - High resolution (day interval) - mÂ³
 
 MeterN also provides the option to track additional energy consumption for example, that of electric cars.
 This data can be exported and imported into Home Assistant using a simple trick.
