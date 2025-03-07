@@ -98,13 +98,13 @@ outputFiles = [
 # Prepare the input data (before date/time manipulation)
 def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
     df_clean = dataFrame.copy()
-    
+
     # Filter rows where the first column (record type) equals 300
     filtered_df = df_clean[df_clean.iloc[:, 0] == 300].reset_index(drop=True)
-    
+
     # Remove the record type column
     filtered_df = filtered_df.drop(columns=filtered_df.columns[0])
-    
+
     # The first column is the date. Starting from the second column, we detect the
     # interval columns. We iterate until we hit the first non-numeric column.
     num_interval_cols = 0
@@ -119,7 +119,9 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Keep only the date and the numeric interval columns. The date is the first column,
     # and the interval values are the next num_interval_cols columns.
-    cols_to_keep = [filtered_df.columns[0]] + list(filtered_df.columns[1:1+num_interval_cols])
+    cols_to_keep = [filtered_df.columns[0]] + list(
+        filtered_df.columns[1:1+num_interval_cols]
+    )
     filtered_df = filtered_df[cols_to_keep]
     
     # Calculate the interval in minutes assuming a full day (1440 minutes) is covered by the
@@ -128,31 +130,33 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
         interval_minutes = 1440 / num_interval_cols
     else:
         raise ValueError("No numeric interval columns detected.")
-    
+
     # Generate timestamps starting at 00:00 and increasing by the computed interval.
     start_time = datetime.datetime.strptime("00:00", "%H:%M")
     timestamps = [
-        (start_time + datetime.timedelta(minutes=interval_minutes * i)).strftime("%H:%M")
+        (start_time + datetime.timedelta(minutes=interval_minutes * i)).strftime(
+            "%H:%M"
+        )
         for i in range(num_interval_cols)
     ]
-    
+
     # Rename the columns: first column becomes 'date', 
     #  and the interval columns are labeled with the generated timestamps.
     new_columns = ["date"] + timestamps
     filtered_df.columns = new_columns
-    
+
     # Remove duplicate dates if present.
     filtered_df = filtered_df.drop_duplicates(subset="date")
-    
+
     # Reshape the DataFrame from wide to long format so that 
     # each row contains a date, a time, and the corresponding value.
     df_melted = pd.melt(
         filtered_df, id_vars=["date"], var_name="_Time", value_name="_Value"
     )
-    
+
     # Convert the _Value column to numeric (non-convertible values will become NaN)
     df_melted["_Value"] = pd.to_numeric(df_melted["_Value"], errors="coerce")
-    
+
     return df_melted
 
 
