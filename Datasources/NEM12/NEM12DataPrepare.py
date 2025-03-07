@@ -120,10 +120,10 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
     # Keep only the date and the numeric interval columns. The date is the first column,
     # and the interval values are the next num_interval_cols columns.
     cols_to_keep = [filtered_df.columns[0]] + list(
-        filtered_df.columns[1:1+num_interval_cols]
+        filtered_df.columns[1 : 1 + num_interval_cols]
     )
     filtered_df = filtered_df[cols_to_keep]
-    
+
     # Calculate the interval in minutes assuming a full day (1440 minutes) is covered by the
     # interval columns.If there are 288 columns, for instance, the interval will be 5 minutes.
     if num_interval_cols > 0:
@@ -140,7 +140,7 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
         for i in range(num_interval_cols)
     ]
 
-    # Rename the columns: first column becomes 'date', 
+    # Rename the columns: first column becomes 'date',
     #  and the interval columns are labeled with the generated timestamps.
     new_columns = ["date"] + timestamps
     filtered_df.columns = new_columns
@@ -148,7 +148,7 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
     # Remove duplicate dates if present.
     filtered_df = filtered_df.drop_duplicates(subset="date")
 
-    # Reshape the DataFrame from wide to long format so that 
+    # Reshape the DataFrame from wide to long format so that
     # each row contains a date, a time, and the corresponding value.
     df_melted = pd.melt(
         filtered_df, id_vars=["date"], var_name="_Time", value_name="_Value"
