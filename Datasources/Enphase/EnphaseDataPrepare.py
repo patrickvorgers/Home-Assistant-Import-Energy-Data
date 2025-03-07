@@ -187,7 +187,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.6.0"
+versionNumber = "1.6.1"
 
 
 # Prepare the input data
@@ -293,10 +293,16 @@ def generateImportDataFile(
     dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
 
     if inputFileDateTimeOnlyUseHourly:
-        # Filter only rows where the timestamp is an exact multiple of 3600 (full-hour intervals)
-        dataFrameFiltered = dataFrameFiltered[
-            dataFrameFiltered[dateTimeColumnName] % 3600 == 0
-        ].copy()
+        # Floor each timestamp to the start of its hour.
+        # For instance, all readings with a timestamp in [16:00, 17:00) become 16:00.
+        dataFrameFiltered[dateTimeColumnName] = dataFrameFiltered[
+            dateTimeColumnName
+        ].apply(lambda x: (x // 3600) * 3600)
+
+        # Group by the floored hourly timestamp and select the last reading in each group.
+        dataFrameFiltered = dataFrameFiltered.groupby(
+            dateTimeColumnName, as_index=False
+        )[dataColumnName].last()
 
     # Create the output file
     dataFrameFiltered.to_csv(
