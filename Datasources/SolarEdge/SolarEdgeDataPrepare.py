@@ -106,7 +106,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.6.1"
+versionNumber = "1.7.0"
 
 
 # Prepare the input data
@@ -177,11 +177,35 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 
 
 # Recalculate the data so that the value increases
+# The value is currently the usage in that interval. This can be used to generate fake "states".
 def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()
+
+    # If the DataFrame is empty, return it as is.
+    if df.empty:
+        return df
+
     # First replace all NaN values with 0 and then calculate the cumulative sum with 3 decimals
-    df[dataColumnName] = df[dataColumnName].fillna(0).cumsum().round(3)
+    cumulative_values = df[dataColumnName].fillna(0).cumsum().round(3)
+
+    # Shift the values down one row and the first row gets 0
+    df[dataColumnName] = cumulative_values.shift(1, fill_value=0)
+
+    # Calculate the interval between timestamps (frist two rows)
+    interval = df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0] if len(df) >= 2 else 0
+    
+     # Create an extra row:
+    # - dateTimeColumnName: last timestamp + interval
+    # - value: final cumulative sum value from the original cumulative calculation
+    extra_row = {
+        dateTimeColumnName: df[dateTimeColumnName].iloc[-1] + interval,
+        dataColumnName: cumulative_values.iloc[-1]
+    }
+    
+    # Append the extra row to the DataFrame
+    df = pd.concat([df, pd.DataFrame([extra_row])], ignore_index=True)
+    
     return df
 
 
