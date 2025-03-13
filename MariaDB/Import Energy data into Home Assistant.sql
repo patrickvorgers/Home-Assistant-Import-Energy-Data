@@ -106,16 +106,17 @@ SET sql_notes = 1; /* Enable the warnings again */
 
 /* Create temp tables that can hold the difference between the measurements and create a new sum */
 SET sql_notes = 0; /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
-DROP TABLE IF EXISTS STATS_NEW;
+DROP TEMPORARY TABLE IF EXISTS STATS_NEW;
 SET sql_notes = 1; /* Enable the warnings again */
 CREATE TEMPORARY TABLE STATS_NEW (
-  id        INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  sensor_id INTEGER NOT NULL,
-  ts        DOUBLE NOT NULL,
-  value     DOUBLE NOT NULL,
-  diff      DOUBLE,
-  old_sum   DOUBLE,
-  new_sum   DOUBLE
+  id            INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  sensor_id     INTEGER NOT NULL,
+  ts            DOUBLE NOT NULL,
+  begin_state   DOUBLE,
+  end_state     DOUBLE,
+  diff          DOUBLE,
+  old_sum       DOUBLE,
+  new_sum       DOUBLE
 );
 CREATE UNIQUE INDEX idx_sensor_id_ts ON STATS_NEW (sensor_id, ts);
 
@@ -123,9 +124,10 @@ CREATE UNIQUE INDEX idx_sensor_id_ts ON STATS_NEW (sensor_id, ts);
 /* Insert the high resolution records and apply the correction 
 
    Invalid rows with null values are ignored
+   The values are the start of the interval
    Grouping by field1 is done to remove any duplicates
 */
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -134,7 +136,7 @@ FROM elec_feed_in_tariff_1_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -143,7 +145,7 @@ FROM elec_feed_in_tariff_2_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -152,7 +154,7 @@ FROM elec_feed_out_tariff_1_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -161,7 +163,7 @@ FROM elec_feed_out_tariff_2_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -170,7 +172,7 @@ FROM elec_solar_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -179,7 +181,7 @@ FROM gas_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -193,9 +195,10 @@ GROUP BY field1;
    We only add data that is older than the high resolution records
 
    Invalid rows with null values are ignored
+   The values are the start of the interval
    Grouping by field1 is done to remove any duplicates
 */
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -206,7 +209,7 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -217,7 +220,7 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -228,7 +231,7 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -239,7 +242,7 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_solar' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -250,7 +253,7 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -261,7 +264,7 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
-INSERT INTO STATS_NEW (sensor_id, ts, value)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT
   (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1) AS sensor_id,
   round(field1, 0) AS ts,
@@ -272,46 +275,50 @@ WHERE
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
+/* Determine the end of the interval for the imported data */
+UPDATE STATS_NEW,
+  (SELECT sensor_id, ts, LEAD(begin_state, 1) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts) AS value
+    FROM STATS_NEW
+    ORDER BY sensor_id, ts) AS NEXT_VALUES
+SET STATS_NEW.end_state = NEXT_VALUES.value
+WHERE
+  STATS_NEW.sensor_id = NEXT_VALUES.sensor_id AND
+  STATS_NEW.ts = NEXT_VALUES.ts;
+
 
 /* Remove any overlapping records from the imported data that are already in Home Assistant */
-DELETE FROM STATS_NEW
+DELETE STATS_NEW
+FROM STATS_NEW
+JOIN (
+  SELECT metadata_id, MIN(start_ts) AS min_ts
+  FROM statistics
+  WHERE
+    metadata_id IN (SELECT sensor_id FROM SENSORS)
+  GROUP BY metadata_id
+) SENSOR_MIN_TS ON STATS_NEW.sensor_id = SENSOR_MIN_TS.metadata_id
 WHERE
-  STATS_NEW.id IN (
-    SELECT STATS_NEW.id
-    FROM STATS_NEW,
-      (SELECT metadata_id, MIN(start_ts) AS min_ts
-       FROM statistics
-         WHERE metadata_id in (SELECT sensor_id FROM SENSORS)
-         GROUP BY metadata_id) AS SENSOR_MIN_TS
-   WHERE
-     STATS_NEW.sensor_id = SENSOR_MIN_TS.metadata_id AND
-     STATS_NEW.ts >= SENSOR_MIN_TS.min_ts
-  );
+  STATS_NEW.ts >= SENSOR_MIN_TS.min_ts;
 
 
-/* Insert the data from Home Assistant so that we can adjust the records with the new calculated sum */
-INSERT INTO STATS_NEW (sensor_id, ts, value, old_sum)
+/* Insert the data from Home Assistant so that we can adjust the records with the new calculated sum 
+   Home Assistant records only have the end state of the interval
+*/
+INSERT INTO STATS_NEW (sensor_id, ts, end_state, old_sum)
 SELECT metadata_id, start_ts, state, sum
 FROM statistics
 WHERE metadata_id IN (SELECT sensor_id FROM SENSORS);
 
-
-/* Calculate the difference from the previous record in the table 
-  - For the imported data calculate the diff from the previous record from the imported values (use value column / old_sum column is empty)
-  - For the Home Assistant values calculate the diff from the previous record from the existing sum column (use old_sum column / old_sum column is not empty)
+/* Calculate the difference per interval
+  - For the imported data, calculate the diff by subtracting the begin_state from the end_state (old_sum is NULL)
+  - For the Home Assistant values, calculate the diff from the previous record from the existing sum column (old_sum is not NULL)
 */
-UPDATE STATS_NEW, 
-  (SELECT sensor_id, ts, round(value - (lag(value, 1) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts)), 3) AS diff
-   FROM STATS_NEW
-   ORDER BY sensor_id, ts) AS DIFF_STATS_VALUE
-SET STATS_NEW.diff = DIFF_STATS_VALUE.diff
+UPDATE STATS_NEW
+SET diff = end_state - begin_state
 WHERE
-  STATS_NEW.sensor_id = DIFF_STATS_VALUE.sensor_id AND
-  STATS_NEW.ts = DIFF_STATS_VALUE.ts AND
-  STATS_NEW.old_sum IS NULL;
+  old_sum IS NULL;
 
 UPDATE STATS_NEW,
-  (SELECT sensor_id, ts, old_sum - (lag(old_sum, 1) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts)) AS diff
+  (SELECT sensor_id, ts, (old_sum - lag(old_sum, 1) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts)) AS diff
    FROM STATS_NEW
    ORDER BY sensor_id, ts) AS DIFF_STATS_SUM
 SET STATS_NEW.diff = DIFF_STATS_SUM.diff
@@ -322,29 +329,21 @@ WHERE
 
 
 /* Cleanup possible wrong values:
-  - Remove the first record if no diff could be determined (imported data)
   - Diff is null  => The point where the imported data goes over to Home Assistant data 
   - Diff < 0   => Probably new meter installed (measurement should be low)
   - Diff > invalid => Incorrect value 
   First handle the first two cases and then correct to 0 when incorrect value
 */
-DELETE SN
-FROM STATS_NEW AS SN JOIN (
-    SELECT sensor_id, MIN(ts) AS min_ts
-    FROM STATS_NEW
-    GROUP BY sensor_id
-) AS SensorMin ON SN.sensor_id = SensorMin.sensor_id AND SN.ts = SensorMin.min_ts
-WHERE SN.old_sum IS NULL;
+UPDATE STATS_NEW
+SET diff = old_sum
+WHERE
+  diff IS NULL;
 
 UPDATE STATS_NEW
-SET diff = round(old_sum, 3)
-WHERE (diff IS NULL);
-
-UPDATE STATS_NEW
-SET diff = round(value, 3)
+SET diff = round(end_state, 3)
 WHERE
   (diff < 0.0) AND
-  (value < (SELECT cutoff_new_meter FROM SENSORS WHERE STATS_NEW.sensor_id = SENSORS.sensor_id LIMIT 1));
+  (end_state < (SELECT cutoff_new_meter FROM SENSORS WHERE STATS_NEW.sensor_id = SENSORS.sensor_id LIMIT 1));
 
 UPDATE STATS_NEW
 SET diff = 0
@@ -367,6 +366,7 @@ WHERE
   
 /* Copy the new information to the statistics table
 id          => primary key and automatically filled (autoincrement)
+state       => the end_state of the interval
 sum         => calculated new_sum value
 metadata_id => the fixed metadata id of this statistics (see top)
 created_ts  => set to the timestamp of the statistic
@@ -374,7 +374,7 @@ start_ts    => timestamp of the statistic
 The sum is updated in case the record is already in Home Assistant
 */
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT value, new_sum, sensor_id, ts, ts FROM STATS_NEW
+SELECT end_state, new_sum, sensor_id, ts, ts FROM STATS_NEW
 ON DUPLICATE KEY UPDATE sum = VALUES(sum);
 
 /* Also update the short term statistics. 
