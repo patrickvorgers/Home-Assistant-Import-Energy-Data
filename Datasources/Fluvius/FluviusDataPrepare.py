@@ -80,7 +80,7 @@ outputFiles = [
         "Volume",
         [
             DataFilter("Register", "Afname Dag", True),
-            DataFilter("Eenheid", "kWh", True)
+            DataFilter("Eenheid", "kWh", True),
         ],
         True,
     ),
@@ -89,7 +89,7 @@ outputFiles = [
         "Volume",
         [
             DataFilter("Register", "Afname Nacht", True),
-            DataFilter("Eenheid", "kWh", True)
+            DataFilter("Eenheid", "kWh", True),
         ],
         True,
     ),
@@ -98,7 +98,7 @@ outputFiles = [
         "Volume",
         [
             DataFilter("Register", "Injectie Dag", True),
-            DataFilter("Eenheid", "kWh", True)
+            DataFilter("Eenheid", "kWh", True),
         ],
         True,
     ),
@@ -107,7 +107,7 @@ outputFiles = [
         "Volume",
         [
             DataFilter("Register", "Injectie Nacht", True),
-            DataFilter("Eenheid", "kWh", True)
+            DataFilter("Eenheid", "kWh", True),
         ],
         True,
     ),
@@ -117,7 +117,6 @@ outputFiles = [
         [
             DataFilter("Register", "Afname", True),
             DataFilter("Eenheid", "m³", True),
-            DataFilter("Validatiestatus", "Gevalideerd", True),
         ],
         True,
     ),
