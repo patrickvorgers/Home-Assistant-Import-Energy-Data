@@ -204,19 +204,23 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFram
     df[dataColumnName] = cumulative_values.shift(1, fill_value=0)
 
     # Calculate the interval between timestamps (frist two rows)
-    interval = df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0] if len(df) >= 2 else 0
-    
+    interval = (
+        df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0]
+        if len(df) >= 2
+        else 0
+    )
+
     # Create an extra row:
     # - dateTimeColumnName: last timestamp + interval
     # - value: final cumulative sum value from the original cumulative calculation
     extra_row = {
         dateTimeColumnName: df[dateTimeColumnName].iloc[-1] + interval,
-        dataColumnName: cumulative_values.iloc[-1]
+        dataColumnName: cumulative_values.iloc[-1],
     }
-    
+
     # Append the extra row to the DataFrame
     df = pd.concat([df, pd.DataFrame([extra_row])], ignore_index=True)
-    
+
     return df
 
 
