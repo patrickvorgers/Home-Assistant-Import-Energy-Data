@@ -93,7 +93,7 @@ To make live easier a generic conversion script is available that can handle for
 <ul>
   <li>Imports correctly historical energy and water data into Home Assistant</li>
   <li>Supports combination of low and high resolution data</li>
-  <li>Supports electrical feed in, electrical feed out, solar power, gas and water data</li>
+  <li>Supports electrical feed in, electrical feed out, solar power, battery feed in, battery feed out, gas and water data</li>
   <li>Supports data feeds with double tariffs (normal tariff / low tariff)</li>
   <li>One line configuration in case a sensor is not needed</li>
   <li>Possibility to provide a conversion factor per sensor (for instance conversion between Wh/kWh or L/m³)</li>
@@ -167,6 +167,20 @@ Importing historical energy data into Home Assistant is not simple and requires 
       - ```elec_solar_low_resolution.csv```
         - Contains the lowest resolution production data available (for instance: day resolution)
         - Not needed in case that there are no solar panels
+        - Not needed in case that there is only one resolution available.
+      - ```elec_battery_feed_in_high_resolution.csv```
+        - Contains the highest resolution battery charging data available (for instance: hour resolution)
+        - Not needed in case that there is no battery
+      - ```elec_battery_feed_in_low_resolution.csv```
+        - Contains the lowest resolution battery charging data available (for instance: day resolution)
+        - Not needed in case that there is no battery
+        - Not needed in case that there is only one resolution available.
+      - ```elec_battery_feed_out_high_resolution.csv```
+        - Contains the highest resolution battery discharging data available (for instance: hour resolution)
+        - Not needed in case that there is no battery
+      - ```elec_battery_feed_out_low_resolution.csv```
+        - Contains the lowest resolution battery discharging data available (for instance: day resolution)
+        - Not needed in case that there is no battery
         - Not needed in case that there is only one resolution available.
       - ```gas_high_resolution.csv```
         - Contains the highest resolution production data available (for instance: hour resolution).

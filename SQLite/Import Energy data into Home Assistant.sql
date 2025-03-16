@@ -72,6 +72,8 @@ INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_in_tariff_2',  8,        1000.0
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_1', 9,        1000.0,    25.0,            1000.0); /* Change */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_2', 10,       1000.0,    25.0,            1000.0); /* Change */
 INSERT INTO SENSORS VALUES ('sensor_id_elec_solar',             352,      1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('sensor_id_elec_battery_feed_in',   450,      1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('sensor_id_elec_battery_feed_out',  451,      1000.0,    25.0,            1000.0); /* Change */
 INSERT INTO SENSORS VALUES ('sensor_id_water',                  653,      1000.0,    25.0,            1000.0); /* Change */
 
 
@@ -89,6 +91,10 @@ CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution(field1 FLOAT, 
 CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_feed_out_tariff_2
 CREATE TABLE IF NOT EXISTS elec_solar_high_resolution            (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
 CREATE TABLE IF NOT EXISTS elec_solar_low_resolution             (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_solar
+CREATE TABLE IF NOT EXISTS elec_battery_feed_in_high_resolution  (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_battery_feed_in
+CREATE TABLE IF NOT EXISTS elec_battery_feed_in_low_resolution   (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_battery_feed_in
+CREATE TABLE IF NOT EXISTS elec_battery_feed_out_high_resolution (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_battery_feed_out
+CREATE TABLE IF NOT EXISTS elec_battery_feed_out_low_resolution  (field1 FLOAT, field2 FLOAT); -- sensor_id_elec_battery_feed_out
 CREATE TABLE IF NOT EXISTS gas_high_resolution                   (field1 FLOAT, field2 FLOAT); -- sensor_id_gas
 CREATE TABLE IF NOT EXISTS gas_low_resolution                    (field1 FLOAT, field2 FLOAT); -- sensor_id_gas
 CREATE TABLE IF NOT EXISTS water_high_resolution                 (field1 FLOAT, field2 FLOAT); -- sensor_id_water
@@ -155,6 +161,24 @@ SELECT
   round(field1, 0),
   round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
 FROM elec_solar_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
+
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
+SELECT
+  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1),
+  round(field1, 0),
+  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1), 3)
+FROM elec_battery_feed_in_high_resolution
+WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
+
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
+SELECT
+  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1),
+  round(field1, 0),
+  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1), 3)
+FROM elec_battery_feed_out_high_resolution
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
@@ -236,6 +260,28 @@ SELECT
 FROM elec_solar_low_resolution  
 WHERE
   (field1 < (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
+
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
+SELECT
+  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_battery_feed_in' LIMIT 1),
+  round(field1, 0),
+  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1), 3)
+FROM elec_battery_feed_in_low_resolution  
+WHERE
+  (field1 < (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1))) AND
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
+GROUP BY field1;
+
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
+SELECT
+  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_battery_feed_out' LIMIT 1),
+  round(field1, 0),
+  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1), 3)
+FROM elec_battery_feed_out_low_resolution  
+WHERE
+  (field1 < (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1))) AND
   (field1 IS NOT NULL) AND (field2 IS NOT NULL)
 GROUP BY field1;
 
@@ -407,12 +453,17 @@ DROP TABLE IF EXISTS elec_feed_in_tariff_2_high_resolution;
 DROP TABLE IF EXISTS elec_feed_out_tariff_1_high_resolution;
 DROP TABLE IF EXISTS elec_feed_out_tariff_2_high_resolution;
 DROP TABLE IF EXISTS elec_solar_high_resolution;
+DROP TABLE IF EXISTS elec_battery_feed_in_high_resolution;
+DROP TABLE IF EXISTS elec_battery_feed_out_high_resolution;
+DROP TABLE IF EXISTS gas_high_resolution;
+DROP TABLE IF EXISTS water_high_resolution;
+
 DROP TABLE IF EXISTS elec_feed_in_tariff_1_low_resolution;
 DROP TABLE IF EXISTS elec_feed_in_tariff_2_low_resolution;
 DROP TABLE IF EXISTS elec_feed_out_tariff_1_low_resolution;
 DROP TABLE IF EXISTS elec_feed_out_tariff_2_low_resolution;
 DROP TABLE IF EXISTS elec_solar_low_resolution;
-DROP TABLE IF EXISTS gas_high_resolution;
+DROP TABLE IF EXISTS elec_battery_feed_in_low_resolution;
+DROP TABLE IF EXISTS elec_battery_feed_out_low_resolution;
 DROP TABLE IF EXISTS gas_low_resolution;
-DROP TABLE IF EXISTS water_high_resolution;
 DROP TABLE IF EXISTS water_low_resolution;
