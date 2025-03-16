@@ -68,6 +68,8 @@ Importing historical energy data into Home Assistant is not simple and requires 
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
         10  sensor.electricity_meter_feed_out_tariff_2  recorder    kWh
         352 sensor.solar_energy_produced_today          recorder    kWh
+        450 sensor.battery_energy_feed_in               recorder    kWh
+        451 sensor.battery_energy_feed_out              recorder    kWh
         653 sensor.watermeter_quantity_m3               recorder    m³
     ```
 - Change the script and remove/comment out the lines of the sensors that are not needed. They can be found at the top of the script by looking up the lines where ```/* Change */``` has been added in the SQL statement.
