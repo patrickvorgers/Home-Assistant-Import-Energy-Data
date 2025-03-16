@@ -4,6 +4,7 @@ import glob
 import json
 import os
 import sys
+import warnings
 from collections import namedtuple
 from typing import List
 
@@ -187,7 +188,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.7.0"
+versionNumber = "1.7.1"
 
 
 # Prepare the input data
@@ -365,6 +366,10 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
             )
         elif (inputFileNameExtension == ".xlsx") or (inputFileNameExtension == ".xls"):
             # Read the XLSX/XLS file
+            warnings.filterwarnings(
+                "ignore",
+                message="Workbook contains no default style, apply openpyxl's default",
+            )
             df = pd.read_excel(
                 inputFileName,
                 sheet_name=inputFileExcelSheetName,
