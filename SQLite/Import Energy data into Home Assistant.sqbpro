@@ -119,86 +119,31 @@ CREATE UNIQUE INDEX idx_sensor_id_ts ON STATS_NEW (sensor_id, ts);
    The values are the start of the interval
    Grouping by field1 is done to remove any duplicates
 */
+WITH CTE_ALL_HIGH_RESOLUTION AS (
+  SELECT 'sensor_id_elec_feed_in_tariff_1' AS sensor_name, field1, field2 FROM elec_feed_in_tariff_1_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_feed_in_tariff_2', field1, field2 FROM elec_feed_in_tariff_2_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_feed_out_tariff_1', field1, field2 FROM elec_feed_out_tariff_1_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_feed_out_tariff_2', field1, field2 FROM elec_feed_out_tariff_2_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_solar', field1, field2 FROM elec_solar_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_battery_feed_in', field1, field2 FROM elec_battery_feed_in_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_battery_feed_out', field1, field2 FROM elec_battery_feed_out_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_gas', field1, field2 FROM gas_high_resolution
+  UNION ALL
+  SELECT 'sensor_id_water', field1, field2 FROM water_high_resolution
+)
 INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT 
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3)
-FROM elec_feed_in_tariff_1_high_resolution
+SELECT sensor_id, ROUND(field1, 0), ROUND(field2 / correction, 3)
+FROM CTE_ALL_HIGH_RESOLUTION
+JOIN SENSORS ON name = sensor_name
 WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3)
-FROM elec_feed_in_tariff_2_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3)
-FROM elec_feed_out_tariff_1_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3)
-FROM elec_feed_out_tariff_2_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
-FROM elec_solar_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1), 3)
-FROM elec_battery_feed_in_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1), 3)
-FROM elec_battery_feed_out_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
-FROM gas_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3)
-FROM water_high_resolution
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
+GROUP BY sensor_name, field1;
 
 
 /* Insert the low resolution records and apply the correction.
@@ -208,104 +153,38 @@ GROUP BY field1;
    The values are the start of the interval
    Grouping by field1 is done to remove any duplicates
 */
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1), 3)
-FROM elec_feed_in_tariff_1_low_resolution  
+WITH CTE_ALL_LOW_RESOLUTION AS (
+  SELECT 'sensor_id_elec_feed_in_tariff_1' AS sensor_name, field1, field2 FROM elec_feed_in_tariff_1_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_feed_in_tariff_2', field1, field2 FROM elec_feed_in_tariff_2_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_feed_out_tariff_1', field1, field2 FROM elec_feed_out_tariff_1_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_feed_out_tariff_2', field1, field2 FROM elec_feed_out_tariff_2_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_solar', field1, field2 FROM elec_solar_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_battery_feed_in', field1, field2 FROM elec_battery_feed_in_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_elec_battery_feed_out', field1, field2 FROM elec_battery_feed_out_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_gas', field1, field2 FROM gas_low_resolution
+  UNION ALL
+  SELECT 'sensor_id_water', field1, field2 FROM water_low_resolution
+)
+INSERT INTO stats_new (sensor_id, ts, begin_state)
+SELECT s.sensor_id, ROUND(field1, 0), ROUND(field2 / correction, 3)
+FROM CTE_ALL_LOW_RESOLUTION
+JOIN sensors s ON s.name = sensor_name
+LEFT JOIN (
+  SELECT sensor_id, MIN(ts) AS min_ts
+  FROM STATS_NEW
+  GROUP BY sensor_id
+) m ON m.sensor_id = s.sensor_id
 WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_1' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1), 3)
-FROM elec_feed_in_tariff_2_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_in_tariff_2' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1), 3)
-FROM elec_feed_out_tariff_1_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_1' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1), 3)
-FROM elec_feed_out_tariff_2_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_feed_out_tariff_2' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_solar' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1), 3)
-FROM elec_solar_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_solar' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_battery_feed_in' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1), 3)
-FROM elec_battery_feed_in_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_in' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE Name = 'sensor_id_elec_battery_feed_out' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1), 3)
-FROM elec_battery_feed_out_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_elec_battery_feed_out' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1), 3)
-FROM gas_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_gas' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
-
-INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT
-  (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1),
-  round(field1, 0),
-  round(field2 / (SELECT correction FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1), 3)
-FROM water_low_resolution  
-WHERE
-  (field1 &lt; (SELECT COALESCE(MIN(ts), strftime('%s', 'now')) FROM STATS_NEW WHERE sensor_id = (SELECT sensor_id FROM SENSORS WHERE name = 'sensor_id_water' LIMIT 1))) AND
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY field1;
+  (field1 IS NOT NULL) AND (field2 IS NOT NULL) AND
+  (field1 &lt; COALESCE(m.min_ts, strftime('%s', 'now')))
+GROUP BY sensor_name, field1;
 
 
 /* Determine the end of the interval for the imported data */
