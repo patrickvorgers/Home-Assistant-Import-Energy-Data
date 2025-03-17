@@ -172,7 +172,7 @@ WITH CTE_ALL_LOW_RESOLUTION AS (
   UNION ALL
   SELECT 'sensor_id_water', field1, field2 FROM water_low_resolution
 )
-INSERT INTO stats_new (sensor_id, ts, begin_state)
+INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT s.sensor_id, ROUND(field1, 0), ROUND(field2 / correction, 3)
 FROM CTE_ALL_LOW_RESOLUTION
 JOIN sensors s ON s.name = sensor_name
@@ -231,7 +231,7 @@ WHERE metadata_id IN (SELECT sensor_id FROM SENSORS);
   - For the imported data, calculate the diff by subtracting the begin_state from the end_state (old_sum is NULL)
   - For the Home Assistant values, calculate the diff from the previous record from the existing sum column (old_sum is not NULL)
 */
-UPDATE stats_new
+UPDATE STATS_NEW
 SET diff = end_state - begin_state
 WHERE
   old_sum IS NULL;
