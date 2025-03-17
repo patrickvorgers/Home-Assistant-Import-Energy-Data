@@ -192,7 +192,7 @@ SELECT * FROM (
 INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT s.sensor_id, ROUND(field1, 0), ROUND(field2 / correction, 3)
 FROM ALL_LOW_RESOLUTION
-JOIN sensors s ON s.name = sensor_name
+JOIN SENSORS s ON s.name = sensor_name
 LEFT JOIN (
   SELECT sensor_id, MIN(ts) AS min_ts
   FROM STATS_NEW
