@@ -122,6 +122,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
   - Script/How-to does not exist:
     - Determine how to get the data from your energy provider (download/API etc.)
     - Get the data from the energy provider using the identified method
+        - Ensure that this data precedes the sensor data in Home Assistant while still overlapping with the current data. It is not possible to import data for a sensor that is later than the data in Home Assistant or to fill in any gaps; such data will be ignored because the Home Assistant data takes precedence.
     - Convert the data in the needed CSV files. The generic data conversion script ```TemplateDataPrepare.py``` can be used in most cases. In case the CSV files are created manually the CSV files should follow the following simple definition where each row contains: ```Epoch Unix Timestamp```, ```sensor value```
       - Example:
         - 1540634400, 8120605
