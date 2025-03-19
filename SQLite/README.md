@@ -52,7 +52,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 - Open project ```Import Energy data into Home Assistant.sqbpro```.
   - If the database is not loaded directly you have to open the ```home-assistant_v2.db``` database manually ("Open Database").
 - Validate the schema version of the database (Browse Data -> Table: schema_changes)
-  - The script has been tested with schema version 43. With higher versions you should validate if the structure of the ```statistics``` and ```short_term_statistics``` tables have changed.
+  - The script has been tested with schema version 48. With higher versions you should validate if the structure of the ```statistics``` and ```short_term_statistics``` tables have changed.
     - Used fields in table ```statistics```: ```metadata_id```, ```state```, ```sum```, ```start_ts```, ```created_ts```
     - Used fields in table ```short_term_statistics```: ```sum```
 - Import, one at a time, all the created CSV data ```elec*```, ```gas*``` and ```water*``` files (File -> Import -> Table from CSV file...)
