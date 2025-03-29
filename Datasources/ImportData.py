@@ -138,7 +138,7 @@ def compute_id_and_resolution(csv_file):
             "Filename must end with 'high_resolution.csv' or 'low_resolution.csv'."
         )
 
-    id_part = basename[:-len(suffix)]
+    id_part = basename[: -len(suffix)]
     if id_part.endswith("_"):
         id_part = id_part[:-1]
 
@@ -212,9 +212,9 @@ def main():
     """
     parser = argparse.ArgumentParser(
         description="Import one or more CSV files (timestamp and value) into the IMPORT_DATA table. "
-                    "The id and resolution are derived from each CSV file name"
-                    "Filenames must end with 'high_resolution.csv' or 'low_resolution.csv'."
-                    "By default, the table is dropped and recreated; use --suppress-recreate to keep the existing table."
+        "The id and resolution are derived from each CSV file name"
+        "Filenames must end with 'high_resolution.csv' or 'low_resolution.csv'."
+        "By default, the table is dropped and recreated; use --suppress-recreate to keep the existing table."
     )
     parser.add_argument(
         "--verbose", action="store_true", help="Enable verbose logging output."
@@ -231,14 +231,15 @@ def main():
         nargs="+",
         help="Path(s) or wildcard pattern(s) to one or more CSV files.",
     )
-    
+
     # SQLite-specific parameters
     parser.add_argument(
-        "--sqlite-db", help="SQLite database file path (required for sqlite)")
+        "--sqlite-db", help="SQLite database file path (required for sqlite)"
+    )
     
     # MariaDB-specific parameters
     parser.add_argument(
-        "--host", default='localhost', help="MariaDB host (default: localhost)"
+        "--host", default="localhost", help="MariaDB host (default: localhost)"
     )
     parser.add_argument("--user", help="MariaDB username (required for mariadb)")
     parser.add_argument(
@@ -290,7 +291,8 @@ def main():
             )
             if skipped_count > 0:
                 log(
-                    f"🚫 Skipped {skipped_count} malformed records from '{csv_file}'", args.verbose
+                    f"🚫 Skipped {skipped_count} malformed records from '{csv_file}'",
+                    args.verbose,
                 )
             conn.commit()
 
