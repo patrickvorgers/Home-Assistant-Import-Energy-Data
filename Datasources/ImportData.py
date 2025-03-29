@@ -236,7 +236,7 @@ def main():
     parser.add_argument(
         "--sqlite-db", help="SQLite database file path (required for sqlite)"
     )
-    
+
     # MariaDB-specific parameters
     parser.add_argument(
         "--host", default="localhost", help="MariaDB host (default: localhost)"
@@ -248,14 +248,14 @@ def main():
     parser.add_argument(
         "--database", help="MariaDB database name (required for mariadb)"
     )
-    
+
     # Control table recreation
     parser.add_argument(
         "--suppress-recreate",
         action="store_true",
         help="If set, the existing IMPORT_DATA table will not be dropped/recreated (default drops the table).",
     )
-    
+
     args = parser.parse_args()
     db_type = args.db_type
 
@@ -301,6 +301,7 @@ def main():
         log("✅ CSV import completed")
     except Exception as e:
         log("❌ An error occurred: " + str(e))
+
 
 if __name__ == "__main__":
     main()
