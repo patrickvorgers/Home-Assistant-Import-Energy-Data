@@ -33,6 +33,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Tooling
 - Download and install: HeidiSQL https://www.heidisql.com/
+- MySQL python library ```pip install mysql-connector-python```
 
 #### Home Assistant preparation
 - Create a backup of the Home Assistant database
@@ -68,29 +69,22 @@ Importing historical energy data into Home Assistant is not simple and requires 
   - In case something goes wrong you can remove the ```homeassistant``` database and rename the ```homeassistant backup``` database to the ```homeassistant``` database.
     - Right click the ```homeassistant``` database and select ```Drop```
     - Right click the ```homeassistant backup``` database and select ```Edit``` and change the name into ```homeassistant``` and press ```Ok```
+- Run the `ImportData.py` script from the Datasources directory to import the generated CSV files and use the following command-line parameters:
+    - `--db-type mariadb`
+    - `--host HOST` Host as defined in the HeidiSQL database connection
+    - `--user USER` Username as defined in the HeidiSQL database connection
+    - `--password PASSWORD` Password as defined in the HeidiSQL database connection
+    - `--database homeassistant`
+    - `--csv-file CSV_FILE [CSV_FILE ...]` Location of the CSV files generated in the source data preparation step, wildcards are allowed
+    - `--verbose`<br><br>
+    Example:<br>
+```python ImportData.py --db-type mariadb --host localhost --user root --database homeassistant --csv-file "data\*.csv" --verbose```
+
 - Load SQL file ```Import Energy data into Home Assistant.sql``` from the MariaDB directory (File -> Load SQL file - Yes on auto-detect file encoding)
 - Validate the schema version of the database (Select table: schema_changes and select the data tab on the right and scroll down to the bottom)
   - The script has been tested with schema version 48. With higher versions you should validate if the structure of the ```statistics``` and ```short_term_statistics``` tables have changed.
     - Used fields in table ```statistics```: ```metadata_id```, ```state```, ```sum```, ```start_ts```, ```created_ts```
     - Used fields in table ```short_term_statistics```: ```sum```
-- Import, one at a time, all the created CSV data ```elec*```, ```gas*``` and ```water*``` files (Tools -> Import CSV file...)
-  - Settings:
-    - Filename: select the CSV file to be imported
-    - Ignore first: ```0```
-    - REPLACE (duplicates)
-    - Fields terminated by: ```,```
-    - Lines terminated by: ```\n```
-    - Table: scroll down and select ```<new table>```
-    - Use the below column definitions and press ```Ok, create table```. Only the column definition has to be changed the name of the table is already filled in.
-      ```
-      CREATE TABLE `homeassistant test`.<table name> (
-        `field1` DOUBLE PRIMARY KEY NOT NULL,
-        `field2` DOUBLE NOT NULL
-      )
-      ```
-    - Press ```Import``` and after successfull completion the logwindow will show how many rows were imported.
-  - It is possible to load data from multiple CSV's with the same name. The data of the second import is than added to the existing tables. This can be used in case there are multiple energy source providers for different timeperiods. In this case you first import the files from the first energy provider and than then second etc.
-    The ```<new table>``` step can be skipped in this case because the table already exists. Instead of selecting ```<new table>``` select the right table in which the data should be imported.
 - Lookup in the ```statistics_meta``` table the IDs of the sensors (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the ID of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```)
   - The names of the sensors can be looked up in the Home Assistant Energy dashboard (Settings -> Dashboards -> Energy).
 <br>Example:

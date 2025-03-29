@@ -51,12 +51,18 @@ Importing historical energy data into Home Assistant is not simple and requires 
 - Start ```DB Browser for SQLite```
 - Open project ```Import Energy data into Home Assistant.sqbpro```.
   - If the database is not loaded directly you have to open the ```home-assistant_v2.db``` database manually ("Open Database").
+- Run the `ImportData.py` script from the Datasources directory to import the generated CSV files and use the following command-line parameters:
+    - `--db-type sqlite`
+    - `--sqlite-db home-assistant_v2.db`
+    - `--csv-file CSV_FILE [CSV_FILE ...]` Location of the CSV files generated in the source data preparation step, wildcards are allowed
+    - `--verbose`<br><br>
+    Example:<br>
+```python ImportData.py --db-type sqlite --sqlite-db home-assistant_v2.db --csv-file "data\*.csv" --verbose```
+
 - Validate the schema version of the database (Browse Data -> Table: schema_changes)
   - The script has been tested with schema version 48. With higher versions you should validate if the structure of the ```statistics``` and ```short_term_statistics``` tables have changed.
     - Used fields in table ```statistics```: ```metadata_id```, ```state```, ```sum```, ```start_ts```, ```created_ts```
     - Used fields in table ```short_term_statistics```: ```sum```
-- Import, one at a time, all the created CSV data ```elec*```, ```gas*``` and ```water*``` files (File -> Import -> Table from CSV file...)
-  - It is possible to load data from multiple CSV's with the same name. The data of the second import is than added to the existing tables. This can be used in case there are multiple energy source providers for different timeperiods. In this case you first import the files from the first energy provider and than then second etc.
 - Lookup in the ```statistics_meta``` table the IDs of the sensors (Browse Data -> Table: ```statistics_meta```; You can use "filter" to find the ID of the sensor)
   - The names of the sensors can be looked up in the Home Assistant Energy dashboard (Settings -> Dashboards -> Energy).
 <br>Example:

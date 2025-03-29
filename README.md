@@ -20,7 +20,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![Issues][issues-shield]][issues-url]
 [![GitHub Activity][commits-shield]][commits]
-[![License][license-shield]](LICENSE)
+[![License][license-shield]](LICENSE.txt)
 
 ![Project Maintenance][maintenance-shield]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
@@ -76,11 +76,19 @@ Their feedback led me to the idea to rewrite my initial script and make it more 
 The latest version of the script is independent from the energy provider and makes it possbile to import historical exported energy data into Home Assistant.
 It adds the statistics data that is missing in Home Assistant and adjusts the existing data.
 
-The generic import script requires the data to be in a specific simple CSV file format (```Epoch Unix Timestamp```, ```sensor value```).
-For several energy providers conversion scripts exist that convert the energy provider specific format to the needed format.
-To make live easier a generic conversion script is available that can handle formats like CSV, XLS, XLSX and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
+The import process consists of three straightforward steps:
+1. **Data preparation**  
+   Prepare the data in the correct CSV file format (`Epoch Unix Timestamp`, `sensor value`).
+   For several energy providers conversion scripts exist that convert the energy provider specific format to the needed format.
+   Additionally, a generic conversion script is available that can handle various formats such as CSV, XLS, XLSX, and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
 
-**Latest data still correct after import (short_term_statistics work)**
+2. **Import CSV files**  
+   Use the generic import script `ImportData.py` to import the CSV files generated from step 1 into a temporary working table within the Home Assistant database.
+
+3. **Process and import data**  
+   Execute the database-specific version of the SQL script `Import Energy data into Home Assistant.sql` to process the temporary table, import the data into the appropriate Home Assistant tables, and adjust and integrate it with existing data.
+
+**Latest data correct after import (short term statistics work)**
 ![2023](https://user-images.githubusercontent.com/10108665/230038379-8d20d264-c49e-4c98-b1f6-241942306886.JPG)
 </br></br>
 **Data of 2019 - Imported using high resolution interval data (hourly) - statistics work**
@@ -91,16 +99,18 @@ To make live easier a generic conversion script is available that can handle for
 
 ### Features
 <ul>
-  <li>Imports correctly historical energy and water data into Home Assistant</li>
-  <li>Supports combination of low and high resolution data</li>
-  <li>Supports electrical feed in, electrical feed out, solar power, battery feed in, battery feed out, gas and water data</li>
+  <li>Correctly imports historical energy, gas, and water data into Home Assistant</li>
+  <li>Supports a combination of low- and high-resolution data</li>
+  <li>Supports electrical feed-in, electrical feed-out, solar power, battery feed-in, battery feed-out, gas, and water data</li>
+  <li>Also supports other non-energy sensors, but no data preparation scripts currently exist</li>
   <li>Supports data feeds with double tariffs (normal tariff / low tariff)</li>
-  <li>One line configuration in case a sensor is not needed</li>
-  <li>Possibility to provide a conversion factor per sensor (for instance conversion between Wh/kWh or L/m³)</li>
-  <li>Supports reset of sensors (for instance replacement of energy meter)</li>
+  <li>One-line configuration in case a sensor is not needed</li>
+  <li>Option to provide a conversion factor per sensor (for instance, conversion between Wh/kWh or L/m³)</li>
+  <li>Supports sensor resets (for instance, replacement of an energy meter)</li>
   <li>Support for SQLite (standard Home Assistant database) and MariaDB</li>
   <li>Generic data conversion script for "unsupported" energy providers</li>
   <li>Growing list of data conversion scripts for different energy providers (most using generic data conversion script)</li>
+  <li>Import script to automate importing prepared CSV files</li>
 </ul>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -123,13 +133,20 @@ Importing historical energy data into Home Assistant is not simple and requires 
     - Determine how to get the data from your energy provider (download/API etc.)
     - Get the data from the energy provider using the identified method
         - Ensure that this data precedes the sensor data in Home Assistant while still overlapping with the current data. It is not possible to import data for a sensor that is later than the data in Home Assistant or to fill in any gaps; such data will be ignored because the Home Assistant data takes precedence.
-    - Convert the data in the needed CSV files. The generic data conversion script ```TemplateDataPrepare.py``` can be used in most cases. In case the CSV files are created manually the CSV files should follow the following simple definition where each row contains: ```Epoch Unix Timestamp```, ```sensor value```
-      - Example:
-        - 1540634400, 8120605
-        - 1540638000, 8120808
-        - 1540641600, 8120993
-        - 1540645200, 8121012
-    - Depending on the used sensors determine which CSV data files need to be created:
+    - Convert the data in the needed CSV files.
+      The generic data conversion script ```TemplateDataPrepare.py``` can be used in most cases.
+      In case the CSV files are created manually the CSV files should follow the following simple definition where each row contains: ```Epoch Unix Timestamp```, ```sensor value```.
+      The filename must include both the sensor identifier and the resolution.
+      The sensor identifier is used by the generic SQL script to map the data to the corresponding sensor defined in Home Assistant.
+      - Example: `elec_feed_in_tariff_1_high_resolution.csv`
+        - Sensor ID: `elec_feed_in_tariff_1`
+        - Resolution: `HIGH`
+        - Data
+          - 1540634400, 8120605
+          - 1540638000, 8120808
+          - 1540641600, 8120993
+          - 1540645200, 8121012
+    - Depending on the used energy sensors, determine which CSV data files need to be created:
       - ```elec_feed_in_tariff_1_high_resolution.csv```
         - Contains the highest resolution usage data available (for instance: hour resolution)
         - Used in case there is only one tariff
