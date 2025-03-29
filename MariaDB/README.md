@@ -52,7 +52,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
       recorder:
           db_url: mysql://<user>:<password>@core-mariadb/homeassistant?charset=utf8mb4
       ```
-    - Port: 3306 (default)
+    - Port: 3306 (default - In case the Home Assistant add-on is used, verify that the port is exposed to the host)
 - <b>EXTRA SAFETY STEP</b>: Create a copy of your existing Home Assistant database so that it is possible to quickly move back to the original database.
   - Right click in the left most window and select ```Create new -> database```
     - Name: ```homeassistant backup```
