@@ -17,7 +17,7 @@ Definition of the different sensors for which the history data should be loaded.
 Comment out the sensors for which no history data is available.
 
 SENSOR NAME:
-  Fixed, do not change this
+  Sensor identifier as specified by the imported data (CSV filename)
 SENSOR ID:
   Identifier (id) of the sensor as defined in the statistics_meta table
 CORRECTION FACTOR:
@@ -72,44 +72,22 @@ correction cutoff_new_meter cutoff_invalid_value
 1000.0     25.0             1000.0
 */
 
-/*                          name                                sensor_id correction cutoff_new_meter cutoff_invalid_value */
-INSERT INTO SENSORS VALUES ('sensor_id_gas',                    6,        1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_in_tariff_1',  7,        1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_in_tariff_2',  8,        1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_1', 9,        1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_feed_out_tariff_2', 10,       1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_solar',             352,      1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_battery_feed_in',   450,      1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_elec_battery_feed_out',  451,      1000.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('sensor_id_water',                  653,      1000.0,    25.0,            1000.0); /* Change */
+/*                          name                      sensor_id correction cutoff_new_meter cutoff_invalid_value */
+INSERT INTO SENSORS VALUES ('gas',                    6,        1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_feed_in_tariff_1',  7,        1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_feed_in_tariff_2',  8,        1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_feed_out_tariff_1', 9,        1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_feed_out_tariff_2', 10,       1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_solar',             352,      1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_battery_feed_in',   450,      1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_battery_feed_out',  451,      1000.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('water',                  653,      1000.0,    25.0,            1000.0); /* Change */
 
 
 /* FOR NORMAL USAGE THERE SHOULD BE NO CHANGES NEEDED AFTER THIS POINT */
 
 
-/* Create empty temp import tables if they do not exist so that the SQL statements do not break in case the table is not imported */
-/* We cannot use CREATE TEMPORARY TABLE here because they are session specific and would always be created */
-CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_1_high_resolution (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_1_low_resolution  (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_1 
-CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_2_high_resolution (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_2
-CREATE TABLE IF NOT EXISTS elec_feed_in_tariff_2_low_resolution  (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_in_tariff_2
-CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_1_high_resolution(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_1
-CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_1_low_resolution (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_1
-CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_high_resolution(field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_2
-CREATE TABLE IF NOT EXISTS elec_feed_out_tariff_2_low_resolution (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_feed_out_tariff_2
-CREATE TABLE IF NOT EXISTS elec_solar_high_resolution            (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_solar
-CREATE TABLE IF NOT EXISTS elec_solar_low_resolution             (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_solar
-CREATE TABLE IF NOT EXISTS elec_battery_feed_in_high_resolution  (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_battery_feed_in
-CREATE TABLE IF NOT EXISTS elec_battery_feed_in_low_resolution   (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_battery_feed_in
-CREATE TABLE IF NOT EXISTS elec_battery_feed_out_high_resolution (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_battery_feed_out
-CREATE TABLE IF NOT EXISTS elec_battery_feed_out_low_resolution  (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_elec_battery_feed_out
-CREATE TABLE IF NOT EXISTS gas_high_resolution                   (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_gas
-CREATE TABLE IF NOT EXISTS gas_low_resolution                    (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_gas
-CREATE TABLE IF NOT EXISTS water_high_resolution                 (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_water
-CREATE TABLE IF NOT EXISTS water_low_resolution                  (field1 DOUBLE PRIMARY KEY NOT NULL, field2 DOUBLE NOT NULL); -- sensor_id_water
-
-
-/* Create temp tables that can hold the difference between the measurements and create a new sum */
+/* Create a temp table that can hold the difference between the measurements and create a new sum */
 DROP TEMPORARY TABLE IF EXISTS STATS_NEW;
 CREATE TEMPORARY TABLE STATS_NEW (
   id            INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -126,82 +104,33 @@ CREATE UNIQUE INDEX idx_sensor_id_ts ON STATS_NEW (sensor_id, ts);
 
 /* Insert the high resolution records and apply the correction 
 
-   Invalid rows with null values are ignored
    The values are the start of the interval
-   Grouping by field1 is done to remove any duplicates
 */
-DROP TEMPORARY TABLE IF EXISTS ALL_HIGH_RESOLUTION;
-CREATE TEMPORARY TABLE ALL_HIGH_RESOLUTION (sensor_name VARCHAR(255), field1 DOUBLE,field2 DOUBLE) AS
-SELECT * FROM (
-  SELECT 'sensor_id_elec_feed_in_tariff_1' AS sensor_name, field1, field2 FROM elec_feed_in_tariff_1_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_feed_in_tariff_2', field1, field2 FROM elec_feed_in_tariff_2_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_feed_out_tariff_1', field1, field2 FROM elec_feed_out_tariff_1_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_feed_out_tariff_2', field1, field2 FROM elec_feed_out_tariff_2_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_solar', field1, field2 FROM elec_solar_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_battery_feed_in', field1, field2 FROM elec_battery_feed_in_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_battery_feed_out', field1, field2 FROM elec_battery_feed_out_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_gas', field1, field2 FROM gas_high_resolution
-  UNION ALL
-  SELECT 'sensor_id_water', field1, field2 FROM water_high_resolution
-) AS ALL_HIGH_RESOLUTION;
-
 INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT sensor_id, ROUND(field1, 0), ROUND(field2 / correction, 3)
-FROM ALL_HIGH_RESOLUTION
-JOIN SENSORS ON name = sensor_name
-WHERE (field1 IS NOT NULL) AND (field2 IS NOT NULL)
-GROUP BY sensor_name, field1;
+SELECT s.sensor_id, ROUND(imd.timestamp, 0), ROUND(imd.value / s.correction, 3)
+FROM IMPORT_DATA AS imd
+JOIN SENSORS AS s ON s.name = imd.id
+WHERE
+  imd.resolution = 'HIGH';
 
 
 /* Insert the low resolution records and apply the correction.
    We only add data that is older than the high resolution records
 
-   Invalid rows with null values are ignored
    The values are the start of the interval
-   Grouping by field1 is done to remove any duplicates
 */
-DROP TEMPORARY TABLE IF EXISTS ALL_LOW_RESOLUTION;
-CREATE TEMPORARY TABLE ALL_LOW_RESOLUTION (sensor_name VARCHAR(255), field1 DOUBLE, field2 DOUBLE) AS
-SELECT * FROM (
-  SELECT 'sensor_id_elec_feed_in_tariff_1' AS sensor_name, field1, field2 FROM elec_feed_in_tariff_1_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_feed_in_tariff_2', field1, field2 FROM elec_feed_in_tariff_2_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_feed_out_tariff_1', field1, field2 FROM elec_feed_out_tariff_1_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_feed_out_tariff_2', field1, field2 FROM elec_feed_out_tariff_2_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_solar', field1, field2 FROM elec_solar_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_battery_feed_in', field1, field2 FROM elec_battery_feed_in_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_elec_battery_feed_out', field1, field2 FROM elec_battery_feed_out_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_gas', field1, field2 FROM gas_low_resolution
-  UNION ALL
-  SELECT 'sensor_id_water', field1, field2 FROM water_low_resolution
-) AS ALL_LOW_RESOLUTION;
-
 INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
-SELECT s.sensor_id, ROUND(field1, 0), ROUND(field2 / correction, 3)
-FROM ALL_LOW_RESOLUTION
-JOIN SENSORS s ON s.name = sensor_name
+SELECT s.sensor_id, ROUND(imd.timestamp, 0), ROUND(imd.value / s.correction, 3)
+FROM IMPORT_DATA AS imd
+JOIN SENSORS AS s ON s.name = imd.id
 LEFT JOIN (
   SELECT sensor_id, MIN(ts) AS min_ts
   FROM STATS_NEW
   GROUP BY sensor_id
-) m ON m.sensor_id = s.sensor_id
+) AS m ON m.sensor_id = s.sensor_id
 WHERE
-  (field1 IS NOT NULL) AND (field2 IS NOT NULL) AND
-  (field1 < COALESCE(m.min_ts, UNIX_TIMESTAMP()))
-GROUP BY sensor_name, field1;
+  imd.resolution = 'LOW' AND
+  imd.timestamp < COALESCE(m.min_ts, UNIX_TIMESTAMP());
 
 
 /* Determine the end of the interval for the imported data */
@@ -236,6 +165,7 @@ INSERT INTO STATS_NEW (sensor_id, ts, end_state, old_sum)
 SELECT metadata_id, start_ts, state, sum
 FROM statistics
 WHERE metadata_id IN (SELECT sensor_id FROM SENSORS);
+
 
 /* Calculate the difference per interval
   - For the imported data, calculate the diff by subtracting the begin_state from the end_state (old_sum is NULL)
@@ -306,6 +236,7 @@ INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
 SELECT end_state, new_sum, sensor_id, ts, ts FROM STATS_NEW
 ON DUPLICATE KEY UPDATE sum = VALUES(sum);
 
+
 /* Also update the short term statistics. 
    We calculate the delta with which the sum was changed and add that to the current measurements
    Remark: use WHERE TRUE to supress any warnings
@@ -324,29 +255,7 @@ WHERE TRUE;
 /* Remove the temporary tables */
 DROP TEMPORARY TABLE IF EXISTS SENSORS;
 DROP TEMPORARY TABLE IF EXISTS STATS_NEW;
-DROP TEMPORARY TABLE IF EXISTS ALL_HIGH_RESOLUTION;
-DROP TEMPORARY TABLE IF EXISTS ALL_LOW_RESOLUTION;
-
-/* Remove the imported tables */
-DROP TABLE IF EXISTS elec_feed_in_tariff_1_high_resolution;
-DROP TABLE IF EXISTS elec_feed_in_tariff_2_high_resolution;
-DROP TABLE IF EXISTS elec_feed_out_tariff_1_high_resolution;
-DROP TABLE IF EXISTS elec_feed_out_tariff_2_high_resolution;
-DROP TABLE IF EXISTS elec_solar_high_resolution;
-DROP TABLE IF EXISTS elec_battery_feed_in_high_resolution;
-DROP TABLE IF EXISTS elec_battery_feed_out_high_resolution;
-DROP TABLE IF EXISTS gas_high_resolution;
-DROP TABLE IF EXISTS water_high_resolution;
-
-DROP TABLE IF EXISTS elec_feed_in_tariff_1_low_resolution;
-DROP TABLE IF EXISTS elec_feed_in_tariff_2_low_resolution;
-DROP TABLE IF EXISTS elec_feed_out_tariff_1_low_resolution;
-DROP TABLE IF EXISTS elec_feed_out_tariff_2_low_resolution;
-DROP TABLE IF EXISTS elec_solar_low_resolution;
-DROP TABLE IF EXISTS elec_battery_feed_in_low_resolution;
-DROP TABLE IF EXISTS elec_battery_feed_out_low_resolution;
-DROP TABLE IF EXISTS gas_low_resolution;
-DROP TABLE IF EXISTS water_low_resolution;
+DROP TABLE IF EXISTS IMPORT_DATA;
 
 /* Enable the warnings again */
 SET sql_notes = 1; 
