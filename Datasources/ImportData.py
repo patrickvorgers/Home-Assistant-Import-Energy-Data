@@ -31,6 +31,7 @@ from enum import Enum, auto
 
 class DatabaseType(Enum):
     """Supported database backends."""
+
     SQLITE = auto()
     MARIADB = auto()
 
@@ -61,22 +62,21 @@ def get_connection(db_type: DatabaseType, args):
     """
     if db_type == DatabaseType.SQLITE:
         import sqlite3
+
         if not args.sqlite_db:
             raise ValueError("--sqlite-db is required for SQLite")
         conn = sqlite3.connect(args.sqlite_db)
         # SQLite uses '?' for placeholders
-        placeholder = "?" 
+        placeholder = "?"
     elif db_type == DatabaseType.MARIADB:
         import mysql.connector
+
         if not args.user or not args.database:
             raise ValueError("--user and --database are required for MariaDB")
         # Use an empty password if none is provided
         password = args.password if args.password is not None else ""
         conn = mysql.connector.connect(
-            host=args.host,
-            user=args.user,
-            password=password,
-            database=args.database
+            host=args.host, user=args.user, password=password, database=args.database
         )
         # MariaDB/MySQL uses '%s' for placeholders
         placeholder = "%s"
@@ -99,7 +99,8 @@ def create_table(cursor, recreate=True, verbose=False):
     else:
         log("🧱 Keeping existing IMPORT_DATA table (created if missing)", verbose)
 
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS IMPORT_DATA (
             id VARCHAR(50) NOT NULL,
             resolution VARCHAR(4) NOT NULL,
@@ -108,13 +109,14 @@ def create_table(cursor, recreate=True, verbose=False):
             PRIMARY KEY (id, resolution, timestamp),
             CHECK (resolution IN ('HIGH','LOW'))
         )
-    """)
+    """
+    )
 
 
 def compute_id_and_resolution(csv_file):
     """
     Extract the id and resolution from the CSV file name.
-    
+
     The file name must end with either "high_resolution.csv" or "low_resolution.csv".
     The id is the part of the file name preceding the suffix, with any trailing underscore removed.
     The id is then prepended with 'sensor_id_'.
@@ -132,7 +134,9 @@ def compute_id_and_resolution(csv_file):
         suffix = "low_resolution.csv"
         resolution = "LOW"
     else:
-        raise ValueError("Filename must end with 'high_resolution.csv' or 'low_resolution.csv'.")
+        raise ValueError(
+            "Filename must end with 'high_resolution.csv' or 'low_resolution.csv'."
+        )
 
     id_part = basename[:-len(suffix)]
     if id_part.endswith("_"):
@@ -155,7 +159,9 @@ def expand_file_patterns(patterns):
     return files
 
 
-def import_csv_data(cursor, csv_file, placeholder, id_val, resolution, db_type: DatabaseType) -> tuple[int, int]:
+def import_csv_data(
+    cursor, csv_file, placeholder, id_val, resolution, db_type: DatabaseType
+) -> tuple[int, int]:
     """
     Efficiently imports data from a CSV into the IMPORT_DATA table with upsert support.
     Each CSV file is expected to have two columns: timestamp and value.
@@ -167,13 +173,9 @@ def import_csv_data(cursor, csv_file, placeholder, id_val, resolution, db_type: 
     )
 
     if db_type == DatabaseType.SQLITE:
-        conflict_clause = (
-            "ON CONFLICT(id, resolution, timestamp) DO UPDATE SET value = excluded.value"
-        )
+        conflict_clause = "ON CONFLICT(id, resolution, timestamp) DO UPDATE SET value = excluded.value"
     elif db_type == DatabaseType.MARIADB:
-        conflict_clause = (
-            "ON DUPLICATE KEY UPDATE value = VALUES(value)"
-        )
+        conflict_clause = "ON DUPLICATE KEY UPDATE value = VALUES(value)"
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
 
@@ -181,7 +183,7 @@ def import_csv_data(cursor, csv_file, placeholder, id_val, resolution, db_type: 
 
     rows = []
     total_rows = 0
-    with open(csv_file, newline='') as csvfile:
+    with open(csv_file, newline="") as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             total_rows += 1
@@ -214,24 +216,44 @@ def main():
                     "Filenames must end with 'high_resolution.csv' or 'low_resolution.csv'."
                     "By default, the table is dropped and recreated; use --suppress-recreate to keep the existing table."
     )
-    parser.add_argument('--verbose', action='store_true', help='Enable verbose logging output.')
-    parser.add_argument('--db-type', type=parse_db_type, required=True,
-                        help='Type of database to use: sqlite or mariadb')
-    parser.add_argument('--csv-file', required=True, nargs='+',
-                        help='Path(s) or wildcard pattern(s) to one or more CSV files.')
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable verbose logging output."
+    )
+    parser.add_argument(
+        "--db-type",
+        type=parse_db_type,
+        required=True,
+        help="Type of database to use: sqlite or mariadb",
+    )
+    parser.add_argument(
+        "--csv-file",
+        required=True,
+        nargs="+",
+        help="Path(s) or wildcard pattern(s) to one or more CSV files.",
+    )
     
     # SQLite-specific parameters
-    parser.add_argument('--sqlite-db', help='SQLite database file path (required for sqlite)')
+    parser.add_argument(
+        "--sqlite-db", help="SQLite database file path (required for sqlite)")
     
     # MariaDB-specific parameters
-    parser.add_argument('--host', default='localhost', help='MariaDB host (default: localhost)')
-    parser.add_argument('--user', help='MariaDB username (required for mariadb)')
-    parser.add_argument('--password', help='MariaDB password (default: empty if not set)')
-    parser.add_argument('--database', help='MariaDB database name (required for mariadb)')
+    parser.add_argument(
+        "--host", default='localhost', help="MariaDB host (default: localhost)"
+    )
+    parser.add_argument("--user", help="MariaDB username (required for mariadb)")
+    parser.add_argument(
+        "--password", help="MariaDB password (default: empty if not set)"
+    )
+    parser.add_argument(
+        "--database", help="MariaDB database name (required for mariadb)"
+    )
     
     # Control table recreation
-    parser.add_argument('--suppress-recreate', action='store_true',
-                        help="If set, the existing IMPORT_DATA table will not be dropped/recreated (default drops the table).")
+    parser.add_argument(
+        "--suppress-recreate",
+        action="store_true",
+        help="If set, the existing IMPORT_DATA table will not be dropped/recreated (default drops the table).",
+    )
     
     args = parser.parse_args()
     db_type = args.db_type
@@ -249,17 +271,27 @@ def main():
         cursor = conn.cursor()
 
         # Recreate table unless suppression is requested
-        create_table(cursor, recreate=(not args.suppress_recreate), verbose=args.verbose)
+        create_table(
+            cursor, recreate=(not args.suppress_recreate), verbose=args.verbose
+        )
         conn.commit()
 
         # Process each CSV file.
         for csv_file in csv_files:
             id_val, resolution = compute_id_and_resolution(csv_file)
-            log(f"📥 Importing '{csv_file}' with id: '{id_val}' and resolution: '{resolution}'")
-            processed_count, skipped_count = import_csv_data(cursor, csv_file, placeholder, id_val, resolution, db_type)
-            log(f"🔢 Processed {processed_count} records from '{csv_file}'", args.verbose)
+            log(
+                f"📥 Importing '{csv_file}' with id: '{id_val}' and resolution: '{resolution}'"
+            )
+            processed_count, skipped_count = import_csv_data(
+                cursor, csv_file, placeholder, id_val, resolution, db_type
+            )
+            log(
+                f"🔢 Processed {processed_count} records from '{csv_file}'", args.verbose
+            )
             if skipped_count > 0:
-                log(f"🚫 Skipped {skipped_count} malformed records from '{csv_file}'", args.verbose)
+                log(
+                    f"🚫 Skipped {skipped_count} malformed records from '{csv_file}'", args.verbose
+                )
             conn.commit()
 
         cursor.close()
@@ -268,5 +300,5 @@ def main():
     except Exception as e:
         log("❌ An error occurred: " + str(e))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
