@@ -5,7 +5,7 @@
 ROLLBACK;
 START TRANSACTION;
 
- /* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
+/* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
 SET sql_notes = 0;
 
 /* Create a temp table to hold the used sensor metadata */
@@ -222,6 +222,28 @@ WHERE
   STATS_NEW.sensor_id = SUM_STATS.sensor_id AND
   STATS_NEW.ts = SUM_STATS.ts;
 
+
+/* Copy records from the original tables into the backup tables
+   We only copy the records for the sensors that are defined in SENSORS
+*/
+DROP TABLE IF EXISTS BACKUP_STATISTICS;
+CREATE TABLE BACKUP_STATISTICS (id INTEGER PRIMARY KEY, metadata_id INTEGER, sum FLOAT);
+CREATE INDEX idx_statistics_metadata_id ON BACKUP_STATISTICS (metadata_id);
+
+INSERT INTO BACKUP_STATISTICS
+SELECT id, metadata_id, sum FROM statistics
+WHERE
+  metadata_id IN (SELECT sensor_id FROM SENSORS);
+
+DROP TABLE IF EXISTS BACKUP_STATISTICS_SHORT_TERM;
+CREATE TABLE BACKUP_STATISTICS_SHORT_TERM (id INTEGER PRIMARY KEY, metadata_id INTEGER, sum FLOAT);
+CREATE INDEX idx_statistics_short_term_metadata_id ON BACKUP_STATISTICS_SHORT_TERM (metadata_id);
+
+INSERT INTO BACKUP_STATISTICS_SHORT_TERM
+SELECT id, metadata_id, sum FROM statistics_short_term 
+WHERE
+  metadata_id IN (SELECT sensor_id FROM SENSORS);
+
   
 /* Copy the new information to the statistics table
 id          => primary key and automatically filled (autoincrement)
@@ -256,6 +278,8 @@ WHERE TRUE;
 DROP TEMPORARY TABLE IF EXISTS SENSORS;
 DROP TEMPORARY TABLE IF EXISTS STATS_NEW;
 DROP TABLE IF EXISTS IMPORT_DATA;
+
+/* Do not drop the backup tables. They can be deleted after verification by the user. */
 
 /* Enable the warnings again */
 SET sql_notes = 1; 
