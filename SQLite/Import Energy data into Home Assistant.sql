@@ -227,6 +227,28 @@ WHERE
   STATS_NEW.ts = CTE_SUM_STATS.ts;
 
 
+/* Copy records from the original tables into the backup tables
+   We only copy the records for the sensors that are defined in SENSORS
+*/
+DROP TABLE IF EXISTS BACKUP_STATISTICS;
+CREATE TABLE BACKUP_STATISTICS (id INTEGER PRIMARY KEY, metadata_id INTEGER, sum FLOAT);
+CREATE INDEX idx_statistics_metadata_id ON BACKUP_STATISTICS (metadata_id);
+
+INSERT INTO BACKUP_STATISTICS
+SELECT id, metadata_id, sum FROM statistics
+WHERE
+  metadata_id IN (SELECT sensor_id FROM SENSORS);
+
+DROP TABLE IF EXISTS BACKUP_STATISTICS_SHORT_TERM;
+CREATE TABLE BACKUP_STATISTICS_SHORT_TERM (id INTEGER PRIMARY KEY, metadata_id INTEGER, sum FLOAT);
+CREATE INDEX idx_statistics_short_term_metadata_id ON BACKUP_STATISTICS_SHORT_TERM (metadata_id);
+
+INSERT INTO BACKUP_STATISTICS_SHORT_TERM
+SELECT id, metadata_id, sum FROM statistics_short_term 
+WHERE
+  metadata_id IN (SELECT sensor_id FROM SENSORS);
+
+
 /* Copy the new information to the statistics table
 id          => primary key and automatically filled with ROWID
 state       => the end_state of the interval

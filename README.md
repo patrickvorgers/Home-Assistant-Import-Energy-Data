@@ -104,7 +104,8 @@ The import process consists of three straightforward steps:
   <li>Supports electrical feed-in, electrical feed-out, solar power, battery feed-in, battery feed-out, gas, and water data</li>
   <li>Also supports other non-energy sensors, but no data preparation scripts currently exist</li>
   <li>Supports data feeds with double tariffs (normal tariff / low tariff)</li>
-  <li>One-line configuration in case a sensor is not needed</li>
+  <li>Rollback support that reverts changes if an import fails</li>
+  <li>One-line configuration per sensor</li>
   <li>Option to provide a conversion factor per sensor (for instance, conversion between Wh/kWh or L/m³)</li>
   <li>Supports sensor resets (for instance, replacement of an energy meter)</li>
   <li>Support for SQLite (standard Home Assistant database) and MariaDB</li>

@@ -88,10 +88,14 @@ Importing historical energy data into Home Assistant is not simple and requires 
 - Commit the changes by selecting "Write changes" in the toolbar, if the script ends without errors. In case of an error select ```Revert changes``` and correct the error and execute the script again.
 
 #### Replace Home Assistant database
-- Make sure that the Home Assistant core is still stopped (Home Assistant UI does not respond)
-- Upload ```home-assistant_v2.db``` to the Home Assistant ```config``` directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
-- Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the ```reboot``` command)
-- Validate the imported data in the ```Energy Dashboard```
+- Ensure that the Home Assistant core is still stopped (Home Assistant UI does not respond)
+- Upload `home-assistant_v2.db` to the Home Assistant `config` directory (For example: use WinSCP in combination with the Home Assistant SSH addon).
+- Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the `reboot` command)
+- Validate the imported data in the `Energy Dashboard`
+  - After validation, optionally run the `Cleanup backup data` script to remove the backup data from the `homeassistant` database and then re-upload the database while ensuring that the Home Assistant core is stopped.
+  - In case of issues, the changes can be rolled back with the `Restore backup data` script.
+    This script will revert the changes made by the `Import Energy data into Home Assistant` script.
+    After running the script, re-upload the database while ensuring that the Home Assistant core is stopped.
 - Enjoy :-)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

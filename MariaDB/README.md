@@ -112,9 +112,13 @@ Importing historical energy data into Home Assistant is not simple and requires 
   - In case of an error correct the error and execute the script again. The script will automatically rollback any changes before trying again.
 
 #### Restart Home Assistant
-- Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the ```reboot``` command)
-- Validate the imported data in the ```Energy Dashboard```
-  - After validation the ```homeassistant backup``` database can be removed. Right click on ```homeassistant backup``` and select ```Drop``` (HeidiSQL).
+- Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the `reboot` command)
+- Validate the imported data in the `Energy Dashboard`
+  - After validation, the `homeassistant backup` database can be removed. Right-click on `homeassistant backup` and select `Drop` (HeidiSQL).
+    Optionally, run the `Cleanup backup data` script to remove the backup data from the `homeassistant` database.
+  - In case of issues, the changes can be rolled back with the `Restore backup data` script.
+    This script will revert the changes made by the `Import Energy data into Home Assistant` script.
+    Make sure not to wait too long before performing this step, as the Home Assistant recorder will start updating the database with new data, making the backup outdated.
 - Enjoy :-)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
