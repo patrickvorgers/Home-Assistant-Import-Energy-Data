@@ -21,6 +21,7 @@ Each CSV is expected to contain two columns: timestamp and value.
 Typical usage:
   python script.py --db-type sqlite --sqlite-db db.sqlite --csv-file "data/*.csv"
   python script.py --db-type mariadb --user root --database mydb --csv-file "data/*.csv"
+  python script.py --db-type mariadb --user root --database mydb --cleanup-backup
 """
 import argparse
 import csv
@@ -212,8 +213,8 @@ def main():
     """
     parser = argparse.ArgumentParser(
         description="Import one or more CSV files (timestamp and value) into the IMPORT_DATA table. "
-        "The id and resolution are derived from each CSV file name"
-        "Filenames must end with 'high_resolution.csv' or 'low_resolution.csv'."
+        "The id and resolution are derived from each CSV file name. "
+        "Filenames must end with 'high_resolution.csv' or 'low_resolution.csv'. "
         "By default, the table is dropped and recreated; use --suppress-recreate to keep the existing table."
     )
     parser.add_argument(
@@ -227,9 +228,8 @@ def main():
     )
     parser.add_argument(
         "--csv-file",
-        required=True,
         nargs="+",
-        help="Path(s) or wildcard pattern(s) to one or more CSV files.",
+        help="Path(s) or wildcard pattern(s) to one or more CSV files. Required unless --cleanup-backup is used.",
     )
 
     # SQLite-specific parameters
@@ -256,20 +256,39 @@ def main():
         help="If set, the existing IMPORT_DATA table will not be dropped/recreated (default drops the table).",
     )
 
+    # Exclusive option for cleaning up backup tables.
+    parser.add_argument(
+        "--cleanup-backup",
+        action="store_true",
+        help="Cleanup backup data by dropping backup tables and exit.",
+    )
+
     args = parser.parse_args()
+    if not args.cleanup_backup and not args.csv_file:
+        parser.error("--csv-file is required unless --cleanup-backup is used")
     db_type = args.db_type
 
     try:
-        log("🚀 Starting CSV import process...")
+        # Establish database connection
+        conn, placeholder = get_connection(db_type, args)
+        cursor = conn.cursor()
 
-        # Expand wildcards in CSV file arguments
+        # Cleanup backup tables and exit if --cleanup-backup is specified.
+        if args.cleanup_backup:
+            log("🧹 Cleaning up backup tables...")
+            cursor.execute("DROP TABLE IF EXISTS BACKUP_STATISTICS")
+            cursor.execute("DROP TABLE IF EXISTS BACKUP_STATISTICS_SHORT_TERM")
+            conn.commit()
+            cursor.close()
+            conn.close()
+            log("✅ Backup cleanup completed")
+            return
+
+        log("🚀 Starting CSV import process...")
+        # Expand wildcards in CSV file arguments (only executed if not cleaning up backup)
         csv_files = expand_file_patterns(args.csv_file)
         if not csv_files:
             raise ValueError("No CSV files to process.")
-
-        # Establish database connection
-        conn, placeholder = get_connection(args.db_type, args)
-        cursor = conn.cursor()
 
         # Recreate table unless suppression is requested
         create_table(
