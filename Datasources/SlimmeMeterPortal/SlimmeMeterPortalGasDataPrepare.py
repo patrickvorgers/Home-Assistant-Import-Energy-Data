@@ -3,8 +3,8 @@ import datetime
 import glob
 import json
 import os
-import sys
 import sqlite3
+import sys
 import warnings
 from collections import namedtuple
 from typing import List

@@ -3,9 +3,9 @@ import datetime
 import glob
 import json
 import os
+import sqlite3
 import sys
 import warnings
-import sqlite3
 from collections import namedtuple
 from typing import List
 
