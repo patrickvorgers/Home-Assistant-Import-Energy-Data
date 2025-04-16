@@ -4,7 +4,9 @@ Dedicated conversion scripts (python) exist for various energy providers to gene
 If a specific script is not available for a given provider, the `TemplateDataPrepare.py` script can be used to generate the CSV files in the required format.
 The template script works by filling in the necessary information about the structure of the input file.
 
-**Note**: The CSV files produced by these scripts serve as input for the `ImportData.py` script, which imports the prepared data into a working temporary table (`IMPORT_DATA`) in the Home Assistant database.
+**Note**:
+- The CSV files produced by these scripts serve as input for the `ImportData.py` script, which imports the prepared data into a working temporary table (`IMPORT_DATA`) in the Home Assistant database.
+- Ensure that the imported data precedes the sensor data in Home Assistant while still overlapping with the current data. It is not possible to import data for a sensor that is later than the data in Home Assistant or to fill in any gaps; such data will be ignored because the Home Assistant data takes precedence.
 
 
 The following input dataformats are supported:

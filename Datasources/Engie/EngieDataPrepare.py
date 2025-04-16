@@ -4,6 +4,7 @@ import glob
 import json
 import os
 import sys
+import sqlite3
 import warnings
 from collections import namedtuple
 from typing import List
@@ -69,6 +70,8 @@ inputFileJsonPath: List[str] = []
 # Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets,
 #               leave at 0 for the first sheet)
 inputFileExcelSheetName = 0
+# When processing SQLite .db files, specify the table name to load
+inputFileDbTableName = "data"
 
 # Name used for the temporary date/time field.
 # This needs normally no change only when it conflicts with existing columns.
@@ -119,7 +122,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.7.1"
+versionNumber = "1.8.0"
 
 
 # Prepare the input data
@@ -205,7 +208,7 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFram
     # Shift the values down one row and the first row gets 0
     df[dataColumnName] = cumulative_values.shift(1, fill_value=0)
 
-    # Calculate the interval between timestamps (frist two rows)
+    # Calculate the interval between timestamps (first two rows)
     interval = (
         df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0]
         if len(df) >= 2
@@ -259,10 +262,10 @@ def generateImportDataFile(
             dateTimeColumnName
         ].apply(lambda x: (x // 3600) * 3600)
 
-        # Group by the floored hourly timestamp and select the last reading in each group.
+        # Group by the floored hourly timestamp and select the first reading in each group.
         dataFrameFiltered = dataFrameFiltered.groupby(
             dateTimeColumnName, as_index=False
-        )[dataColumnName].last()
+        )[dataColumnName].first()
 
     # Create the output file
     dataFrameFiltered.to_csv(
@@ -313,6 +316,12 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
             with open(inputFileName, "r", encoding="utf-8") as f:
                 jsonData = json.load(f)
             df = pd.json_normalize(jsonData, record_path=inputFileJsonPath)
+        elif inputFileNameExtension == ".db":
+            # Read the SQLite database file
+            conn = sqlite3.connect(inputFileName)
+            query = f"SELECT * FROM {inputFileDbTableName}"
+            df = pd.read_sql_query(query, conn)
+            conn.close()
         else:
             raise Exception(f"Unsupported extension: {inputFileNameExtension}")
 
@@ -344,6 +353,11 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = No
 
     if not correctFileExtensions(fileNames):
         print(f"Only {inputFileNameExtension} data files are allowed.")
+        return
+
+    # For SQLite .db files, enforce that only one file is allowed.
+    if inputFileNameExtension == ".db" and len(fileNames) > 1:
+        print("Error: Only one SQLite database file is allowed for .db files.")
         return
 
     # Read all the found files and concat the data

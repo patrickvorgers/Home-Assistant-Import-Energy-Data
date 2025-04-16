@@ -80,7 +80,7 @@ The import process consists of three straightforward steps:
 1. **Data preparation**  
    Prepare the data in the correct CSV file format (`Epoch Unix Timestamp`, `sensor value`).
    For several energy providers conversion scripts exist that convert the energy provider specific format to the needed format.
-   Additionally, a generic conversion script is available that can handle various formats such as CSV, XLS, XLSX, and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
+   Additionally, a generic conversion script is available that can handle various formats such as CSV, XLS, XLSX, SQLite database and JSON and can deal with headers, footers, date formats, data filtering and data recalculation.
 
 2. **Import CSV files**  
    Use the generic import script `ImportData.py` to import the CSV files generated from step 1 into a temporary working table within the Home Assistant database.
@@ -127,13 +127,13 @@ Importing historical energy data into Home Assistant is not simple and requires 
 ### How-to
 
 #### Source data preparation
+- Check the [Datasources documentation](Datasources) for more information about the data preparation scripts.
 - Check whether a script/how-to exists for your provider (datasources directory)
   - Script/how-to exists:
     - Follow how-to to prepare the needed CSV files
   - Script/How-to does not exist:
     - Determine how to get the data from your energy provider (download/API etc.)
     - Get the data from the energy provider using the identified method
-        - Ensure that this data precedes the sensor data in Home Assistant while still overlapping with the current data. It is not possible to import data for a sensor that is later than the data in Home Assistant or to fill in any gaps; such data will be ignored because the Home Assistant data takes precedence.
     - Convert the data in the needed CSV files.
       The generic data conversion script ```TemplateDataPrepare.py``` can be used in most cases.
       In case the CSV files are created manually the CSV files should follow the following simple definition where each row contains: ```Epoch Unix Timestamp```, ```sensor value```.
