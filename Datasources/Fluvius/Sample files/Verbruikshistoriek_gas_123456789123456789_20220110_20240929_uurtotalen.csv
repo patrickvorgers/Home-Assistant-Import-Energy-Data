@@ -1,4 +1,4 @@
-﻿Van Datum;Van Tijdstip;Tot Datum;Tot Tijdstip;EAN;Meter;Metertype;Register;Volume;Eenheid;Validatiestatus;Calorische Bovenwaarde
+﻿Van datum;Van tijdstip;Tot datum;Tot tijdstip;EAN-code;Meter;Metertype;Register;Volume;Eenheid;Validatiestatus;Calorische Bovenwaarde
 10-01-2022;06:00:00;10-01-2022;07:00:00;="123456789123456789";7FLO12345678;Digitale Meter;Afname;;kWh;Geen verbruik;
 10-01-2022;06:00:00;10-01-2022;07:00:00;="123456789123456789";7FLO12345678;Digitale Meter;Afname;;m³;Geen verbruik;
 10-01-2022;07:00:00;10-01-2022;08:00:00;="123456789123456789";7FLO12345678;Digitale Meter;Afname;5,445;kWh;Gevalideerd;Voorlopig

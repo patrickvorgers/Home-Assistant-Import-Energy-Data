@@ -41,10 +41,10 @@ inputFileNameExtension = ".csv"
 # Inputfile(s): Name of the column containing the date of the reading.
 #               Use this in case date and time is combined in one field.
 #               Use the numerical column index in case the column name is not available.
-inputFileDateColumnName = "Tot Datum"
+inputFileDateColumnName = "Tot datum"
 # Inputfile(s): Name of the column containing the time of the reading.
 #               Leave empty in case date and time is combined in one field.
-inputFileTimeColumnName = "Tot Tijdstip"
+inputFileTimeColumnName = "Tot tijdstip"
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat = "%d-%m-%Y %H:%M:%S"

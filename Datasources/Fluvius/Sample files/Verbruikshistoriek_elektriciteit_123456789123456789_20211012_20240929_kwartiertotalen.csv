@@ -1,4 +1,4 @@
-﻿Van Datum;Van Tijdstip;Tot Datum;Tot Tijdstip;EAN;Meter;Metertype;Register;Volume;Eenheid;Validatiestatus
+﻿Van datum;Van tijdstip;Tot datum;Tot tijdstip;EAN;Meter;Metertype;Register;Volume;Eenheid;Validatiestatus
 12-10-2021;00:00:00;12-10-2021;00:15:00;="123456879123456789";1SAG12345678;Digitale Meter;Afname Nacht;;kWh;Geen verbruik
 12-10-2021;00:00:00;12-10-2021;00:15:00;="123456879123456789";1SAG12345678;Digitale Meter;Injectie Nacht;;kWh;Geen verbruik
 12-10-2021;00:15:00;12-10-2021;00:30:00;="123456879123456789";1SAG12345678;Digitale Meter;Afname Nacht;;kWh;Geen verbruik
