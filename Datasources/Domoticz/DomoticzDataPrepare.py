@@ -341,7 +341,7 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = No
     if not correctFileExtensions(fileNames):
         print(f"Only {inputFileNameExtension} data files are allowed.")
         return
-    
+
     # For SQLite .db files, enforce that only one file is allowed.
     if inputFileNameExtension == ".db" and len(fileNames) > 1:
         print("Error: Only one SQLite database file is allowed for .db files.")
