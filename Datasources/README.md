@@ -11,6 +11,7 @@ The following input dataformats are supported:
 - CSV
 - XLS/XLSX
 - JSON
+- SQLite database
 
 Contributions of additional template scripts and sample data for unsupported energy providers are welcomed.
 
