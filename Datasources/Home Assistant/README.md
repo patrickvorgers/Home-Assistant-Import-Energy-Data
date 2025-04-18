@@ -64,6 +64,8 @@ This scenario can be used in case the SQLite database is available and Home Assi
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
         10  sensor.electricity_meter_feed_out_tariff_2  recorder    kWh
         352 sensor.solar_energy_produced_today          recorder    kWh
+        450 sensor.battery_energy_feed_in               recorder    kWh
+        451 sensor.battery_energy_feed_out              recorder    kWh
         653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Go to the ```Execute SQL``` tab and paste in the contents of the ```HomeAssistant Export.sql``` file.
@@ -77,6 +79,8 @@ This scenario can be used in case the SQLite database is available and Home Assi
   - elec_feed_out_tariff_1_high_resolution.csv
   - elec_feed_out_tariff_2_high_resolution.csv
   - elec_solar_high_resolution.csv
+  - elec_battery_feed_in_high_resolution.csv
+  - elec_battery_feed_out_high_resolution.csv
   - gas_high_resolution.csv
   - water_high_resolution.csv
 
@@ -102,6 +106,8 @@ This scenario can be used in case the MariaDB database is available and Home Ass
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
         10  sensor.electricity_meter_feed_out_tariff_2  recorder    kWh
         352 sensor.solar_energy_produced_today          recorder    kWh
+        450 sensor.battery_energy_feed_in               recorder    kWh
+        451 sensor.battery_energy_feed_out              recorder    kWh
         653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Go to the ```Query*``` tab and paste in the contents of the ```HomeAssistant Export.sql``` file.
@@ -120,5 +126,7 @@ This scenario can be used in case the MariaDB database is available and Home Ass
   - elec_feed_out_tariff_1_high_resolution.csv
   - elec_feed_out_tariff_2_high_resolution.csv
   - elec_solar_high_resolution.csv
+  - elec_battery_feed_in_high_resolution.csv
+  - elec_battery_feed_out_high_resolution.csv
   - gas_high_resolution.csv
   - water_high_resolution.csv
