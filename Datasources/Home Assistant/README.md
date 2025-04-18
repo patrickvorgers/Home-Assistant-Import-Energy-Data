@@ -29,6 +29,19 @@ This scenario can be used in case Home Assistant is available and can be used to
 - Execute the python script with as parameter the name of the file that contains the exported data `python HomeAssistantDataPrepare.py history.csv`.
   The python script creates the needed file for the generic import script.
   To import data from multiple exports, use `?` or `*` in the filename to match multiple files.
+  To produce the right output filename the output file definition can be changed accordingly.
+  See the overall how-to for more information about the supported filenames.
+```python
+# List of one or more output file definitions
+outputFiles = [
+    OutputFileDefinition(
+        "elec_feed_in_tariff_1_high_resolution.csv",
+        "state",
+        [],
+        False,
+    )
+]
+```
 - Follow the steps in the overall how-to
 
 **How-to (SQLite database):**
