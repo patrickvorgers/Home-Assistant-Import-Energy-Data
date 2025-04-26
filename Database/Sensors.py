@@ -585,13 +585,14 @@ class StatsMetaApp:
         btn_frame = ttk.Frame(popup)
         btn_frame.pack(fill="x", padx=5, pady=5)
 
+        def copy_to_clipboard() -> None:
+            popup.clipboard_clear()
+            popup.clipboard_append(text_widget.get("1.0", "end-1c"))
+
         copy_button = ttk.Button(
             btn_frame,
             text="Copy to Clipboard",
-            command=lambda: (
-                popup.clipboard_clear(),
-                popup.clipboard_append(text_widget.get("1.0", "end-1c")),
-            ),
+            command=copy_to_clipboard,
         )
         copy_button.pack(fill="x")
 
