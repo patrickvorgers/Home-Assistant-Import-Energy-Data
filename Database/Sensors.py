@@ -14,7 +14,7 @@ import argparse
 import sqlite3
 import sys
 import tkinter as tk
-from tkinter import messagebox, ttk 
+from tkinter import messagebox, ttk
 
 # --- Unit definitions and mappings ---
 UNITS = {
@@ -605,7 +605,7 @@ class StatsMetaApp:
             header_parts.append(col_name.ljust(width))
         indent = len(insert_prefix)
         pad = " " * (indent - 2)
-        header_line = f"/*{pad}{"".join(header_parts)} */"
+        header_line = "/*" + pad + "".join(header_parts) + " */"
 
         lines = [header_line]
 
