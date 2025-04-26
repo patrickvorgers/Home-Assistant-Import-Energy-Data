@@ -212,7 +212,9 @@ class StatsMetaApp:
             self.tree.heading(col, text=hd)
             self.tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(container, orient="vertical", command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(
+            container, orient="vertical", command=self.tree.yview
+        )
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -232,7 +234,9 @@ class StatsMetaApp:
             self.sel_tree.heading(col, text=hd)
             self.sel_tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(self.frame_sel, orient="vertical", command=self.sel_tree.yview)
+        scrollbar = ttk.Scrollbar(
+            self.frame_sel, orient="vertical", command=self.sel_tree.yview
+        )
         self.sel_tree.configure(yscrollcommand=scrollbar.set)
         self.sel_tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -286,7 +290,7 @@ class StatsMetaApp:
                     "",
                     "end",
                     iid=entry["stat"],
-                    values=(mark, entry["id"], entry["stat"], entry["unit"])
+                    values=(mark, entry["id"], entry["stat"], entry["unit"]),
                 )
 
         self.update_selected()
@@ -310,7 +314,7 @@ class StatsMetaApp:
                         entry["stat"],
                         entry["unit"],
                         entry["source_unit"],
-                    )
+                    ),
                 )
 
     def update_details(self) -> None:
@@ -330,7 +334,7 @@ class StatsMetaApp:
                     "",
                     "end",
                     iid=entry["stat"],
-                    values=(entry["id"], entry["import_id"], cf, cn, ci)
+                    values=(entry["id"], entry["import_id"], cf, cn, ci),
                 )
                 any_valid = True
 
@@ -587,7 +591,7 @@ class StatsMetaApp:
             command=lambda: (
                 popup.clipboard_clear(),
                 popup.clipboard_append(text_widget.get("1.0", "end-1c")),
-            )
+            ),
         )
         copy_button.pack(fill="x")
 
