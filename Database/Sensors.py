@@ -394,7 +394,10 @@ class StatsMetaApp:
         if not options:
             return
 
-        x, y, w, h = self.sel_tree.bbox(row, col)
+        bbox = self.sel_tree.bbox(row, col)
+        if not bbox:
+            return          
+        x, y, w, h = bbox
         var = tk.StringVar(value=current)
 
         combo = ttk.Combobox(
@@ -464,7 +467,10 @@ class StatsMetaApp:
             return
 
         field = "cutoff_new" if idx == 4 else "cutoff_invalid"
-        x, y, w, h = self.det_tree.bbox(row, col)
+        bbox = self.det_tree.bbox(row, col)
+        if not bbox:
+            return          
+        x, y, w, h = bbox
 
         popup = tk.Toplevel(self.master)
         popup.overrideredirect(True)
