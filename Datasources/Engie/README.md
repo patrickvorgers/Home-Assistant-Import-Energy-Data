@@ -9,10 +9,10 @@ Engie offers the option to export data from their app. This data can be transfor
 
 **Tooling needed**
 - Python 3
-- Pandas python library ```pip install pandas```
+- Pandas python library `pip install pandas`
 
 **How-to**
 - Export data from the Engie app
-- Download the ```EngieDataPrepare.py``` file and put it in the same directory as the Engie data
-- Execute the python script with as parameter the name of the file that contains the exported data ```python EngieDataPrepare.py Export.verbruiken.ENGIE.csv```. The python script creates the needed files for the generic import script.
+- Download the `EngieDataPrepare.py` file and put it in the same directory as the Engie data
+- Execute the python script with as parameter the name of the file that contains the exported data `python EngieDataPrepare.py Export.verbruiken.ENGIE.csv`. The python script creates the needed files for the generic import script.
 - Follow the steps in the overall how-to

@@ -30,7 +30,7 @@ This scenario can be used in case Home Assistant is available and can be used to
   The python script creates the needed file for the generic import script.
   To import data from multiple exports, use `?` or `*` in the filename to match multiple files.
   To produce the right output filename the output file definition can be changed accordingly.
-  See [Generic how-to](../../README.md) ```Source data preparation``` section for more information about the supported filenames.
+  See [Generic how-to](../../README.md) `Source data preparation` section for more information about the supported filenames.
 ```python
 # List of one or more output file definitions
 outputFiles = [
@@ -52,11 +52,11 @@ This scenario can be used in case the SQLite database is available and Home Assi
 - Download and install: DB Browser (64 bit) for SQLite https://sqlitebrowser.org/ (tested windows version 3.12.2)
 
 ##### Export the data
-- Start ```DB Browser for SQLite```.
-- Open the database (```Open Database```) that has been backed up in the [SQLite how-to](../../SQLite/README.md).
-- Lookup in the ```statistics_meta``` table the ID of the sensor for which the data should be exported (Browse Data -> Table: ```statistics_meta```; You can use "filter" to find the ID of the sensor).
+- Start `DB Browser for SQLite`.
+- Open the database (`Open Database`) that has been backed up in the [SQLite how-to](../../SQLite/README.md).
+- Lookup in the `statistics_meta` table the ID of the sensor for which the data should be exported (Browse Data -> Table: `statistics_meta`; You can use "filter" to find the ID of the sensor).
 <br>Example:
-```
+`
         id  statistic_id                                source      unit_of_measurement
         6   sensor.gas_meter                            recorder    m³
         7   sensor.electricity_meter_feed_in_tariff_1   recorder    kWh
@@ -67,13 +67,13 @@ This scenario can be used in case the SQLite database is available and Home Assi
         450 sensor.battery_energy_feed_in               recorder    kWh
         451 sensor.battery_energy_feed_out              recorder    kWh
         653 sensor.watermeter_quantity_m3               recorder    m³
-```
-- Go to the ```Execute SQL``` tab and paste in the contents of the ```HomeAssistant Export.sql``` file.
-- Change the SQL script and fill in the ID of the sensor. The remark ```/* Change */``` has been added in the SQL statement for the line that needs to be changed.
+`
+- Go to the `Execute SQL` tab and paste in the contents of the `HomeAssistant Export.sql` file.
+- Change the SQL script and fill in the ID of the sensor. The remark `/* Change */` has been added in the SQL statement for the line that needs to be changed.
 - Execute the SQL and wait for it to complete.
-- In the ```Execute SQL``` tab select the 4th button from the right (hovertext: ```Save the results view```). In the dropdown box select ```Export to CSV```.
-- Deselect ```Column names in first line``` and use ```,``` as value for ```Field separator``` and press ```Save```.
-- Provide the correct name for the file (see [Generic how-to](../../README.md) ```Source data preparation``` section) and save the file.
+- In the `Execute SQL` tab select the 4th button from the right (hovertext: `Save the results view`). In the dropdown box select `Export to CSV`.
+- Deselect `Column names in first line` and use `,` as value for `Field separator` and press `Save`.
+- Provide the correct name for the file (see [Generic how-to](../../README.md) `Source data preparation` section) and save the file.
   - elec_feed_in_tariff_1_high_resolution.csv
   - elec_feed_in_tariff_2_high_resolution.csv
   - elec_feed_out_tariff_1_high_resolution.csv
@@ -94,11 +94,11 @@ This scenario can be used in case the MariaDB database is available and Home Ass
 - Download and install: HeidiSQL https://www.heidisql.com/
 
 ##### Export the data
-- Start ```HeidiSQL```.
+- Start `HeidiSQL`.
 - Open a session to the Home Assistant MariaDB database, see [MariaDB how-to](../../MariaDB/README.md) for information regarding setting up the intial connection and creating a backup of the database.
-- Lookup in the ```statistics_meta``` table the ID of the sensor for which the data should be exported (Select table: ```statistics_meta``` and select the data tab on the right. You can use ```filter``` to find the ID of the sensor, For instance: ```statistic_id LIKE '%sensor.gas_meter%'```).
+- Lookup in the `statistics_meta` table the ID of the sensor for which the data should be exported (Select table: `statistics_meta` and select the data tab on the right. You can use `filter` to find the ID of the sensor, For instance: `statistic_id LIKE '%sensor.gas_meter%'`).
 <br>Example:
-```
+`
         id  statistic_id                                source      unit_of_measurement
         6   sensor.gas_meter                            recorder    m³
         7   sensor.electricity_meter_feed_in_tariff_1   recorder    kWh
@@ -109,18 +109,18 @@ This scenario can be used in case the MariaDB database is available and Home Ass
         450 sensor.battery_energy_feed_in               recorder    kWh
         451 sensor.battery_energy_feed_out              recorder    kWh
         653 sensor.watermeter_quantity_m3               recorder    m³
-```
-- Go to the ```Query*``` tab and paste in the contents of the ```HomeAssistant Export.sql``` file.
-- Change the SQL script and fill in the ID of the sensor. The remark ```/* Change */``` has been added in the SQL statement for the line that needs to be changed.
+`
+- Go to the `Query*` tab and paste in the contents of the `HomeAssistant Export.sql` file.
+- Change the SQL script and fill in the ID of the sensor. The remark `/* Change */` has been added in the SQL statement for the line that needs to be changed.
 - Execute the SQL and wait for it to complete (Shortcut: F9).
-- Right click in the results tab and select ```Export grid rows```.
+- Right click in the results tab and select `Export grid rows`.
 - Apply the following settings:
-  - Encoding: ```UTF-8```
-  - Output format: ```Delimited text```
-  - Row selection: ```Complete```
-  - Include column names: ```deselect```
-  - Field separator: ```,```
-- Provide the correct name for the file (see [Generic how-to](../../README.md) ```Source data preparation``` section) and save the file (press ```OK```)
+  - Encoding: `UTF-8`
+  - Output format: `Delimited text`
+  - Row selection: `Complete`
+  - Include column names: `deselect`
+  - Field separator: `,`
+- Provide the correct name for the file (see [Generic how-to](../../README.md) `Source data preparation` section) and save the file (press `OK`)
   - elec_feed_in_tariff_1_high_resolution.csv
   - elec_feed_in_tariff_2_high_resolution.csv
   - elec_feed_out_tariff_1_high_resolution.csv

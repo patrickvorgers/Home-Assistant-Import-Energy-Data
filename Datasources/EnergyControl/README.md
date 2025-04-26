@@ -12,10 +12,10 @@
 
 **Tooling needed**
 - Python 3
-- Pandas python library ```pip install pandas```
+- Pandas python library `pip install pandas`
 
 **How-to**
 - Export data from the [EnergyControl](https://www.steige-solutions.de/energy-control/) app.
-- Download the ```EnergyControlDataPrepare.py``` file and place it in the same directory as the exported EnergyControl data.
-- Execute the Python script with the exported data file as a parameter:  ```python EnergyControlDataPrepare.py data_file.csv```. The python script creates the needed file for the generic import script.
+- Download the `EnergyControlDataPrepare.py` file and place it in the same directory as the exported EnergyControl data.
+- Execute the Python script with the exported data file as a parameter:  `python EnergyControlDataPrepare.py data_file.csv`. The python script creates the needed file for the generic import script.
 - Follow the steps in the overall how-to

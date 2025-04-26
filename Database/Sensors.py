@@ -1,8 +1,8 @@
 ﻿"""
 Sensor definitions
 
-A Tkinter-based GUI application to view and select sensors from a MariaDB or SQLite database,
-filter the list, assign import_data names, and configure SQL-related parameters per sensor.
+A GUI application to visually select sensors from a MariaDB or SQLite database,
+and generate SQL INSERT statements for the conversion SQL script.
 
 Usage:
     python sensors.py --db-type <mariadb|sqlite> \
@@ -102,136 +102,7 @@ def _format_number(value: float) -> str:
     """
     Format a float without scientific notation, trimming trailing zeros.
     """
-    text = f"{value:.6f}"
-    text = text.rstrip('0')
-    text = text.rstrip('.')
-    return text
-
-
-def fetch_sensors(conn) -> list:
-    """
-    Fetch sensor definitions from the database.
-    """
-    cursor = conn.cursor()
-    placeholders = ', '.join(f"'{u.lower()}'" for u in UNITS)
-    query = (
-        "SELECT id, statistic_id, unit_of_measurement "
-        f"FROM statistics_meta "
-        "WHERE has_sum = 1 "
-        f"AND LOWER(unit_of_measurement) IN ({placeholders})"
-    )
-
-    try:
-        cursor.execute(query)
-    except Exception as err:
-        messagebox.showerror('Database Error', str(err))
-        sys.exit(1)
-
-    records = cursor.fetchall()
-
-    if not records:
-        messagebox.showerror('Data Error', 'No sensor definitions found.')
-        sys.exit(1)
-
-    return records
-
-
-def fetch_import_ids(conn) -> list:
-    """
-    Fetch distinct import_data IDs from the database.
-    """
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute("SELECT DISTINCT id FROM import_data")
-    except Exception as err:
-        messagebox.showerror('Database Error', str(err))
-        sys.exit(1)
-
-    rows = cursor.fetchall()
-    ids = [row[0] for row in rows]
-
-    if not ids:
-        messagebox.showerror('Data Error', 'No import_data entries found.')
-        sys.exit(1)
-
-    return ids
-
-
-def load_data(args) -> tuple:
-    """
-    Connect to the specified database, fetch sensor and import IDs, then close.
-    """
-    if args.db_type == 'mariadb':
-        try:
-            import mysql.connector
-        except ImportError:
-            messagebox.showerror(
-                'Dependency Error',
-                'mysql-connector-python is required. '
-                'Install with: pip install mysql-connector-python'
-            )
-            sys.exit(1)
-
-        conn = mysql.connector.connect(
-            host=args.host,
-            port=args.port,
-            user=args.user,
-            password=args.password or '',
-            database=args.database
-        )
-    else:
-        conn = sqlite3.connect(args.file)
-
-    sensors = fetch_sensors(conn)
-    import_ids = fetch_import_ids(conn)
-
-    conn.close()
-    return sensors, import_ids
-
-
-def parse_args() -> argparse.Namespace:
-    """
-    Parse and validate command-line arguments.
-    """
-    parser = argparse.ArgumentParser(
-        description='Sensor definitions GUI'
-    )
-
-    parser.add_argument(
-        '--db-type',
-        choices=['mariadb', 'sqlite'],
-        required=True,
-        help='Database type to use'
-    )
-    parser.add_argument(
-        '--host',
-        default='localhost',
-        help='MariaDB host name'
-    )
-    parser.add_argument(
-        '--port',
-        type=int,
-        default=3306,
-        help='MariaDB port number'
-    )
-    parser.add_argument('--user', help='MariaDB user name')
-    parser.add_argument('--password', help='MariaDB password')
-    parser.add_argument('--database', help='MariaDB database name')
-    parser.add_argument('--file', help='Path to SQLite database file')
-
-    args = parser.parse_args()
-
-    if args.db_type == 'mariadb' and not args.user:
-        parser.error('--user is required for MariaDB')
-
-    if args.db_type == 'mariadb' and not args.database:
-        parser.error('--database is required for MariaDB')
-
-    if args.db_type == 'sqlite' and not args.file:
-        parser.error('--file is required for SQLite')
-
-    return args
+    return f"{value:.6f}".rstrip('0').rstrip('.')
 
 
 class StatsMetaApp:
@@ -275,6 +146,7 @@ class StatsMetaApp:
         self._build_ui()
         self.update_all()
 
+
     def _calculate_defaults(self) -> None:
         """
         Compute default correction and cutoff thresholds for each sensor.
@@ -285,6 +157,7 @@ class StatsMetaApp:
             entry['correction'] = CORRECTION_MAP.get((src, tgt), 1.0)
             entry['cutoff_new'] = CUTOFF_NEW.get(tgt, 0.0)
             entry['cutoff_invalid'] = CUTOFF_INVALID.get(tgt, 0.0)
+
 
     def _build_ui(self) -> None:
         """
@@ -320,6 +193,7 @@ class StatsMetaApp:
         self.frame_det = ttk.Labelframe(self.paned, text='SQL Information')
         self.paned.add(self.frame_det, weight=30)
         self._build_details_section()
+
 
     def _build_all_section(self) -> None:
         """
@@ -362,6 +236,7 @@ class StatsMetaApp:
 
         self.tree.bind('<ButtonRelease-1>', self.on_click_all)
 
+
     def _build_selected_section(self) -> None:
         """
         Build the Treeview for selected target sensors.
@@ -395,6 +270,7 @@ class StatsMetaApp:
         scrollbar.pack(side='right', fill='y')
 
         self.sel_tree.bind('<ButtonRelease-1>', self.on_edit_selected)
+
 
     def _build_details_section(self) -> None:
         """
@@ -430,6 +306,7 @@ class StatsMetaApp:
 
         self.det_tree.bind('<ButtonRelease-1>', self.on_edit_details)
 
+
     def update_all(self, event=None) -> None:
         """
         Refresh the full sensor list based on the filter entry.
@@ -463,6 +340,7 @@ class StatsMetaApp:
         self.update_selected()
         self.update_details()
 
+
     def update_selected(self) -> None:
         """
         Refresh the target sensors pane with currently selected entries.
@@ -483,6 +361,7 @@ class StatsMetaApp:
                         entry['source_unit']
                     )
                 )
+
 
     def update_details(self) -> None:
         """
@@ -514,6 +393,7 @@ class StatsMetaApp:
         state = 'normal' if any_valid else 'disabled'
         self.generate_button.config(state=state)
 
+
     def on_click_all(self, event) -> None:
         """
         Toggle selection when clicking the checkbox column in all-sensors list.
@@ -536,6 +416,7 @@ class StatsMetaApp:
                     break
 
             self.update_all()
+
 
     def on_edit_selected(self, event) -> None:
         """
@@ -578,6 +459,7 @@ class StatsMetaApp:
         combo.place(x=x, y=y, width=w, height=h)
         combo.focus_set()
 
+
         def apply(event=None):
             val = var.get()
 
@@ -591,8 +473,39 @@ class StatsMetaApp:
             self.update_selected()
             self.update_details()
 
+
+        def click_outside(event):
+            try:
+                # get combobox geometry
+                x1 = combo.winfo_rootx()
+            except tk.TclError:
+                # widget gone → unbind and exit
+                self.master.unbind_all('<Button-1>')
+                return
+
+            # if the dropdown list is open, clicks inside it should NOT close the combobox
+            popdown = combo.tk.call('ttk::combobox::PopdownWindow', combo)
+            if popdown:
+                # event.widget path starts with popdown window’s path
+                if str(event.widget).startswith(popdown):
+                    return
+
+            # compute widget bounds
+            y1 = combo.winfo_rooty()
+            x2 = x1 + combo.winfo_width()
+            y2 = y1 + combo.winfo_height()
+
+            # click outside → destroy and unbind
+            if not (x1 <= event.x_root <= x2 and y1 <= event.y_root <= y2):
+                combo.destroy()
+                self.master.unbind_all('<Button-1>')
+
+        # bind globally so we catch clicks outside—but allow dropdown clicks through
+        self.master.bind_all('<Button-1>', click_outside, add='+')
+
         combo.bind('<<ComboboxSelected>>', apply)
         combo.bind('<Return>', apply)
+
 
     def on_edit_details(self, event) -> None:
         """
@@ -623,7 +536,11 @@ class StatsMetaApp:
         entry = ttk.Entry(popup, textvariable=var)
         entry.pack(fill='both', expand=True)
         entry.focus_set()
+        # select the current text so typing replaces it immediately
+        entry.selection_range(0, tk.END)
 
+
+        # Commit the values and destroy the popup
         def commit(event=None):
             try:
                 new_val = float(var.get())
@@ -638,8 +555,33 @@ class StatsMetaApp:
             popup.destroy()
             self.update_details()
 
+
         entry.bind('<Return>', commit)
         entry.bind('<FocusOut>', commit)
+
+
+        # Close the edit popup if the user clicks anywhere outside it
+        def click_outside(event):
+            try:
+                # Popup bounds
+                x1 = popup.winfo_rootx()
+            except tk.TclError:
+                # already destroyed → clean up
+                self.master.unbind_all('<Button-1>')
+                return
+
+            y1 = popup.winfo_rooty()
+            x2 = x1 + popup.winfo_width()
+            y2 = y1 + popup.winfo_height()
+
+            # If click was outside popup, commit & destroy
+            if not (x1 <= event.x_root <= x2 and y1 <= event.y_root <= y2):
+                commit()
+                self.master.unbind_all('<Button-1>')
+
+        # Catch all left‐clicks while popup is open
+        self.master.bind_all('<Button-1>', click_outside, add='+')
+
 
     def _generate_sql(self) -> None:
         """
@@ -715,6 +657,133 @@ class StatsMetaApp:
         copy_button.pack(fill='x')
 
         popup.lift()
+
+
+def fetch_sensors(conn) -> list:
+    """
+    Fetch sensor definitions from the database.
+    """
+    print("Loading sensors...")
+    cursor = conn.cursor()
+    placeholders = ', '.join(f"'{u.lower()}'" for u in UNITS)
+    query = (
+        "SELECT id, statistic_id, unit_of_measurement "
+        f"FROM statistics_meta "
+        "WHERE has_sum = 1 "
+        f"AND LOWER(unit_of_measurement) IN ({placeholders})"
+    )
+
+    try:
+        cursor.execute(query)
+    except Exception as err:
+        messagebox.showerror('Database Error', str(err))
+        sys.exit(1)
+
+    records = cursor.fetchall()
+
+    if not records:
+        messagebox.showerror('Data Error', 'No sensor definitions found.')
+        sys.exit(1)
+
+    return records
+
+
+def fetch_import_ids(conn) -> list:
+    """
+    Fetch distinct import_data IDs from the database.
+    """
+    print("Loading import data identifiers...")
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT DISTINCT id FROM import_data")
+    except Exception as err:
+        messagebox.showerror('Database Error', str(err))
+        sys.exit(1)
+
+    rows = cursor.fetchall()
+    ids = [row[0] for row in rows]
+
+    if not ids:
+        messagebox.showerror('Data Error', 'No import_data entries found.')
+        sys.exit(1)
+
+    return ids
+
+
+def load_data(args) -> tuple:
+    """
+    Connect to the specified database, fetch sensor and import IDs.
+    """
+    if args.db_type == 'mariadb':
+        try:
+            import mysql.connector
+        except ImportError:
+            messagebox.showerror(
+                'Dependency Error',
+                'mysql-connector-python is required. '
+                'Install with: pip install mysql-connector-python'
+            )
+            sys.exit(1)
+
+        conn = mysql.connector.connect(
+            host=args.host,
+            port=args.port,
+            user=args.user,
+            password=args.password or '',
+            database=args.database
+        )
+    else:
+        conn = sqlite3.connect(args.sqlite_db)
+
+    sensors = fetch_sensors(conn)
+    import_ids = fetch_import_ids(conn)
+
+    conn.close()
+    return sensors, import_ids
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse and validate command-line arguments.
+    """
+    parser = argparse.ArgumentParser(
+        description='Sensor definitions GUI'
+    )
+
+    parser.add_argument(
+        '--db-type',
+        choices=['mariadb', 'sqlite'],
+        required=True,
+        help='Database type to use'
+    )
+    parser.add_argument(
+        '--host',
+        default='localhost',
+        help='MariaDB host name'
+    )
+    parser.add_argument(
+        '--port',
+        type=int,
+        default=3306,
+        help='MariaDB port number'
+    )
+    parser.add_argument('--user', help='MariaDB user name')
+    parser.add_argument('--password', help='MariaDB password')
+    parser.add_argument('--database', help='MariaDB database name')
+    parser.add_argument('--sqlite-db', help='Path to SQLite database file')
+
+    args = parser.parse_args()
+
+    if args.db_type == 'mariadb' and not args.user:
+        parser.error('--user is required for MariaDB')
+
+    if args.db_type == 'mariadb' and not args.database:
+        parser.error('--database is required for MariaDB')
+
+    if args.db_type == 'sqlite' and not args.sqlite_db:
+        parser.error('--sqlite-db is required for SQLite')
+
+    return args
 
 
 def main() -> None:
