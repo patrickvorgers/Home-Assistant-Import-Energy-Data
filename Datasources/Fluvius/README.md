@@ -1,4 +1,4 @@
-# Energy provider: Fluvis
+# Energy provider: Fluvius
 
 Fluvius offers the option to export data from the [Mijn Fluvius](https://mijn.fluvius.be/) site. This data can be transformed and used to import into Home Assistant.
 
@@ -38,3 +38,7 @@ You need to do this only once for each meter.
   - Download the ```FluviusDataPrepare.py``` file and put it in the same directory as the Enphase data
   - Execute the python script with as parameter the name of the file that contains the exported data ```python FluviusDataPrepare.py "Verbruiks*.csv"```. The python script creates the needed files for the generic import script.
   - Follow the steps in the overall how-to
+
+  Mijn Fluvius also allows using an English version of their site, besides the Dutch one. And not only the site changes, but the exports are also translated.
+  "Verbruiks*.csv" becomes "Consumption_*.csv". The fields change names (the header is in English) and values (eg, "Afname Nacht" becomes "Offtake Night", and so on)
+  The script ```FluviusDataPrepareEN.py``` is adapted for the English files
