@@ -32,7 +32,7 @@ UNITS = {
     "Pa": 1.0,
     "kPa": 1000.0,
     "bar": 100000.0,
-    "psi": 6894.76
+    "psi": 6894.76,
 }
 
 # Map lowercase unit strings to their canonical forms
@@ -44,7 +44,7 @@ FAMILIES = [
     ["L", "m³"],
     ["W", "kW", "MW"],
     ["L/s", "m³/s", "m³/h"],
-    ["Pa", "kPa", "bar", "psi"]
+    ["Pa", "kPa", "bar", "psi"],
 ]
 
 # Reverse lookup: unit -> its family list
@@ -76,7 +76,7 @@ CUTOFF_NEW = {
     "Pa": 1000000.0,
     "kPa": 1000.0,
     "bar": 10.0,
-    "psi": 145.038
+    "psi": 145.038,
 }
 
 CUTOFF_INVALID = {
@@ -94,7 +94,7 @@ CUTOFF_INVALID = {
     "Pa": 10000000.0,
     "kPa": 10000.0,
     "bar": 100.0,
-    "psi": 1450.38
+    "psi": 1450.38,
 }
 
 
@@ -109,12 +109,8 @@ class StatsMetaApp:
     """
     Main GUI application for sensor selection and SQL generation.
     """
-    def __init__(
-        self,
-        master: tk.Tk,
-        sensors: list,
-        import_ids: list
-    ) -> None:
+
+    def __init__(self, master: tk.Tk, sensors: list, import_ids: list) -> None:
         """
         Initialize main window, load data structures, and build UI.
         """
@@ -137,7 +133,7 @@ class StatsMetaApp:
                 "import_id": None,
                 "correction": 1.0,
                 "cutoff_new": 0.0,
-                "cutoff_invalid": 0.0
+                "cutoff_invalid": 0.0,
             }
             self.data.append(record)
 
@@ -145,7 +141,6 @@ class StatsMetaApp:
         self._calculate_defaults()
         self._build_ui()
         self.update_all()
-
 
     def _calculate_defaults(self) -> None:
         """
@@ -158,7 +153,6 @@ class StatsMetaApp:
             entry["cutoff_new"] = CUTOFF_NEW.get(tgt, 0.0)
             entry["cutoff_invalid"] = CUTOFF_INVALID.get(tgt, 0.0)
 
-
     def _build_ui(self) -> None:
         """
         Set up the paned UI with three sections and a SQL button.
@@ -168,9 +162,7 @@ class StatsMetaApp:
         btn_frame.pack(side="bottom", fill="x")
 
         self.generate_button = ttk.Button(
-            btn_frame,
-            text="Generate SQL",
-            command=self._generate_sql
+            btn_frame, text="Generate SQL", command=self._generate_sql
         )
         self.generate_button.pack(pady=5)
         self.generate_button.config(state="disabled")
@@ -194,7 +186,6 @@ class StatsMetaApp:
         self.paned.add(self.frame_det, weight=30)
         self._build_details_section()
 
-
     def _build_all_section(self) -> None:
         """
         Build the filter input and complete sensor list Treeview.
@@ -216,61 +207,37 @@ class StatsMetaApp:
         headings = ("Select", "Sensor ID", "Sensor", "Unit")
         widths = (60, 100, 250, 150)
 
-        self.tree = ttk.Treeview(
-            container,
-            columns=columns,
-            show="headings"
-        )
+        self.tree = ttk.Treeview(container, columns=columns, show="headings")
         for col, hd, wd in zip(columns, headings, widths):
             self.tree.heading(col, text=hd)
             self.tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(
-            container,
-            orient="vertical",
-            command=self.tree.yview
-        )
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
         self.tree.bind("<ButtonRelease-1>", self.on_click_all)
 
-
     def _build_selected_section(self) -> None:
         """
         Build the Treeview for selected target sensors.
         """
         columns = ("id", "imp", "stat", "unit", "src")
-        headings = (
-            "Sensor ID",
-            "Import name",
-            "Sensor",
-            "Unit",
-            "Source unit"
-        )
+        headings = ("Sensor ID", "Import name", "Sensor", "Unit", "Source unit")
         widths = (80, 200, 200, 100, 100)
 
-        self.sel_tree = ttk.Treeview(
-            self.frame_sel,
-            columns=columns,
-            show="headings"
-        )
+        self.sel_tree = ttk.Treeview(self.frame_sel, columns=columns, show="headings")
         for col, hd, wd in zip(columns, headings, widths):
             self.sel_tree.heading(col, text=hd)
             self.sel_tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(
-            self.frame_sel,
-            orient="vertical",
-            command=self.sel_tree.yview
-        )
+        scrollbar = ttk.Scrollbar(self.frame_sel, orient="vertical", command=self.sel_tree.yview)
         self.sel_tree.configure(yscrollcommand=scrollbar.set)
         self.sel_tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
         self.sel_tree.bind("<ButtonRelease-1>", self.on_edit_selected)
-
 
     def _build_details_section(self) -> None:
         """
@@ -282,30 +249,21 @@ class StatsMetaApp:
             "Import name",
             "Correction",
             "Cutoff new",
-            "Cutoff invalid"
+            "Cutoff invalid",
         )
         widths = (80, 200, 80, 80, 80)
 
-        self.det_tree = ttk.Treeview(
-            self.frame_det,
-            columns=columns,
-            show="headings"
-        )
+        self.det_tree = ttk.Treeview(self.frame_det, columns=columns, show="headings")
         for col, hd, wd in zip(columns, headings, widths):
             self.det_tree.heading(col, text=hd)
             self.det_tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(
-            self.frame_det,
-            orient="vertical",
-            command=self.det_tree.yview
-        )
+        scrollbar = ttk.Scrollbar(self.frame_det, orient="vertical", command=self.det_tree.yview)
         self.det_tree.configure(yscrollcommand=scrollbar.set)
         self.det_tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
         self.det_tree.bind("<ButtonRelease-1>", self.on_edit_details)
-
 
     def update_all(self, event=None) -> None:
         """
@@ -320,8 +278,7 @@ class StatsMetaApp:
                 match = True
             else:
                 match = (
-                    pattern in entry["stat"].lower() or
-                    pattern in entry["unit"].lower()
+                    pattern in entry["stat"].lower() or pattern in entry["unit"].lower()
                 )
             if match:
                 mark = "☑" if entry["selected"] else "☐"
@@ -329,17 +286,11 @@ class StatsMetaApp:
                     "",
                     "end",
                     iid=entry["stat"],
-                    values=(
-                        mark,
-                        entry["id"],
-                        entry["stat"],
-                        entry["unit"]
-                    )
+                    values=(mark, entry["id"], entry["stat"], entry["unit"])
                 )
 
         self.update_selected()
         self.update_details()
-
 
     def update_selected(self) -> None:
         """
@@ -358,10 +309,9 @@ class StatsMetaApp:
                         entry["import_id"] or "",
                         entry["stat"],
                         entry["unit"],
-                        entry["source_unit"]
+                        entry["source_unit"],
                     )
                 )
-
 
     def update_details(self) -> None:
         """
@@ -380,19 +330,12 @@ class StatsMetaApp:
                     "",
                     "end",
                     iid=entry["stat"],
-                    values=(
-                        entry["id"],
-                        entry["import_id"],
-                        cf,
-                        cn,
-                        ci
-                    )
+                    values=(entry["id"], entry["import_id"], cf, cn, ci)
                 )
                 any_valid = True
 
         state = "normal" if any_valid else "disabled"
         self.generate_button.config(state=state)
-
 
     def on_click_all(self, event) -> None:
         """
@@ -417,7 +360,6 @@ class StatsMetaApp:
 
             self.update_all()
 
-
     def on_edit_selected(self, event) -> None:
         """
         Allow editing of import name or source unit in target list.
@@ -434,8 +376,9 @@ class StatsMetaApp:
 
         # Column 2 = import_id, column 5 = source_unit
         if idx == 2:
-            used_ids = [e["import_id"] for e in self.data 
-                        if e["selected"] and e["stat"] != row]
+            used_ids = [
+                e["import_id"] for e in self.data if e["selected"] and e["stat"] != row
+            ]
             options = [i for i in self.import_ids if i not in used_ids]
             current = entry["import_id"] or ""
         elif idx == 5:
@@ -451,14 +394,10 @@ class StatsMetaApp:
         var = tk.StringVar(value=current)
 
         combo = ttk.Combobox(
-            self.sel_tree,
-            textvariable=var,
-            values=options,
-            state="readonly"
+            self.sel_tree, textvariable=var, values=options, state="readonly"
         )
         combo.place(x=x, y=y, width=w, height=h)
         combo.focus_set()
-
 
         def apply(event=None):
             val = var.get()
@@ -472,7 +411,6 @@ class StatsMetaApp:
             combo.destroy()
             self.update_selected()
             self.update_details()
-
 
         def click_outside(event):
             try:
@@ -506,7 +444,6 @@ class StatsMetaApp:
         combo.bind("<<ComboboxSelected>>", apply)
         combo.bind("<Return>", apply)
 
-
     def on_edit_details(self, event) -> None:
         """
         Allow inline editing of cutoff thresholds in SQL info pane.
@@ -527,7 +464,9 @@ class StatsMetaApp:
 
         popup = tk.Toplevel(self.master)
         popup.overrideredirect(True)
-        popup.geometry(f"{w}x{h}+{self.det_tree.winfo_rootx()+x}+{self.det_tree.winfo_rooty()+y}")
+        popup.geometry(
+            f"{w}x{h}+{self.det_tree.winfo_rootx()+x}+{self.det_tree.winfo_rooty()+y}"
+        )
         popup.grab_set()
 
         current = next(e[field] for e in self.data if e["stat"] == row)
@@ -538,7 +477,6 @@ class StatsMetaApp:
         entry.focus_set()
         # select the current text so typing replaces it immediately
         entry.selection_range(0, tk.END)
-
 
         # Commit the values and destroy the popup
         def commit(event=None):
@@ -555,10 +493,8 @@ class StatsMetaApp:
             popup.destroy()
             self.update_details()
 
-
         entry.bind("<Return>", commit)
         entry.bind("<FocusOut>", commit)
-
 
         # Close the edit popup if the user clicks anywhere outside it
         def click_outside(event):
@@ -582,7 +518,6 @@ class StatsMetaApp:
         # Catch all left‐clicks while popup is open
         self.master.bind_all("<Button-1>", click_outside, add="+")
 
-
     def _generate_sql(self) -> None:
         """
         Generate aligned SQL INSERT statements and display them in a popup
@@ -594,7 +529,7 @@ class StatsMetaApp:
             ("sensor_id", 10),
             ("correction", 10),
             ("cutoff_new", 12),
-            ("cutoff_invalid", 15)
+            ("cutoff_invalid", 15),
         ]
 
         # Build header comment line
@@ -620,7 +555,7 @@ class StatsMetaApp:
                     entry["id"],
                     _format_number(entry["correction"]),
                     _format_number(entry["cutoff_new"]),
-                    _format_number(entry["cutoff_invalid"])
+                    _format_number(entry["cutoff_invalid"]),
                 ]
                 for (_, width), val in zip(columns[1:], vals):
                     parts.append(f", {str(val):<{width}}")
@@ -651,7 +586,7 @@ class StatsMetaApp:
             text="Copy to Clipboard",
             command=lambda: (
                 popup.clipboard_clear(),
-                popup.clipboard_append(text_widget.get("1.0", "end-1c"))
+                popup.clipboard_append(text_widget.get("1.0", "end-1c")),
             )
         )
         copy_button.pack(fill="x")
@@ -665,7 +600,7 @@ def fetch_sensors(conn) -> list:
     """
     print("Loading sensors...")
     cursor = conn.cursor()
-    placeholders = ', '.join(f"'{u.lower()}'" for u in UNITS)
+    placeholders = ", ".join(f"'{u.lower()}'" for u in UNITS)
     query = (
         "SELECT id, statistic_id, unit_of_measurement "
         f"FROM statistics_meta "
@@ -721,7 +656,7 @@ def load_data(args) -> tuple:
             messagebox.showerror(
                 "Dependency Error",
                 "mysql-connector-python is required. "
-                "Install with: pip install mysql-connector-python"
+                "Install with: pip install mysql-connector-python",
             )
             sys.exit(1)
 
@@ -730,7 +665,7 @@ def load_data(args) -> tuple:
             port=args.port,
             user=args.user,
             password=args.password or "",
-            database=args.database
+            database=args.database,
         )
     else:
         conn = sqlite3.connect(args.sqlite_db)
@@ -746,27 +681,16 @@ def parse_args() -> argparse.Namespace:
     """
     Parse and validate command-line arguments.
     """
-    parser = argparse.ArgumentParser(
-        description="Sensor definitions GUI"
-    )
+    parser = argparse.ArgumentParser(description="Sensor definitions GUI")
 
     parser.add_argument(
         "--db-type",
         choices=["mariadb", "sqlite"],
         required=True,
-        help="Database type to use"
+        help="Database type to use",
     )
-    parser.add_argument(
-        "--host",
-        default="localhost",
-        help="MariaDB host name"
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=3306,
-        help="MariaDB port number"
-    )
+    parser.add_argument("--host", default="localhost", help="MariaDB host name")
+    parser.add_argument("--port", type=int, default=3306, help="MariaDB port number")
     parser.add_argument("--user", help="MariaDB user name")
     parser.add_argument("--password", help="MariaDB password")
     parser.add_argument("--database", help="MariaDB database name")
