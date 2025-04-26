@@ -722,7 +722,7 @@ def main() -> None:
     sensors, import_ids = load_data(args)
 
     root = tk.Tk()
-    app = StatsMetaApp(root, sensors, import_ids)
+    StatsMetaApp(root, sensors, import_ids)
     root.mainloop()
 
 
