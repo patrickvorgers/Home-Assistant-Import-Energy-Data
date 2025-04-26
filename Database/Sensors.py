@@ -396,7 +396,7 @@ class StatsMetaApp:
 
         bbox = self.sel_tree.bbox(row, col)
         if not bbox:
-            return          
+            return
         x, y, w, h = bbox
         var = tk.StringVar(value=current)
 
@@ -469,7 +469,7 @@ class StatsMetaApp:
         field = "cutoff_new" if idx == 4 else "cutoff_invalid"
         bbox = self.det_tree.bbox(row, col)
         if not bbox:
-            return          
+            return
         x, y, w, h = bbox
 
         popup = tk.Toplevel(self.master)
