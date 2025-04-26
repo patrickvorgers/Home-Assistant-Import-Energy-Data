@@ -212,9 +212,7 @@ class StatsMetaApp:
             self.tree.heading(col, text=hd)
             self.tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(
-            container, orient="vertical", command=self.tree.yview
-        )
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -262,7 +260,9 @@ class StatsMetaApp:
             self.det_tree.heading(col, text=hd)
             self.det_tree.column(col, width=wd)
 
-        scrollbar = ttk.Scrollbar(self.frame_det, orient="vertical", command=self.det_tree.yview)
+        scrollbar = ttk.Scrollbar(
+            self.frame_det, orient="vertical", command=self.det_tree.yview
+        )
         self.det_tree.configure(yscrollcommand=scrollbar.set)
         self.det_tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
