@@ -19,11 +19,11 @@ By using this file and adjusting the `sensor_id_elec_solar` in the import script
 
 **Tooling needed**
 - Python 3
-- Pandas python library ```pip install pandas```
+- Pandas python library `pip install pandas`
 
 **How-to**
 - Export data from your local MeterN site
-- Download the ```MeterNDataPrepare.py``` file and put it in the same directory as the downloaded MeterN data
+- Download the `MeterNDataPrepare.py` file and put it in the same directory as the downloaded MeterN data
 - Execute the python script with as parameter the name of the file that contains the exported data **and** the output file that needs to be generated. The python script creates the needed files for the generic import script.
     - `python3 MeterNDataPrepare.py 1FV_Totale20??.csv elec_solar_high_resolution.csv`
     - `python3 MeterNDataPrepare.py 7Prelievi20??.csv elec_feed_in_tariff_1_high_resolution.csv`
