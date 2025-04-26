@@ -24,9 +24,13 @@ DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
 #   dataFilters: A list of datafilters (see above the definition of a datafilter)
 #   recalculate: Boolean value indication whether the data should be recalculated,
 #                because the source is not an increasing value
+#   initialValue:Value to add for the recalculation if the source doesn't start from day 0
+#                The easiest way for me was to do a first run with values at 0, then
+#                find an initial (cumulative) value of sensor reading in the "statistics" table
+#                and calculate the difference for the same epoch
 OutputFileDefinition = namedtuple(
     "OutputFileDefinition",
-    ["outputFileName", "valueColumnName", "dataFilters", "recalculate"],
+    ["outputFileName", "valueColumnName", "dataFilters", "recalculate","initialValue"],
 )
 
 
@@ -87,6 +91,7 @@ outputFiles = [
             DataFilter("Validation status", "No consumption", False)
         ],
         True,
+        "456.789",
     ),
     OutputFileDefinition(
         "energy_consumed_tariff_2_high_resolution.csv",
@@ -96,6 +101,7 @@ outputFiles = [
             DataFilter("Validation status", "No consumption", False)
         ],
         True,
+        "456.789",
     ),
     OutputFileDefinition(
         "energy_produced_tariff_1_high_resolution.csv",
@@ -105,6 +111,7 @@ outputFiles = [
             DataFilter("Validation status", "No consumption", False)
         ],
         True,
+        "456.789",
     ),
     OutputFileDefinition(
         "energy_produced_tariff_2_high_resolution.csv",
@@ -114,6 +121,7 @@ outputFiles = [
             DataFilter("Validation status", "No consumption", False)
         ],
         True,
+        "456.789",
     ),
     OutputFileDefinition(
         "gas_consumed_belgium_high_resolution.csv",
@@ -123,6 +131,7 @@ outputFiles = [
             DataFilter("Validation status", "No consumption", False)
         ],
         True,
+        "456.789",
     ),
 ]
 
@@ -149,7 +158,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.8.0"
+versionNumber = "1.8.1"
 
 
 # Prepare the input data
@@ -221,7 +230,7 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 
 # Recalculate the data so that the value increases
 # The value is currently the usage in that interval. This can be used to generate fake "states".
-def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFrame:
+def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str, initialValue: float) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()
 
@@ -230,10 +239,17 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFram
         return df
 
     # First replace all NaN values with 0 and then calculate the cumulative sum with 3 decimals
-    cumulative_values = df[dataColumnName].fillna(0).cumsum().round(3)
+    #cumulative_values = df[dataColumnName].fillna(0).cumsum().round(3)
 
     # Shift the values down one row and the first row gets 0
-    df[dataColumnName] = cumulative_values.shift(1, fill_value=0)
+    #df[dataColumnName] = cumulative_values.shift(1, fill_value=initialValue)
+
+    # refactored to add initialValue for first row, before calculation
+    initial_values = df[dataColumnName].shift(1, fill_value=initialValue).astype(float)
+
+    cumulative_values = initial_values.fillna(0).cumsum().round(3)
+
+    df[dataColumnName] = cumulative_values
 
     # Calculate the interval between timestamps (first two rows)
     interval = (
@@ -263,6 +279,7 @@ def generateImportDataFile(
     dataColumnName: str,
     filters: list[DataFilter],
     recalculate: bool,
+    initialValue: float,
 ):
     # Check if the column exists
     if dataColumnName not in dataFrame.columns:
@@ -277,7 +294,7 @@ def generateImportDataFile(
 
     # Check if we have to recalculate the data
     if recalculate:
-        dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
+        dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName, initialValue)
 
     # Select only the needed data
     dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
@@ -404,6 +421,7 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = No
                 outputFile.valueColumnName,
                 outputFile.dataFilters,
                 outputFile.recalculate,
+                outputFile.initialValue,
             )
     print("Processing complete.")
 

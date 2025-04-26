@@ -42,3 +42,12 @@ You need to do this only once for each meter.
   Mijn Fluvius also allows using an English version of their site, besides the Dutch one. And not only the site changes, but the exports are also translated.
   "Verbruiks*.csv" becomes "Consumption_*.csv". The fields change names (the header is in English) and values (eg, "Afname Nacht" becomes "Offtake Night", and so on)
   The script ```FluviusDataPrepareEN.py``` is adapted for the English files
+
+  The changed ```FluviusDataPrepareEN.py``` script also allows (and expects) an initial value. In many cases, the digital meters don't start counting from zero,
+  but from a value based on previous consumption and set by the installer. The easiest way to find that value, if you don't have it written down,
+  is to generate the files using a value of "0", and then compare the last few values with the ones in HomeAssist database, "statistics" table,
+  for the same sensors. Then edit the ```FluviusDataPrepareEN.py```, and replace the 5th parameter (after the recalculate boolean) with the difference
+  between the values read from the meter and those calculated by the data preparation.
+
+  Example - if you have an epoch (first column in exported files) with "1703886300", note down the 2nd column value, and compare with the value in the state column
+  of the statistics table, in the row with a start_ts value equal to "1703886300". The difference between those will give you the start value.
