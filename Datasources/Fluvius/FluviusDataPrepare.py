@@ -274,7 +274,7 @@ def recalculateData(
 def generateImportDataFile(
     dataFrame: pd.DataFrame,
     outputFile: str,
-    dataColumnName: str,
+    dataColumnName: str | int,
     filters: list[DataFilter],
     recalculate: bool,
     initialValue: float,
