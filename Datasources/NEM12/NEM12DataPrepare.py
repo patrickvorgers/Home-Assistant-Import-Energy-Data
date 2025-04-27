@@ -10,6 +10,7 @@ from typing import List, NamedTuple
 
 import pandas as pd
 
+
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
 #   value:  The value on which should be filtered (regular expressions can be used)
@@ -261,7 +262,7 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 # Recalculate the data so that the value increases
 # The value is currently the usage in that interval. This can be used to generate fake "states".
 def recalculateData(
-    dataFrame: pd.DataFrame, dataColumnName: str, initialValue: float
+    dataFrame: pd.DataFrame, dataColumnName: str | int, initialValue: float
 ) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()

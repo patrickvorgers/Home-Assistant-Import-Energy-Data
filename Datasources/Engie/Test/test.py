@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # === CONFIGURE TEST COMMANDS HERE ===
