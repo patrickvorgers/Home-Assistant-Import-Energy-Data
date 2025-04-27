@@ -12,6 +12,7 @@ COMMANDS = [
     ["FluviusDataPrepareEN.py", "-y", "Sample files/Consumption_history_gas_541448860018322037_20231022_20250426_hourly totals.csv", "gas_consumed_high_resolution.csv"],
 ]
 
+
 def main():
     test_dir = Path(__file__).resolve().parent
     base = test_dir.parent
@@ -23,7 +24,7 @@ def main():
         if not script_path.exists():
             print(
                 f"[{idx}] ERROR: '{script_name}' not found at {script_path}",
-                file=sys.stderr
+                file=sys.stderr,
             )
             return 1
 
@@ -43,7 +44,7 @@ def main():
         if result.returncode != 0:
             print(
                 f"[{idx}] ERROR: '{script_name}' exited with code {result.returncode}",
-                file=sys.stderr
+                file=sys.stderr,
             )
             return 1
 
