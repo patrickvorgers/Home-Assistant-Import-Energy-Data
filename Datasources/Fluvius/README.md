@@ -39,15 +39,36 @@ You need to do this only once for each meter.
   - Execute the python script with as parameter the name of the file that contains the exported data `python FluviusDataPrepare.py "Verbruiks*.csv"`. The python script creates the needed files for the generic import script.
   - Follow the steps in the overall how-to
 
-  Mijn Fluvius also allows using an English version of their site, besides the Dutch one. And not only the site changes, but the exports are also translated.
-  "Verbruiks*.csv" becomes "Consumption_*.csv". The fields change names (the header is in English) and values (eg, "Afname Nacht" becomes "Offtake Night", and so on)
-  The script ```FluviusDataPrepareEN.py``` is adapted for the English files
+  [Mijn Fluvius](https://mijn.fluvius.be/) also offers an English version of the site alongside the Dutch one.
+  Not only is the site translated, but the exported files are, too.
+  For example, `Verbruiks*.csv` becomes `Consumption_*.csv`; field names in the header are in English, and values are translated (e.g., `Afname Nacht` becomes `Offtake Night,` etc.).
+  The script `FluviusDataPrepareEN.py` has been adapted to process these English files.
 
-  The changed ```FluviusDataPrepareEN.py``` script also allows (and expects) an initial value. In many cases, the digital meters don't start counting from zero,
-  but from a value based on previous consumption and set by the installer. The easiest way to find that value, if you don't have it written down,
-  is to generate the files using a value of "0", and then compare the last few values with the ones in HomeAssist database, "statistics" table,
-  for the same sensors. Then edit the ```FluviusDataPrepareEN.py```, and replace the 5th parameter (after the recalculate boolean) with the difference
-  between the values read from the meter and those calculated by the data preparation.
+**Optional Step: Provide starting reading**<br>
+By default, source data is treated as per-interval usage starting at zero.
+When the meter’s initial reading is not zero or readings began after installation, an explicit initial value can be applied.
+This step is optional but can prevent a spike at the point where imported data crosses over into existing Home Assistant statistics.
+A spike can also be avoided by lowering the `cutoff_invalid_value` in the `Import Energy data into Home Assistant` SQL import script so that it falls below the initial reading.
+The summarize: the spike only occurs when the intial reading is lower than the `cutoff_invalid_value`.
 
-  Example - if you have an epoch (first column in exported files) with "1703886300", note down the 2nd column value, and compare with the value in the state column
-  of the statistics table, in the row with a start_ts value equal to "1703886300". The difference between those will give you the start value.
+1. **Run with zero baseline**<br>
+   Execute the script to generate the CSV file(s). The first reading will be treated as zero by default.
+
+2. **Choose a common timestamp**<br> 
+   Identify an epoch (first-column timestamp) present in both the exported CSV and Home Assistant’s `statistics` table.
+
+3. **Compare readings**<br>
+   - In the CSV, record the cumulative value at that timestamp.
+   - In the `statistics` table, locate the row where `start_ts` equals that epoch and note its `state`.
+
+4. **Calculate the baseline**<br>
+   ```text
+   initialValue = (Home Assistant state) – (exported cumulative at that epoch)
+   ```
+   For example, if the epoch 1703886300 corresponds to a CSV value of 123.456 and a statistics state of 580.245, then:
+   ```text
+   initialValue = = 580.245 – 123.456 = 456.789
+   ```
+5. **Add the `initialValue` parameter and re-run**<br>
+   Add the `initialValue=<calculated value>` as the fifth argument in the script’s output definition.
+   Execute the script again to regenerate the CSV file(s). Repeat for each output definition.

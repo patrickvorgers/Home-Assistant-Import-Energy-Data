@@ -6,32 +6,37 @@ import os
 import sqlite3
 import sys
 import warnings
-from collections import namedtuple
-from typing import List
+from typing import List, NamedTuple
 
 import pandas as pd
 
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
-#   value: The value on which should be filtered (regular expressions can be used)
-#   equal: Boolean value indicating whether the filter should be inclusive or exclusive (True/False)
-DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
+#   value:  The value on which should be filtered (regular expressions can be used)
+#   equal:  Boolean value indicating whether the filter should be inclusive or exclusive (True/False)
+class DataFilter(NamedTuple):
+    column: str
+    value: str
+    equal: bool
 
 # OutputFileDefinition named tuple definition
-#   outputFileName: The name of the output file
+#   outputFileName:  The name of the output file
 #   valueColumnName: The name of the column holding the value.
 #                    Use the column index in case the column name is not available.
-#   dataFilters: A list of datafilters (see above the definition of a datafilter)
-#   recalculate: Boolean value indication whether the data should be recalculated,
-#                because the source is not an increasing value
-#   initialValue:Value to add for the recalculation if the source doesn't start from day 0
-#                The easiest way for me was to do a first run with values at 0, then
-#                find an initial (cumulative) value of sensor reading in the "statistics" table
-#                and calculate the difference for the same epoch
-OutputFileDefinition = namedtuple(
-    "OutputFileDefinition",
-    ["outputFileName", "valueColumnName", "dataFilters", "recalculate","initialValue"],
-)
+#   dataFilters:     A list of datafilters (see above the definition of a datafilter)
+#   recalculate:     Boolean value indication whether the data should be recalculated,
+#                    because the source is not an increasing value
+#   initialValue:    Starting reading to apply when recalculate=True. Use when the source`s first reading is known;
+#                    otherwise, imported values are treated as relative increments without actual totals.
+#                    Supplying an initialValue establishes a baseline and helps avoid a potentially large spike at
+#                    the crossover between imported data and existing Home Assistant statistics - especially
+#                    if the starting reading is below the cutoff_invalid_value.
+class OutputFileDefinition(NamedTuple):
+    outputFileName: str
+    valueColumnName: str
+    dataFilters: List[DataFilter]
+    recalculate: bool
+    initialValue: float = 0
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -90,8 +95,7 @@ outputFiles = [
             DataFilter("Register", "Offtake Day", True), 
             DataFilter("Validation status", "No consumption", False)
         ],
-        True,
-        "456.789",
+        True
     ),
     OutputFileDefinition(
         "energy_consumed_tariff_2_high_resolution.csv",
@@ -100,8 +104,7 @@ outputFiles = [
             DataFilter("Register", "Offtake Night", True), 
             DataFilter("Validation status", "No consumption", False)
         ],
-        True,
-        "456.789",
+        True
     ),
     OutputFileDefinition(
         "energy_produced_tariff_1_high_resolution.csv",
@@ -110,8 +113,7 @@ outputFiles = [
             DataFilter("Register", "Injection Day", True), 
             DataFilter("Validation status", "No consumption", False)
         ],
-        True,
-        "456.789",
+        True
     ),
     OutputFileDefinition(
         "energy_produced_tariff_2_high_resolution.csv",
@@ -120,18 +122,16 @@ outputFiles = [
             DataFilter("Register", "Injection Night", True), 
             DataFilter("Validation status", "No consumption", False)
         ],
-        True,
-        "456.789",
+        True
     ),
     OutputFileDefinition(
-        "gas_consumed_belgium_high_resolution.csv",
+        "gas_consumed_high_resolution.csv",
         "Volume",
         [
             DataFilter("Unit", "m³", True), 
             DataFilter("Validation status", "No consumption", False)
         ],
-        True,
-        "456.789",
+        True
     ),
 ]
 
@@ -238,18 +238,17 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str, initialValue: 
     if df.empty:
         return df
 
-    # First replace all NaN values with 0 and then calculate the cumulative sum with 3 decimals
-    #cumulative_values = df[dataColumnName].fillna(0).cumsum().round(3)
+    # 1) Replace NaNs with 0, compute cumulative sum, then add the baseline (initial value)
+    cumulative_values = (
+        df[dataColumnName]
+        .fillna(0)
+        .cumsum()
+        .add(float(initialValue))
+        .round(3)
+    )
 
-    # Shift the values down one row and the first row gets 0
-    #df[dataColumnName] = cumulative_values.shift(1, fill_value=initialValue)
-
-    # refactored to add initialValue for first row, before calculation
-    initial_values = df[dataColumnName].shift(1, fill_value=initialValue).astype(float)
-
-    cumulative_values = initial_values.fillna(0).cumsum().round(3)
-
-    df[dataColumnName] = cumulative_values
+    # 2) Shift down so that the first recorded value is exactly initialValue
+    df[dataColumnName] = cumulative_values.shift(1, fill_value=initialValue)
 
     # Calculate the interval between timestamps (first two rows)
     interval = (
@@ -260,7 +259,7 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str, initialValue: 
 
     # Create an extra row:
     # - dateTimeColumnName: last timestamp + interval
-    # - value: final cumulative sum value from the original cumulative calculation
+    # - value: final cumulative sum value from the original cumulative calculation (including baseline)
     extra_row = {
         dateTimeColumnName: df[dateTimeColumnName].iloc[-1] + interval,
         dataColumnName: cumulative_values.iloc[-1],
@@ -442,6 +441,12 @@ Notes:
     )
 
     parser.add_argument(
+        "-y", "--yes",
+        action="store_true",
+        help="Automatically answer yes to any prompts"
+    )
+
+    parser.add_argument(
         "input_file",
         type=str,
         help=f"Path to the {energyProviderName} {inputFileNameExtension} file(s) (supports wildcards).",
@@ -461,7 +466,8 @@ Notes:
         "The files will be prepared in the current directory. Any previous files will be overwritten!\n"
     )
 
-    if (
+    # proceed automatically if --yes was passed
+    if args.yes or (
         input("Are you sure you want to continue [Y/N]?: ")
         .strip()
         .lower()

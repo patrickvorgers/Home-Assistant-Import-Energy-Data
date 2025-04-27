@@ -258,12 +258,15 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 * Minze Tolsman (https://github.com/miezie)
   * Implementation: VanOns
 * Slyoldfox (https://github.com/slyoldfox)
-  * Implementation: Fluvius
+  * Implementation: Fluvius (Dutch version)
 * TylonHH (https://github.com/TylonHH)
   * Implementation: EnergyControl (app)
 * Nikolaj Hendel (https://github.com/nikolajhendel)
   * How to for: iSolarCloud (Sungrow)
   * Sample files for: iSolarCloud (Sungrow)
+* Bernardo Bandos (https://github.com/jbbandos)
+  * Implementation: Fluvius (English version)
+  * Inital implementation: Inital value for recalculation
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

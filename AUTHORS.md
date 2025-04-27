@@ -25,11 +25,13 @@ Please share scripts or how-to guides if you have built an integration with a ne
 * Minze Tolsman (https://github.com/miezie)
   * Implementation: VanOns
 * Slyoldfox (https://github.com/slyoldfox)
-  * Implementation: Fluvius
+  * Implementation: Fluvius (Dutch version)
 * TylonHH (https://github.com/TylonHH)
   * Implementation: EnergyControl (app)
 * Nikolaj Hendel (https://github.com/nikolajhendel)
   * How to for: iSolarCloud (Sungrow)
   * Sample files for: iSolarCloud (Sungrow)
-
+* Bernardo Bandos (https://github.com/jbbandos)
+  * Implementation: Fluvius (English version)
+  * Inital implementation: Inital value for recalculation
   
