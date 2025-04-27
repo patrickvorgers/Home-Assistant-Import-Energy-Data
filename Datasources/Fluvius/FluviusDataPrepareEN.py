@@ -94,46 +94,46 @@ outputFiles = [
         "energy_consumed_tariff_1_high_resolution.csv",
         "Volume",
         [
-            DataFilter("Register", "Offtake Day", True), 
-            DataFilter("Validation status", "No consumption", False)
+            DataFilter("Register", "Offtake Day", True),
+            DataFilter("Validation status", "No consumption", False),
         ],
-        True
+        True,
     ),
     OutputFileDefinition(
         "energy_consumed_tariff_2_high_resolution.csv",
         "Volume",
         [
-            DataFilter("Register", "Offtake Night", True), 
-            DataFilter("Validation status", "No consumption", False)
+            DataFilter("Register", "Offtake Night", True),
+            DataFilter("Validation status", "No consumption", False),
         ],
-        True
+        True,
     ),
     OutputFileDefinition(
         "energy_produced_tariff_1_high_resolution.csv",
         "Volume",
         [
-            DataFilter("Register", "Injection Day", True), 
-            DataFilter("Validation status", "No consumption", False)
+            DataFilter("Register", "Injection Day", True),
+            DataFilter("Validation status", "No consumption", False),
         ],
-        True
+        True,
     ),
     OutputFileDefinition(
         "energy_produced_tariff_2_high_resolution.csv",
         "Volume",
         [
-            DataFilter("Register", "Injection Night", True), 
-            DataFilter("Validation status", "No consumption", False)
+            DataFilter("Register", "Injection Night", True),
+            DataFilter("Validation status", "No consumption", False),
         ],
-        True
+        True,
     ),
     OutputFileDefinition(
         "gas_consumed_high_resolution.csv",
         "Volume",
         [
-            DataFilter("Unit", "m³", True), 
-            DataFilter("Validation status", "No consumption", False)
+            DataFilter("Unit", "m³", True),
+            DataFilter("Validation status", "No consumption", False),
         ],
-        True
+        True,
     ),
 ]
 

@@ -6,7 +6,11 @@ from pathlib import Path
 # === CONFIGURE TEST COMMANDS HERE ===
 # Each entry is: [python_script, arg1, arg2, ...]
 COMMANDS = [
-    ["iSolarCloudDataPrepare.py", "-y", "Sample files/Monthly.Report_PLANT_NAME_20241011100248.csv"],
+    [
+        "iSolarCloudDataPrepare.py",
+        "-y",
+        "Sample files/Monthly.Report_PLANT_NAME_20241011100248.csv",
+    ],
 ]
 
 

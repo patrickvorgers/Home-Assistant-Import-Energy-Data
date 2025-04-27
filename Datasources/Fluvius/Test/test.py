@@ -6,10 +6,28 @@ from pathlib import Path
 # === CONFIGURE TEST COMMANDS HERE ===
 # Each entry is: [python_script, arg1, arg2, ...]
 COMMANDS = [
-    ["FluviusDataPrepare.py", "-y", "Sample files/Verbruikshistoriek_elektriciteit_123456789123456789_20211012_20240929_kwartiertotalen.csv"],
-    ["FluviusDataPrepare.py", "-y", "Sample files/Verbruikshistoriek_gas_123456789123456789_20220110_20240929_uurtotalen.csv", "gas_high_resolution.csv"],
-    ["FluviusDataPrepareEN.py", "-y", "Sample files/Consumption_history_electricity_541448820052377134_20231022_20250426_15 minute totals.csv"],
-    ["FluviusDataPrepareEN.py", "-y", "Sample files/Consumption_history_gas_541448860018322037_20231022_20250426_hourly totals.csv", "gas_consumed_high_resolution.csv"],
+    [
+        "FluviusDataPrepare.py",
+        "-y",
+        "Sample files/Verbruikshistoriek_elektriciteit_123456789123456789_20211012_20240929_kwartiertotalen.csv",
+    ],
+    [
+        "FluviusDataPrepare.py",
+        "-y",
+        "Sample files/Verbruikshistoriek_gas_123456789123456789_20220110_20240929_uurtotalen.csv",
+        "gas_high_resolution.csv",
+    ],
+    [
+        "FluviusDataPrepareEN.py",
+        "-y",
+        "Sample files/Consumption_history_electricity_541448820052377134_20231022_20250426_15 minute totals.csv",
+    ],
+    [
+        "FluviusDataPrepareEN.py",
+        "-y",
+        "Sample files/Consumption_history_gas_541448860018322037_20231022_20250426_hourly totals.csv",
+        "gas_consumed_high_resolution.csv",
+    ],
 ]
 
 

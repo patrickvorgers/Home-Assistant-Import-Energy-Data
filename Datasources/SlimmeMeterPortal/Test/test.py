@@ -6,8 +6,16 @@ from pathlib import Path
 # === CONFIGURE TEST COMMANDS HERE ===
 # Each entry is: [python_script, arg1, arg2, ...]
 COMMANDS = [
-    ["SlimmeMeterPortalDataPrepare.py", "-y", "Sample files/data_202?_871687120058657526.xlsx"],
-    ["SlimmeMeterPortalGasDataPrepare.py", "-y", "Sample files/data_202?_871687140002948685.xlsx"],
+    [
+        "SlimmeMeterPortalDataPrepare.py",
+        "-y",
+        "Sample files/data_202?_871687120058657526.xlsx",
+    ],
+    [
+        "SlimmeMeterPortalGasDataPrepare.py",
+        "-y",
+        "Sample files/data_202?_871687140002948685.xlsx",
+    ],
 ]
 
 

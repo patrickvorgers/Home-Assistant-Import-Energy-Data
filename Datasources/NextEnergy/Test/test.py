@@ -6,7 +6,11 @@ from pathlib import Path
 # === CONFIGURE TEST COMMANDS HERE ===
 # Each entry is: [python_script, arg1, arg2, ...]
 COMMANDS = [
-    ["NextEnergyDataPrepare.py", "-y", "Sample files/Measurements 19-01-2024 accesspointId 99999.xlsx"],
+    [
+        "NextEnergyDataPrepare.py",
+        "-y",
+        "Sample files/Measurements 19-01-2024 accesspointId 99999.xlsx",
+    ],
 ]
 
 
