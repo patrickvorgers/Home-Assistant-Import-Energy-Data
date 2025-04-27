@@ -6,28 +6,37 @@ import os
 import sqlite3
 import sys
 import warnings
-from collections import namedtuple
-from typing import List
+from typing import List, NamedTuple
 
 import pandas as pd
 
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
-#   value: The value on which should be filtered (regular expressions can be used)
-#   equal: Boolean value indicating whether the filter should be inclusive or exclusive (True/False)
-DataFilter = namedtuple("DataFilter", ["column", "value", "equal"])
+#   value:  The value on which should be filtered (regular expressions can be used)
+#   equal:  Boolean value indicating whether the filter should be inclusive or exclusive (True/False)
+class DataFilter(NamedTuple):
+    column: str
+    value: str
+    equal: bool
 
 # OutputFileDefinition named tuple definition
-#   outputFileName: The name of the output file
+#   outputFileName:  The name of the output file
 #   valueColumnName: The name of the column holding the value.
 #                    Use the column index in case the column name is not available.
-#   dataFilters: A list of datafilters (see above the definition of a datafilter)
-#   recalculate: Boolean value indication whether the data should be recalculated,
-#                because the source is not an increasing value
-OutputFileDefinition = namedtuple(
-    "OutputFileDefinition",
-    ["outputFileName", "valueColumnName", "dataFilters", "recalculate"],
-)
+#   dataFilters:     A list of datafilters (see above the definition of a datafilter)
+#   recalculate:     Boolean value indication whether the data should be recalculated,
+#                    because the source is not an increasing value
+#   initialValue:    Starting reading to apply when recalculate=True. Use when the source`s first reading is known;
+#                    otherwise, imported values are treated as relative increments without actual totals.
+#                    Supplying an initialValue establishes a baseline and helps avoid a potentially large spike at
+#                    the crossover between imported data and existing Home Assistant statistics - especially
+#                    if the starting reading is below the cutoff_invalid_value.
+class OutputFileDefinition(NamedTuple):
+    outputFileName: str
+    valueColumnName: str
+    dataFilters: List[DataFilter]
+    recalculate: bool
+    initialValue: float = 0
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -149,7 +158,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.8.0"
+versionNumber = "1.8.1"
 
 
 # Prepare the input data
@@ -221,7 +230,7 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 
 # Recalculate the data so that the value increases
 # The value is currently the usage in that interval. This can be used to generate fake "states".
-def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFrame:
+def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str, initialValue: float) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()
 
@@ -229,11 +238,17 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFram
     if df.empty:
         return df
 
-    # First replace all NaN values with 0 and then calculate the cumulative sum with 3 decimals
-    cumulative_values = df[dataColumnName].fillna(0).cumsum().round(3)
+    # 1) Replace NaNs with 0, compute cumulative sum, then add the baseline (initial value)
+    cumulative_values = (
+        df[dataColumnName]
+        .fillna(0)
+        .cumsum()
+        .add(float(initialValue))
+        .round(3)
+    )
 
-    # Shift the values down one row and the first row gets 0
-    df[dataColumnName] = cumulative_values.shift(1, fill_value=0)
+    # 2) Shift down so that the first recorded value is exactly initialValue
+    df[dataColumnName] = cumulative_values.shift(1, fill_value=initialValue)
 
     # Calculate the interval between timestamps (first two rows)
     interval = (
@@ -244,7 +259,7 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str) -> pd.DataFram
 
     # Create an extra row:
     # - dateTimeColumnName: last timestamp + interval
-    # - value: final cumulative sum value from the original cumulative calculation
+    # - value: final cumulative sum value from the original cumulative calculation (including baseline)
     extra_row = {
         dateTimeColumnName: df[dateTimeColumnName].iloc[-1] + interval,
         dataColumnName: cumulative_values.iloc[-1],
@@ -263,6 +278,7 @@ def generateImportDataFile(
     dataColumnName: str,
     filters: list[DataFilter],
     recalculate: bool,
+    initialValue: float,
 ):
     # Check if the column exists
     if dataColumnName not in dataFrame.columns:
@@ -277,7 +293,7 @@ def generateImportDataFile(
 
     # Check if we have to recalculate the data
     if recalculate:
-        dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName)
+        dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName, initialValue)
 
     # Select only the needed data
     dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
@@ -404,6 +420,7 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = No
                 outputFile.valueColumnName,
                 outputFile.dataFilters,
                 outputFile.recalculate,
+                outputFile.initialValue,
             )
     print("Processing complete.")
 
@@ -421,6 +438,12 @@ Notes:
 - Example: {energyProviderName}DataPrepare "*{inputFileNameExtension}"
     """,
         formatter_class=argparse.RawTextHelpFormatter,
+    )
+
+    parser.add_argument(
+        "-y", "--yes",
+        action="store_true",
+        help="Automatically answer yes to any prompts"
     )
 
     parser.add_argument(
@@ -443,7 +466,8 @@ Notes:
         "The files will be prepared in the current directory. Any previous files will be overwritten!\n"
     )
 
-    if (
+    # proceed automatically if --yes was passed
+    if args.yes or (
         input("Are you sure you want to continue [Y/N]?: ")
         .strip()
         .lower()

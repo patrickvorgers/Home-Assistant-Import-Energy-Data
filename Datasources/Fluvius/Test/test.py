@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+from pathlib import Path
+
+# === CONFIGURE TEST COMMANDS HERE ===
+# Each entry is: [python_script, arg1, arg2, ...]
+COMMANDS = [
+    ["FluviusDataPrepare.py", "-y", "Sample files/Verbruikshistoriek_elektriciteit_123456789123456789_20211012_20240929_kwartiertotalen.csv"],
+    ["FluviusDataPrepare.py", "-y", "Sample files/Verbruikshistoriek_gas_123456789123456789_20220110_20240929_uurtotalen.csv", "gas_high_resolution.csv"],
+    ["FluviusDataPrepareEN.py", "-y", "Sample files/Consumption_history_electricity_541448820052377134_20231022_20250426_15 minute totals.csv"],
+    ["FluviusDataPrepareEN.py", "-y", "Sample files/Consumption_history_gas_541448860018322037_20231022_20250426_hourly totals.csv", "gas_consumed_high_resolution.csv"],
+]
+
+def main():
+    test_dir = Path(__file__).resolve().parent
+    base     = test_dir.parent
+
+    for idx, cmd in enumerate(COMMANDS, start=1):
+        script_name, *params = cmd
+        script_path = base / script_name
+
+        if not script_path.exists():
+            print(f"[{idx}] ERROR: '{script_name}' not found at {script_path}", file=sys.stderr)
+            return 1
+
+        full_cmd = [sys.executable, str(script_path)]
+        for p in params:
+            param_path = Path(p)
+            candidate = base / param_path
+
+            # Expand only if it's a path (contains a directory component) and exists
+            if param_path.parent != Path('.') and candidate.exists():
+                full_cmd.append(str(candidate))
+            else:
+                full_cmd.append(p)
+
+        print(f"[{idx}] Running: {' '.join(full_cmd)}")
+        result = subprocess.run(full_cmd, cwd=base)
+        if result.returncode != 0:
+            print(f"[{idx}] ERROR: '{script_name}' exited with code {result.returncode}", file=sys.stderr)
+            return 1
+
+        print(f"[{idx}] Success: '{script_name}' completed.\n")
+
+    print("All test commands completed successfully.")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
