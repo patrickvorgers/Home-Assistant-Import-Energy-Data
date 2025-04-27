@@ -9,7 +9,7 @@ Enphase offers the option to export data from the [Enlighten Enphase Energy](htt
 
 **Tooling needed**
 - Python 3
-- Pandas python library ```pip install pandas```
+- Pandas python library `pip install pandas`
 
 **How-to**
 - Export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site
@@ -30,6 +30,6 @@ Enphase offers the option to export data from the [Enlighten Enphase Energy](htt
   - Fill in the start and end date of the report and press 'Email Report'
   - After the report has been generated the CSV is emailed to the registerd emailadress
   - Open the email and download the generated CSV file to your PC
-- Download the ```EnphaseDataPrepare.py``` file and put it in the same directory as the Enphase data
-- Execute the python script with as parameter the name of the file that contains the exported data ```python EnphaseDataPrepare.py 9999999_site_energy_production_report.csv```. The python script creates the needed files for the generic import script.
+- Download the `EnphaseDataPrepare.py` file and put it in the same directory as the Enphase data
+- Execute the python script with as parameter the name of the file that contains the exported data `python EnphaseDataPrepare.py 9999999_site_energy_production_report.csv`. The python script creates the needed files for the generic import script.
 - Follow the steps in the overall how-to

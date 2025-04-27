@@ -1,9 +1,16 @@
-/* SQLite: Import energy/water data into Home Assistant */
+/* MariaDB: Import Energy data into Home Assistant */
 
+
+/* Start a transaction so that we can rollback any changes if needed */
+ROLLBACK;
+START TRANSACTION;
+
+/* Disable warnings: The IF EXISTS clause triggers a warning when the table does not exist */ 
+SET sql_notes = 0;
 
 /* Create a temp table to hold the used sensor metadata */
-DROP TABLE IF EXISTS SENSORS;
-CREATE TEMP TABLE SENSORS (name TEXT PRIMARY KEY, sensor_id INTEGER, correction FLOAT, cutoff_new_meter FLOAT, cutoff_invalid_value FLOAT);
+DROP TEMPORARY TABLE IF EXISTS SENSORS;
+CREATE TEMPORARY TABLE SENSORS (name VARCHAR(255) PRIMARY KEY, sensor_id INTEGER, correction FLOAT, cutoff_new_meter FLOAT, cutoff_invalid_value FLOAT);
 
 /*
 Definition of the different sensors for which the history data should be loaded.
@@ -39,6 +46,8 @@ CUTOFF NEW METER:
     m³  : 25.0 m³
 CUTOFF INVALID VALUE:
   This value determines when a value is considered to be invalid (too large). The value depends on the unit of measurement of the target sensor!
+  For instance, this can occur when the imported data is recalculated (since the import shows usage per interval rather than actual readings).
+  This may produce a large spike at the point where the imported data transitions to the Home Assistant data.
   Change this in case a higher/lower diff cutoff is needed to mark a value invalid.
   Invalid value detection: (difference between two sensor states > cutoff invalid value)
     Wh  : 1000000.0 Wh
@@ -80,18 +89,20 @@ INSERT INTO SENSORS VALUES ('water',                  653,      1000.0,    25.0,
 /* FOR NORMAL USAGE THERE SHOULD BE NO CHANGES NEEDED AFTER THIS POINT */
 
 
-/* Create temp tables that can hold the difference between the measurements and create a new sum */
-DROP TABLE IF EXISTS STATS_NEW;
-CREATE TEMP TABLE STATS_NEW (
-  sensor_id 	INTEGER NOT NULL,
-  ts        	FLOAT NOT NULL,
-  begin_state	FLOAT,
-  end_state		FLOAT,
-  diff      	FLOAT,
-  old_sum   	FLOAT,
-  new_sum   	FLOAT
+/* Create a temp table that can hold the difference between the measurements and create a new sum */
+DROP TEMPORARY TABLE IF EXISTS STATS_NEW;
+CREATE TEMPORARY TABLE STATS_NEW (
+  id            INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  sensor_id     INTEGER NOT NULL,
+  ts            DOUBLE NOT NULL,
+  begin_state   DOUBLE,
+  end_state     DOUBLE,
+  diff          DOUBLE,
+  old_sum       DOUBLE,
+  new_sum       DOUBLE
 );
 CREATE UNIQUE INDEX idx_sensor_id_ts ON STATS_NEW (sensor_id, ts);
+
 
 /* Insert the high resolution records and apply the correction 
 
@@ -110,50 +121,43 @@ WHERE
 
    The values are the start of the interval
 */
-WITH CTE_MIN_TS AS (
-  SELECT sensor_id, MIN(ts) AS min_ts
-  FROM STATS_NEW
-  GROUP BY sensor_id
-)
 INSERT INTO STATS_NEW (sensor_id, ts, begin_state)
 SELECT s.sensor_id, ROUND(imd.timestamp, 0), ROUND(imd.value / s.correction, 3)
 FROM IMPORT_DATA AS imd
 JOIN SENSORS AS s ON s.name = imd.id
-LEFT JOIN CTE_MIN_TS AS m ON m.sensor_id = s.sensor_id
+LEFT JOIN (
+  SELECT sensor_id, MIN(ts) AS min_ts
+  FROM STATS_NEW
+  GROUP BY sensor_id
+) AS m ON m.sensor_id = s.sensor_id
 WHERE
   imd.resolution = 'LOW' AND
-  imd.timestamp < COALESCE(m.min_ts, strftime('%s', 'now'));
+  imd.timestamp < COALESCE(m.min_ts, UNIX_TIMESTAMP());
 
 
 /* Determine the end of the interval for the imported data */
-WITH CTE_VALUE_STATS_VALUE AS (
-  SELECT sensor_id, ts, (lead(begin_state, 1, 0) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts)) AS value
-  FROM STATS_NEW
-  ORDER BY sensor_id, ts
-)
-UPDATE STATS_NEW
-SET end_state = CTE_VALUE_STATS_VALUE.value
-FROM CTE_VALUE_STATS_VALUE
+UPDATE STATS_NEW,
+  (SELECT sensor_id, ts, LEAD(begin_state, 1) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts) AS value
+    FROM STATS_NEW
+    ORDER BY sensor_id, ts) AS NEXT_VALUES
+SET STATS_NEW.end_state = NEXT_VALUES.value
 WHERE
-  STATS_NEW.sensor_id = CTE_VALUE_STATS_VALUE.sensor_id AND
-  STATS_NEW.ts = CTE_VALUE_STATS_VALUE.ts;
+  STATS_NEW.sensor_id = NEXT_VALUES.sensor_id AND
+  STATS_NEW.ts = NEXT_VALUES.ts;
 
-  
+
 /* Remove any overlapping records from the imported data that are already in Home Assistant */
-WITH CTE_SENSOR_MIN_TS(metadata_id, min_ts)  AS (
+DELETE STATS_NEW
+FROM STATS_NEW
+JOIN (
   SELECT metadata_id, MIN(start_ts) AS min_ts
   FROM statistics
-  WHERE metadata_id in (SELECT sensor_id FROM SENSORS)
-  GROUP BY metadata_id
-)
-DELETE FROM STATS_NEW
-WHERE
-STATS_NEW.ROWID IN (
-  SELECT STATS_NEW.ROWID FROM STATS_NEW, CTE_SENSOR_MIN_TS
   WHERE
-    STATS_NEW.sensor_id = CTE_SENSOR_MIN_TS.metadata_id AND
-    STATS_NEW.ts >= CTE_SENSOR_MIN_TS.min_ts
-);
+    metadata_id IN (SELECT sensor_id FROM SENSORS)
+  GROUP BY metadata_id
+) SENSOR_MIN_TS ON STATS_NEW.sensor_id = SENSOR_MIN_TS.metadata_id
+WHERE
+  STATS_NEW.ts >= SENSOR_MIN_TS.min_ts;
 
 
 /* Insert the data from Home Assistant so that we can adjust the records with the new calculated sum 
@@ -173,25 +177,22 @@ UPDATE STATS_NEW
 SET diff = end_state - begin_state
 WHERE
   old_sum IS NULL;
-  
-WITH CTE_DIFF_STATS_SUM AS (
-  SELECT sensor_id, ts, (old_sum - lag(old_sum, 1, 0) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts))  AS diff
-  FROM STATS_NEW
-  ORDER BY sensor_id, ts
-)
-UPDATE STATS_NEW
-SET diff = CTE_DIFF_STATS_SUM.diff
-FROM CTE_DIFF_STATS_SUM
+
+UPDATE STATS_NEW,
+  (SELECT sensor_id, ts, (old_sum - lag(old_sum, 1) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts)) AS diff
+   FROM STATS_NEW
+   ORDER BY sensor_id, ts) AS DIFF_STATS_SUM
+SET STATS_NEW.diff = DIFF_STATS_SUM.diff
 WHERE
-  STATS_NEW.sensor_id = CTE_DIFF_STATS_SUM.sensor_id AND
-  STATS_NEW.ts = CTE_DIFF_STATS_SUM.ts AND
+  STATS_NEW.sensor_id = DIFF_STATS_SUM.sensor_id AND
+  STATS_NEW.ts = DIFF_STATS_SUM.ts AND
   STATS_NEW.old_sum IS NOT NULL;
 
 
 /* Cleanup possible wrong values:
   - Diff is null  => The point where the imported data goes over to Home Assistant data 
-  - Diff < 0  => Probably new meter installed (measurement should be low)
-  - Diff > 1000 => Incorrect value 
+  - Diff < 0   => Probably new meter installed (measurement should be low)
+  - Diff > invalid => Incorrect value 
   First handle the first two cases and then correct to 0 when incorrect value
 */
 UPDATE STATS_NEW
@@ -215,16 +216,13 @@ WHERE
 /* Calculate the new sum
    It is calculated by calculating the sum up till the record that is currently processed
 */
-WITH CTE_SUM_STATS AS (
-  SELECT sensor_id, ts, SUM(diff) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts) AS new_sum
-  FROM STATS_NEW
-)
-UPDATE STATS_NEW
-SET new_sum = round(CTE_SUM_STATS.new_sum, 3)
-FROM CTE_SUM_STATS
+UPDATE STATS_NEW,
+  (SELECT sensor_id, ts, SUM(diff) OVER (PARTITION BY sensor_id ORDER BY sensor_id, ts) AS new_sum
+   FROM STATS_NEW) AS SUM_STATS
+SET STATS_NEW.new_sum = round(SUM_STATS.new_sum, 3)
 WHERE
-  STATS_NEW.sensor_id = CTE_SUM_STATS.sensor_id AND
-  STATS_NEW.ts = CTE_SUM_STATS.ts;
+  STATS_NEW.sensor_id = SUM_STATS.sensor_id AND
+  STATS_NEW.ts = SUM_STATS.ts;
 
 
 /* Copy records from the original tables into the backup tables
@@ -248,41 +246,45 @@ SELECT id, metadata_id, sum FROM statistics_short_term
 WHERE
   metadata_id IN (SELECT sensor_id FROM SENSORS);
 
-
+  
 /* Copy the new information to the statistics table
-id          => primary key and automatically filled with ROWID
+id          => primary key and automatically filled (autoincrement)
 state       => the end_state of the interval
 sum         => calculated new_sum value
 metadata_id => the fixed metadata id of this statistics (see top)
 created_ts  => set to the timestamp of the statistic
 start_ts    => timestamp of the statistic
 The sum is updated in case the record is already in Home Assistant
-
-"where true" is needed to remove parsing ambiguity
 */
 INSERT INTO statistics (state, sum, metadata_id, created_ts, start_ts)
-SELECT end_state, new_sum, sensor_id, ts, ts FROM STATS_NEW WHERE true
-ON CONFLICT DO UPDATE SET sum = excluded.sum;
+SELECT end_state, new_sum, sensor_id, ts, ts FROM STATS_NEW
+ON DUPLICATE KEY UPDATE sum = VALUES(sum);
 
 
 /* Also update the short term statistics. 
    We calculate the delta with which the sum was changed and add that to the current measurements
+   Remark: use WHERE TRUE to supress any warnings
 */
-WITH CTE_CORRECTION AS (
-  SELECT DISTINCT metadata_id, first_value(new_sum - sum) OVER (PARTITION BY metadata_id ORDER BY start_ts DESC) AS correction_factor
-  FROM
-    statistics_short_term as SST, STATS_NEW AS SN
-  WHERE
-    SST.metadata_id = SN.sensor_id AND
-    SST.start_ts = SN.ts
-)
-UPDATE statistics_short_term 
-SET sum = sum + CTE_CORRECTION.correction_factor
-FROM CTE_CORRECTION
-WHERE
-  statistics_short_term.metadata_id = CTE_CORRECTION.metadata_id;
-  
+UPDATE statistics_short_term AS SST
+JOIN (
+  SELECT metadata_id, FIRST_VALUE(SN.new_sum - SST.sum) OVER (PARTITION BY SST.metadata_id ORDER BY SST.start_ts DESC) AS correction_factor
+  FROM statistics_short_term AS SST
+  JOIN STATS_NEW AS SN ON SST.metadata_id = SN.sensor_id AND SST.start_ts = SN.ts
+  GROUP BY metadata_id
+) AS CORRECTION ON SST.metadata_id = CORRECTION.metadata_id
+SET SST.sum = SST.sum + CORRECTION.correction_factor
+WHERE TRUE;
+
+
 /* Remove the temporary tables */
-DROP TABLE IF EXISTS SENSORS;
-DROP TABLE IF EXISTS STATS_NEW;
+DROP TEMPORARY TABLE IF EXISTS SENSORS;
+DROP TEMPORARY TABLE IF EXISTS STATS_NEW;
 DROP TABLE IF EXISTS IMPORT_DATA;
+
+/* Do not drop the backup tables. They can be deleted after verification by the user. */
+
+/* Enable the warnings again */
+SET sql_notes = 1; 
+
+/* Commit the changes - can be commented out while testing */
+COMMIT;

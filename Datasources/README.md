@@ -56,7 +56,7 @@ The id is used to identify the sensor in the SQL script that processes the impor
   Designed to handle repeated imports while keeping the data current. The data is imported into a "temporary" working table.
 
 ### Tooling
-- MySQL python library ```pip install mysql-connector-python```
+- MySQL python library `pip install mysql-connector-python`
  
 ### Usage instructions
 - **CSV file preparation**:<br>
@@ -69,8 +69,8 @@ Depending on the input file, multiple CSV files may be generated.
   Execute the script from a command-line interface using the appropriate options.
 
   **Example for SQLite**:<br>
-  ```python ImportData.py --db-type sqlite --sqlite-db mydb.db --csv-file "data\*.csv" --verbose```<br>
+  `python ImportData.py --db-type sqlite --sqlite-db mydb.db --csv-file "data\*.csv" --verbose`<br>
   **Example for MariaDB**:<br>
-  ```python ImportData.py --db-type mariadb --host localhost --user root --database mydb --csv-file "data\*.csv" --verbose```<br>
+  `python ImportData.py --db-type mariadb --host localhost --user root --database mydb --csv-file "data\*.csv" --verbose`<br>
 - **Optional: Data Preservation**:<br>
   The `--suppress-recreate` option preserves the existing IMPORT_DATA table, allowing new data to be added without deleting previously imported data.
