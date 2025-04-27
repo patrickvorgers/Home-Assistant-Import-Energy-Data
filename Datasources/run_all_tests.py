@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import sys
-import subprocess
 import filecmp
+import subprocess
+import sys
 from pathlib import Path
 
 # === Configuration ===

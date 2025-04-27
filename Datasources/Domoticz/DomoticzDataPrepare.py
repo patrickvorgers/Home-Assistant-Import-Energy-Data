@@ -19,6 +19,7 @@ class DataFilter(NamedTuple):
     value: str
     equal: bool
 
+
 # OutputFileDefinition named tuple definition
 #   outputFileName:  The name of the output file
 #   valueColumnName: The name of the column holding the value.
@@ -33,7 +34,7 @@ class DataFilter(NamedTuple):
 #                    if the starting reading is below the cutoff_invalid_value.
 class OutputFileDefinition(NamedTuple):
     outputFileName: str
-    valueColumnName: str
+    valueColumnName: str | int
     dataFilters: List[DataFilter]
     recalculate: bool
     initialValue: float = 0
@@ -191,7 +192,9 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 
 # Recalculate the data so that the value increases
 # The value is currently the usage in that interval. This can be used to generate fake "states".
-def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str, initialValue: float) -> pd.DataFrame:
+def recalculateData(
+    dataFrame: pd.DataFrame, dataColumnName: str, initialValue: float
+) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()
 
@@ -201,11 +204,7 @@ def recalculateData(dataFrame: pd.DataFrame, dataColumnName: str, initialValue: 
 
     # 1) Replace NaNs with 0, compute cumulative sum, then add the baseline (initial value)
     cumulative_values = (
-        df[dataColumnName]
-        .fillna(0)
-        .cumsum()
-        .add(float(initialValue))
-        .round(3)
+        df[dataColumnName].fillna(0).cumsum().add(float(initialValue)).round(3)
     )
 
     # 2) Shift down so that the first recorded value is exactly initialValue
@@ -254,7 +253,9 @@ def generateImportDataFile(
 
     # Check if we have to recalculate the data
     if recalculate:
-        dataFrameFiltered = recalculateData(dataFrameFiltered, dataColumnName, initialValue)
+        dataFrameFiltered = recalculateData(
+            dataFrameFiltered, dataColumnName, initialValue
+        )
 
     # Select only the needed data
     dataFrameFiltered = dataFrameFiltered.filter([dateTimeColumnName, dataColumnName])
@@ -402,9 +403,10 @@ Notes:
     )
 
     parser.add_argument(
-        "-y", "--yes",
+        "-y",
+        "--yes",
         action="store_true",
-        help="Automatically answer yes to any prompts"
+        help="Automatically answer yes to any prompts",
     )
 
     parser.add_argument(
