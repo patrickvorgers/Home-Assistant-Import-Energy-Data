@@ -1,21 +1,42 @@
 name: Super-Linter
 
 on:
+  # keep linting your main branch on every push
   push:
     branches:
       - main
+
+  # run on PRs against main when contributors push commits
   pull_request:
     branches:
       - main
+
+  # also run when maintainers push suggestions or fixes into a PR (even from forks)
+  pull_request_target:
+    branches:
+      - main
+
+permissions:
+  # ensure the checkout step can fetch from forks
+  contents: read
 
 jobs:
   super-lint:
     name: Lint code base
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
+    steps:
+      # 1. we always want the PR’s HEAD commit, even in pull_request_target
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          # this will pull exactly the commit that triggered the PR event
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref:        ${{ github.event.pull_request.head.ref }}
+          token:      ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      # 2. run the linter exactly as before
       - name: Run Super-Linter
         uses: github/super-linter@latest
         env:
