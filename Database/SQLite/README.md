@@ -61,7 +61,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Load import script
 - Validate the schema version of the database (Browse Data -> Table: schema_changes)
-  - The script has been tested with schema version 48. With higher versions you should validate if the structure of the `statistics` and `statistics_short_term` tables have changed.
+  - The script has been tested with schema version 50. With higher versions you should validate if the structure of the `statistics` and `statistics_short_term` tables have changed.
     - Used fields in table `statistics`: `metadata_id`, `state`, `sum`, `start_ts`, `created_ts`
     - Used fields in table `statistics_short_term`: `sum`
 
