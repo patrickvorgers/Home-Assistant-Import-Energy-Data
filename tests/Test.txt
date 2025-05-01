@@ -1,0 +1,7 @@
+Prerequisite:
+- Pandas python library `py -m pip install pandas`
+- OpenPyXL python library `py -m pip install openpyxl`
+- XLRD python library `py -m pip install xlrd`
+
+Run tests and show output (-s)
+py -m pytest -s
