@@ -3,6 +3,7 @@
 ################################################################################
 
 /.vs
-/__pycache__
-/tests/__pycache__
-/Datasources/Domoticz/Test/__pycache__
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
