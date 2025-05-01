@@ -1,12 +1,12 @@
-import sys
-import subprocess
 import filecmp
-from pathlib import Path
 import inspect
-from typing import List, Tuple
+import subprocess
+import sys
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 
-def run_script(script_path: Path, cwd: Path, params: List[str] = None) -> None:
+def run_script(script_path: Path, cwd: Path, params: Optional[List[str]] = None) -> None:
     """
     Execute the given Python script with optional parameters and assert it exits successfully.
 
@@ -19,6 +19,8 @@ def run_script(script_path: Path, cwd: Path, params: List[str] = None) -> None:
         AssertionError if the script exits with a non-zero status.
     """
     cmd = [sys.executable, str(script_path)]
+    if params is None:
+        params = []
     if params:
         cmd.extend(params)
     result = subprocess.run(cmd, cwd=cwd)

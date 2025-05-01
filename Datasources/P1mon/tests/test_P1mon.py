@@ -1,4 +1,3 @@
-import pytest
 from tests.helpers import run_commands
 
 # List scripts and their CLI args
@@ -9,14 +8,14 @@ COMMANDS = [
             "-y",
             "Sample files/e_historie.db.xlsx",
         ],
-     ),
+    ),
     (
         "P1MonWaterDataPrepare.py",
         [
             "-y",
             "Sample files/06_watermeter.db.xlsx",
         ],
-     ),
+    ),
 ]
 
 

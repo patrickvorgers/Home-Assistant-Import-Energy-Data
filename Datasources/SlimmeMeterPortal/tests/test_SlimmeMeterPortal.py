@@ -1,4 +1,3 @@
-import pytest
 from tests.helpers import run_commands
 
 # List scripts and their CLI args
@@ -9,14 +8,14 @@ COMMANDS = [
             "-y",
             "Sample files/data_202?_871687120058657526.xlsx",
         ],
-     ),
+    ),
     (
         "SlimmeMeterPortalGasDataPrepare.py",
         [
             "-y",
             "Sample files/data_202?_871687140002948685.xlsx",
         ],
-     ),
+    ),
 ]
 
 

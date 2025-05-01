@@ -1,4 +1,3 @@
-import pytest
 from tests.helpers import run_commands
 
 # List scripts and their CLI args
