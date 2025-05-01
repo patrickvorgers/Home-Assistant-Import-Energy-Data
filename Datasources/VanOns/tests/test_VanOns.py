@@ -6,6 +6,7 @@ COMMANDS = [
     ("VanOnsDataPrepare.py", ["-y", "Sample files/meterstanden_stroom_2023.csv"]),
 ]
 
+
 def test_commands(repo_root):
     """
     Executes all script commands, then verifies CSV outputs.

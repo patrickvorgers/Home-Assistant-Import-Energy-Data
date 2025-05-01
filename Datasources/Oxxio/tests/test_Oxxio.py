@@ -3,8 +3,12 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("OxxioDataPrepare.py", ["-y", "Sample files/Oxxio.Verbruik_05-06-2023-22-01-2024.xlsx"]),
+    (
+        "OxxioDataPrepare.py",
+        ["-y", "Sample files/Oxxio.Verbruik_05-06-2023-22-01-2024.xlsx"],
+    ),
 ]
+
 
 def test_commands(repo_root):
     """

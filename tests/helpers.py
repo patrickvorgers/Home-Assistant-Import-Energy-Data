@@ -5,6 +5,7 @@ from pathlib import Path
 import inspect
 from typing import List, Tuple
 
+
 def run_script(script_path: Path, cwd: Path, params: List[str] = None) -> None:
     """
     Execute the given Python script with optional parameters and assert it exits successfully.
@@ -21,7 +22,9 @@ def run_script(script_path: Path, cwd: Path, params: List[str] = None) -> None:
     if params:
         cmd.extend(params)
     result = subprocess.run(cmd, cwd=cwd)
-    assert result.returncode == 0, f"Script {script_path} exited with {result.returncode}"
+    assert (
+        result.returncode == 0
+    ), f"Script {script_path} exited with {result.returncode}"
 
 
 def run_commands(
@@ -63,7 +66,7 @@ def run_commands(
         for p in params or []:
             p_path = Path(p)
             candidate = source_dir / p_path
-            if p_path.parent != Path('.') and candidate.exists():
+            if p_path.parent != Path(".") and candidate.exists():
                 expanded.append(str(candidate))
             else:
                 expanded.append(p)
@@ -82,9 +85,9 @@ def run_commands(
         generated = source_dir / name
         sample = sample_dir / name
         assert sample.exists(), f"Sample missing for {name}: {sample}"
-        assert filecmp.cmp(generated, sample, shallow=False), (
-            f"Generated CSV '{name}' does not match sample"
-        )
+        assert filecmp.cmp(
+            generated, sample, shallow=False
+        ), f"Generated CSV '{name}' does not match sample"
 
     # 6) Cleanup generated CSVs
     for name in new_files:

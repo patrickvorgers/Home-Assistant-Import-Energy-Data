@@ -3,8 +3,12 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("SolarmanDataPrepare.py", ["-y", "Sample files/Solarman-Daily.Statistics-20250316.xlsx"]),
+    (
+        "SolarmanDataPrepare.py",
+        ["-y", "Sample files/Solarman-Daily.Statistics-20250316.xlsx"],
+    ),
 ]
+
 
 def test_commands(repo_root):
     """

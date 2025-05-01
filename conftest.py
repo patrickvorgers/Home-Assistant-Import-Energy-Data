@@ -2,6 +2,7 @@ import pytest
 import sys
 from pathlib import Path
 
+
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
     """

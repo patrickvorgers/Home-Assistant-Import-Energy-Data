@@ -6,6 +6,7 @@ COMMANDS = [
     ("EngieDataPrepare.py", ["-y", "Sample files/Export.verbruiken.ENGIE.csv"]),
 ]
 
+
 def test_commands(repo_root):
     """
     Executes all script commands, then verifies CSV outputs.

@@ -6,6 +6,7 @@ COMMANDS = [
     ("EnphaseDataPrepare.py", ["-y", "Sample files/9999998_custom_report.csv"]),
 ]
 
+
 def test_commands(repo_root):
     """
     Executes all script commands, then verifies CSV outputs.

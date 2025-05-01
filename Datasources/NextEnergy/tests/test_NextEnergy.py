@@ -3,8 +3,12 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("NextEnergyDataPrepare.py", ["-y", "Sample files/Measurements 19-01-2024 accesspointId 99999.xlsx"]),
+    (
+        "NextEnergyDataPrepare.py",
+        ["-y", "Sample files/Measurements 19-01-2024 accesspointId 99999.xlsx"],
+    ),
 ]
+
 
 def test_commands(repo_root):
     """

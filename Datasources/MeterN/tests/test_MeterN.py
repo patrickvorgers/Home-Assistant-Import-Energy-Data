@@ -3,21 +3,24 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("MeterNDataPrepare.py",
+    (
+        "MeterNDataPrepare.py",
         [
             "-y",
             "Sample files/7Prelievi20??.csv",
             "elec_feed_in_tariff_1_high_resolution.csv",
         ]
      ),
-    ("MeterNDataPrepare.py",
+    (
+        "MeterNDataPrepare.py",
         [
             "-y",
             "Sample files/8Immissioni20??.csv",
             "elec_feed_out_tariff_1_high_resolution.csv",
         ]
      ),
-    ("MeterNDataPrepare.py",
+    (
+        "MeterNDataPrepare.py",
         [
             "-y",
             "Sample files/1FV_Totale20??.csv",
@@ -25,6 +28,7 @@ COMMANDS = [
         ]
      ),
 ]
+
 
 def test_commands(repo_root):
     """

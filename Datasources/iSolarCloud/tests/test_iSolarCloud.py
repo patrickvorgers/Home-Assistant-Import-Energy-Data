@@ -3,8 +3,12 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("iSolarCloudDataPrepare.py", ["-y", "Sample files/Monthly.Report_PLANT_NAME_20241011100248.csv"]),
+    (
+        "iSolarCloudDataPrepare.py",
+        ["-y", "Sample files/Monthly.Report_PLANT_NAME_20241011100248.csv"],
+    ),
 ]
+
 
 def test_commands(repo_root):
     """

@@ -6,6 +6,7 @@ COMMANDS = [
     ("SolaxDataPrepare.py", ["-y", "Sample files/Dummy Site 202?-??.xls"]),
 ]
 
+
 def test_commands(repo_root):
     """
     Executes all script commands, then verifies CSV outputs.

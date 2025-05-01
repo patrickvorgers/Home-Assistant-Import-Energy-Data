@@ -3,19 +3,22 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("SlimmeMeterPortalDataPrepare.py",
+    (
+        "SlimmeMeterPortalDataPrepare.py",
         [
             "-y",
             "Sample files/data_202?_871687120058657526.xlsx",
-        ]
+        ],
      ),
-    ("SlimmeMeterPortalGasDataPrepare.py",
+    (
+        "SlimmeMeterPortalGasDataPrepare.py",
         [
             "-y",
             "Sample files/data_202?_871687140002948685.xlsx",
-        ]
+        ],
      ),
 ]
+
 
 def test_commands(repo_root):
     """

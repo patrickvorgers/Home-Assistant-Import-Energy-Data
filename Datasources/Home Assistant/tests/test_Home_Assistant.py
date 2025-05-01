@@ -6,6 +6,7 @@ COMMANDS = [
     ("HomeAssistantDataPrepare.py", ["-y", "Sample files/history.csv"]),
 ]
 
+
 def test_commands(repo_root):
     """
     Executes all script commands, then verifies CSV outputs.

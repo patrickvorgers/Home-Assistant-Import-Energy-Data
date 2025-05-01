@@ -6,6 +6,7 @@ COMMANDS = [
     ("LianderDataPrepare.py", ["-y", "Sample files/csv_bijlage.csv"]),
 ]
 
+
 def test_commands(repo_root):
     """
     Executes all script commands, then verifies CSV outputs.
