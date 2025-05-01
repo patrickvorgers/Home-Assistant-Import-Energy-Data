@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 
-def run_script(script_path: Path, cwd: Path, params: Optional[List[str]] = None) -> None:
+def run_script(
+    script_path: Path, cwd: Path, params: Optional[List[str]] = None
+) -> None:
     """
     Execute the given Python script with optional parameters and assert it exits successfully.
 
