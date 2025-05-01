@@ -3,3 +3,6 @@
 ################################################################################
 
 /.vs
+/__pycache__
+/tests/__pycache__
+/Datasources/Domoticz/Test/__pycache__
