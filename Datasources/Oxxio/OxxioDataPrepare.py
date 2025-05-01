@@ -140,7 +140,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Template version number
-versionNumber = "1.8.1"
+versionNumber = "1.8.2"
 
 
 # Prepare the input data
@@ -222,10 +222,8 @@ def recalculateData(
     if df.empty:
         return df
 
-    # 1) Replace NaNs with 0, compute cumulative sum, then add the baseline (initial value)
-    cumulative_values = (
-        df[dataColumnName].fillna(0).cumsum().add(float(initialValue)).round(3)
-    )
+    # 1) Compute cumulative sum, then add the baseline (initial value)
+    cumulative_values = df[dataColumnName].cumsum().add(float(initialValue)).round(3)
 
     # 2) Shift down so that the first recorded value is exactly initialValue
     df[dataColumnName] = cumulative_values.shift(1, fill_value=initialValue)
@@ -266,6 +264,11 @@ def generateImportDataFile(
             f"Could not create file: {outputFile} because column: {dataColumnName} does not exist"
         )
         return
+
+    # Make sure that the dataColumnName column is numeric and replace NaNs with 0
+    dataFrame[dataColumnName] = pd.to_numeric(
+        dataFrame[dataColumnName], errors="coerce"
+    ).fillna(0)
 
     # Column exists, continue
     print("Creating file: " + outputFile)
