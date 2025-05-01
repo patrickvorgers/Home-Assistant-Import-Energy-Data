@@ -11,11 +11,6 @@ on:
     branches:
       - main
 
-  # also run when maintainers push suggestions or fixes into a PR (even from forks)
-  pull_request_target:
-    branches:
-      - main
-
 permissions:
   # ensure the checkout step can fetch from forks
   contents: read
