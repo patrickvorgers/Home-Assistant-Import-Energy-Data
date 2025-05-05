@@ -15,7 +15,7 @@ This implementation is under development and may not work for all NEM12 files.
 
 **How-to**
 - Export your electricity consumption data in the NEM12 format.
-- Download the `NEM12DataPrepare.py` script and place it in the same directory as the exported NEM12 data.
+- Download the `NEM12DataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and place it in the same directory as the exported NEM12 data.
 - Execute the Python script by providing the name of the exported file as a parameter. Example:  
   `python NEM12DataPrepare.py power-redacted.csv`.  
   The script will generate the necessary files for importing the data into Home Assistant.

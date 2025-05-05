@@ -30,7 +30,7 @@ outputFiles = [
 
 **How-to**
 - Copy the SQLite database file from Domoticz to the same directory as the DomoticzDataPrepare.py script.
-- Download the `DomoticzDataPrepare.py` file and put it in the same directory as the Domoticz database file.
+- Download the `DomoticzDataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the Domoticz database file.
 - Execute the python script with as parameter the name of the Domoticz SQLite database file `python DomoticzDataPrepare.py domoticz.db`.
   The python script creates the needed file(s) for the generic import script.
 - Follow the steps in the overall how-to
