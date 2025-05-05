@@ -14,6 +14,6 @@ Greenchoice offers the option to export data from the [GreenChoice](https://www.
 
 **How-to**
 - Export data from the [GreenChoice](https://www.greenchoice.nl/) site
-- Download the `GreenChoiceDataPrepare.py` file and put it in the same directory as the downloaded GreenChoice data
+- Download the `GreenChoiceDataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the downloaded GreenChoice data
 - Execute the python script with as parameter the name of the file that contains the exported data `python GreenChoiceDataPrepare.py meterstanden_stroom_2023.csv`. The python script creates the needed files for the generic import script.
 - Follow the steps in the overall how-to

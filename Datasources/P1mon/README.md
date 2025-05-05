@@ -23,6 +23,6 @@ P1Mon offers the option to export data from the local database. This data can be
   - Select 'Excel Export' and choose 'e_historie.db'
   - The data will now be downloaded to your PC
   - Optionally: Consolidate the minute interval data into hourly data. (Having minute data significantly reduces performance)
-- Download the `P1MonDataPrepare.py` and/or `P1MonWaterDataPrepare.py` file and put it in the same directory as the P1Mon data
+- Download the `P1MonDataPrepare.py` and/or `P1MonWaterDataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the P1Mon data
 - Execute the python script with as parameter the name of the file that contains the exported data `python P1MonDataPrepare.py e_historie.db.xlsx`. The python script creates the needed files for the generic import script.
 - Follow the steps in the overall how-to

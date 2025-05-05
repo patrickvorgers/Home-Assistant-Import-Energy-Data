@@ -25,7 +25,7 @@ This scenario can be used in case Home Assistant is available and can be used to
 - Adjust the `Start date` and `End date`
 - In the top-right corner select the 3-dots
 - Select `Download data`
-- Download the `HomeAssistantDataPrepare.py` file and put it in the same directory as the Home Assistant history data
+- Download the `HomeAssistantDataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the Home Assistant history data
 - Execute the python script with as parameter the name of the file that contains the exported data `python HomeAssistantDataPrepare.py history.csv`.
   The python script creates the needed file for the generic import script.
   To import data from multiple exports, use `?` or `*` in the filename to match multiple files.

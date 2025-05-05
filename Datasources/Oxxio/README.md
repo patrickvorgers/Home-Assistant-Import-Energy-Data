@@ -16,6 +16,6 @@ Oxxio offers the option to export data from the [Mijn Oxxio](https://inloggen.ox
 
 **How-to**
 - Export data from the [Mijn Oxxio](https://inloggen.oxxio.nl/) site
-- Download the `OxxioDataPrepare.py` file and put it in the same directory as the Oxxio data
+- Download the `OxxioDataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the Oxxio data
 - Execute the python script with as parameter the name of the file that contains the exported data `python OxxioPrepare.py Oxxio.Verbruik_05-06-2023-22-01-2024.xlsx`. The python script creates the needed files for the generic import script.
 - Follow the steps in the overall how-to

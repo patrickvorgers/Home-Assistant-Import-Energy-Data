@@ -35,7 +35,7 @@ You need to do this only once for each meter.
   - For the meter, click *Details* and *Verbruik*, then *Rapport downloaden* and select *kwartiertotalen*.
   - Select the time frame and press *Download*
   - Do the same thing for your Gas Meter if you have one and download it in the same directory
-  - Download the `FluviusDataPrepare.py` file and put it in the same directory as the Enphase data
+  - Download the `FluviusDataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the Enphase data
   - Execute the python script with as parameter the name of the file that contains the exported data `python FluviusDataPrepare.py "Verbruiks*.csv"`. The python script creates the needed files for the generic import script.
   - Follow the steps in the overall how-to
 
