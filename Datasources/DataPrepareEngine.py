@@ -6,15 +6,10 @@ import os
 import sqlite3
 import sys
 import warnings
-
 from typing import List, NamedTuple
 
 import pandas as pd
 
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Class definitions
-# ---------------------------------------------------------------------------------------------------------------------
 
 # DataFilter named tuple definition
 #   column: The name of the column on which the filter should be applied
