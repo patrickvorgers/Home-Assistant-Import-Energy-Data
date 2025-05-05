@@ -1,18 +1,16 @@
-import pandas as pd
 import sys
 from pathlib import Path
 from typing import List
 
+import pandas as pd
 
 # 1) Add engine to path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-
 # 2) Import engine
 import DataPrepareEngine as engine
 from DataPrepareEngine import DataFilter, OutputFileDefinition
-
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -29,7 +27,7 @@ engine.inputFileDateColumnName = "date"
 engine.inputFileDateTimeColumnFormat = "%Y-%m-%d %H:%M:%S"
 # Inputfile(s): Json path of the records (only needed for json files)
 # Example: inputFileJsonPath: List[str] = ['energy', 'values']
-engine.inputFileJsonPath: List[str] = ["energy", "values"]
+engine.inputFileJsonPath = ["energy", "values"]
 
 # List of one or more output file definitions
 engine.outputFiles = [
