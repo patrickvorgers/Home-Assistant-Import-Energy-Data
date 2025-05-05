@@ -138,7 +138,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
 
 # 4) Invoke DataPrepare engine
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Set the hook functions
     engine.customPrepareDataPost = customPrepareDataPost
 

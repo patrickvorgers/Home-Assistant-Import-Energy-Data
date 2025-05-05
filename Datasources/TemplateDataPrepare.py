@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 # 1) Add engine to path (simple way to add the engine to the path)
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -104,7 +106,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
 
 # 4) Invoke DataPrepare engine
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Set the hook functions
     engine.customPrepareDataPre = customPrepareDataPre
     engine.customPrepareDataPost = customPrepareDataPost

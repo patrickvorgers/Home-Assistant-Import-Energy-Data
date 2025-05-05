@@ -42,5 +42,5 @@ engine.outputFiles = [
 
 
 # 4) Invoke DataPrepare engine
-if __name__ == '__main__':
+if __name__ == "__main__":
     engine.main()
