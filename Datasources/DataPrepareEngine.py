@@ -242,16 +242,24 @@ def generateImportDataFile(
     if isinstance(dataColumnName, int):
         # Verify if the index is valid
         if dataColumnName < 0 or dataColumnName >= len(dataFrame.columns):
-            print(f"Could not create file: {outputFile} because column index {dataColumnName} is out of range")
+            print(
+                f"Could not create file: {outputFile} because column index {dataColumnName} is out of range"
+            )
             return
     else:
         # Find the dataColumnName (resolve wildcards if needed)
-        matches = [col for col in dataFrame.columns if fnmatch.fnmatch(col, dataColumnName)]
+        matches = [
+            col for col in dataFrame.columns if fnmatch.fnmatch(col, dataColumnName)
+        ]
         if not matches:
-            print(f"Could not create file: {outputFile} because no columns match: {dataColumnName}")
+            print(
+                f"Could not create file: {outputFile} because no columns match: {dataColumnName}"
+            )
             return
         if len(matches) > 1:
-            print(f"Could not create file: {outputFile} because multiple columns match '{dataColumnName}': {matches}")
+            print(
+                f"Could not create file: {outputFile} because multiple columns match '{dataColumnName}': {matches}"
+            )
             return
         dataColumnName = matches[0]
 
@@ -395,7 +403,11 @@ def generateImportDataFiles(
             # Generate the import data file and ensure dataFrame is not modified between definitions
             generateImportDataFile(
                 dataFrame.copy(),
-                (f"{prefix}_{outputFile.outputFileName}" if prefix else outputFile.outputFileName),
+                (
+                    f"{prefix}_{outputFile.outputFileName}"
+                    if prefix
+                    else outputFile.outputFileName
+                ),
                 outputFile.valueColumnName,
                 outputFile.dataFilters,
                 outputFile.recalculate,
@@ -427,10 +439,11 @@ Notes:
     )
 
     parser.add_argument(
-        "-p", "--prefix",
+        "-p",
+        "--prefix",
         type=str,
         default="",
-        help="Prefix to add to all output file names"
+        help="Prefix to add to all output file names",
     )
 
     parser.add_argument(
