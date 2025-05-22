@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import fnmatch
 import glob
 import json
 import os
@@ -23,7 +24,7 @@ class DataFilter(NamedTuple):
 
 # OutputFileDefinition named tuple definition
 #   outputFileName:  The name of the output file
-#   valueColumnName: The name of the column holding the value.
+#   valueColumnName: The name of the column holding the value. Regular expressions are allowed.
 #                    Use the column index in case the column name is not available.
 #   dataFilters:     A list of datafilters (see above the definition of a datafilter)
 #   recalculate:     Boolean value indication whether the data should be recalculated,
@@ -120,7 +121,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.8.2"
+versionNumber = "1.8.3"
 
 
 # Prepare the input data
@@ -238,12 +239,21 @@ def generateImportDataFile(
     recalculate: bool,
     initialValue: float,
 ):
-    # Check if the column exists
-    if dataColumnName not in dataFrame.columns:
-        print(
-            f"Could not create file: {outputFile} because column: {dataColumnName} does not exist"
-        )
-        return
+    if isinstance(dataColumnName, int):
+        # Verify if the index is valid
+        if dataColumnName < 0 or dataColumnName >= len(dataFrame.columns):
+            print(f"Could not create file: {outputFile} because column index {dataColumnName} is out of range")
+            return
+    else:
+        # Find the dataColumnName (resolve wildcards if needed)
+        matches = [col for col in dataFrame.columns if fnmatch.fnmatch(col, dataColumnName)]
+        if not matches:
+            print(f"Could not create file: {outputFile} because no columns match: {dataColumnName}")
+            return
+        if len(matches) > 1:
+            print(f"Could not create file: {outputFile} because multiple columns match '{dataColumnName}': {matches}")
+            return
+        dataColumnName = matches[0]
 
     # Make sure that the dataColumnName column is numeric and replace NaNs with 0
     dataFrame[dataColumnName] = pd.to_numeric(
@@ -350,7 +360,11 @@ def correctFileExtensions(fileNames: list[str]) -> bool:
 
 
 # Generate the datafiles which can be imported
-def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = None):
+def generateImportDataFiles(
+    inputFileNames: str,
+    outputFileName: str | None = None,
+    prefix: str = "",
+):
     # Find the file(s)
     fileNames = glob.glob(inputFileNames)
     if not fileNames:
@@ -381,7 +395,7 @@ def generateImportDataFiles(inputFileNames: str, outputFileName: str | None = No
             # Generate the import data file and ensure dataFrame is not modified between definitions
             generateImportDataFile(
                 dataFrame.copy(),
-                outputFile.outputFileName,
+                (f"{prefix}_{outputFile.outputFileName}" if prefix else outputFile.outputFileName),
                 outputFile.valueColumnName,
                 outputFile.dataFilters,
                 outputFile.recalculate,
@@ -413,6 +427,13 @@ Notes:
     )
 
     parser.add_argument(
+        "-p", "--prefix",
+        type=str,
+        default="",
+        help="Prefix to add to all output file names"
+    )
+
+    parser.add_argument(
         "input_file",
         type=str,
         help=f"Path to the {energyProviderName} {inputFileNameExtension} file(s) (supports wildcards).",
@@ -439,4 +460,4 @@ Notes:
         .lower()
         .startswith("y")
     ):
-        generateImportDataFiles(args.input_file, args.output_file)
+        generateImportDataFiles(args.input_file, args.output_file, args.prefix)

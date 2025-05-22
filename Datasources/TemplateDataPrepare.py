@@ -56,7 +56,7 @@ engine.inputFileDbTableName = "data"
 engine.dateTimeColumnName = "_DateTime"
 
 # List of one or more output file definitions
-outputFiles = [
+engine.outputFiles = [
     OutputFileDefinition(
         "elec_feed_in_tariff_1_high_resolution.csv",
         "reading2",
