@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
-
 # 1) Add engine to path (simple way to add the engine to the path)
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
