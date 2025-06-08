@@ -121,7 +121,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.8.3"
+versionNumber = "1.8.4"
 
 
 # Prepare the input data
@@ -473,4 +473,4 @@ Notes:
         .lower()
         .startswith("y")
     ):
-        generateImportDataFiles(args.input_file, args.output_file, args.prefix)
+        generateImportDataFiles(args.input_file, args.output_file, args.prefix.strip())
