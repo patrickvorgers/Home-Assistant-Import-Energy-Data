@@ -2,7 +2,13 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS = [
-    ("HomeWizardDataPrepare.py", ["-y", "Sample files/homewizard_2022-09_15min_elec.csv",]),
+    (
+        "HomeWizardDataPrepare.py",
+        [
+            "-y",
+            "Sample files/homewizard_2022-09_15min_elec.csv",
+        ]
+    ),
 ]
 
 
