@@ -7,7 +7,7 @@ COMMANDS = [
         [
             "-y",
             "Sample files/homewizard_2022-09_15min_elec.csv",
-        ]
+        ],
     ),
 ]
 
