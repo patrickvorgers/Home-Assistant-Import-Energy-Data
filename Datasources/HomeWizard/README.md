@@ -15,10 +15,10 @@ HomeWizard offers the option to export data from Energy+. This data can be trans
 - Electricity export 3-phase kWh meter - Low resolution (day interval) - kWh
 - Electricity import 1-phase kWh meter - High resolution (15 min interval) - kWh
 - Electricity export 1-phase kWh meter - Low resolution (day interval) - kWh
-- Gas consumption - High resolution (15 min interval) - m³
-- Gas consumption - Low resolution (day interval) - m³
-- Water consumption - High resolution (15 min interval) - m³
-- Water consumption - Low resolution (day interval) - m³
+- Gas consumption - High resolution (15 min interval) - mÂ³
+- Gas consumption - Low resolution (day interval) - mÂ³
+- Water consumption - High resolution (15 min interval) - mÂ³
+- Water consumption - Low resolution (day interval) - mÂ³
 
 **Tooling needed**
 - Python 3
