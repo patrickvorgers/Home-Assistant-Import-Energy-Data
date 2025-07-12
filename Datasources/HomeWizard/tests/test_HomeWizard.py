@@ -9,6 +9,20 @@ COMMANDS = [
             "Sample files/homewizard_2022-09_15min_elec.csv",
         ],
     ),
+    (
+        "HomeWizardGasDataPrepare.py",
+        [
+            "-y",
+            "Sample files/15min_P1g-2025-3-1-2025-7-12.csv",
+        ],
+    ),
+    (
+        "HomeWizardWaterDataPrepare.py",
+        [
+            "-y",
+            "Sample files/15min_Water-2025-3-1-2025-7-12.csv",
+        ],
+    ),
 ]
 
 
