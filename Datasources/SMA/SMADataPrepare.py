@@ -40,14 +40,14 @@ engine.inputFileNumFooterRows = 0
 
 # List of one or more output file definitions
 engine.outputFiles = [
-    # The columnname [Wh] needs to be escaped to prevent regex issues 
+    # The columnname [Wh] needs to be escaped to prevent regex issues
     OutputFileDefinition(
         "elec_solar_high_resolution.csv",
         "[[]Wh[]]",
         [],
         False,
     ),
-    # The columnname [Wh] needs to be escaped to prevent regex issues 
+    # The columnname [Wh] needs to be escaped to prevent regex issues
     OutputFileDefinition(
         "elec_solar_low_resolution.csv",
         "[[]Wh[]]",
