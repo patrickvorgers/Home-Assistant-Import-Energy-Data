@@ -7,6 +7,7 @@ The template script works by filling in the necessary information about the stru
 **Note**:
 - The CSV files produced by these scripts serve as input for the `ImportData.py` script, which imports the prepared data into a working temporary table (`IMPORT_DATA`) in the Home Assistant database.
 - Ensure that the imported data precedes the sensor data in Home Assistant while still overlapping with the current data. It is not possible to import data for a sensor that is later than the data in Home Assistant or to fill in any gaps; such data will be ignored because the Home Assistant data takes precedence.
+- Ensure that the Home Assistant target sensor has atleast 7 days of data before importing the prepared data. This is necessary to ensure that the short-term statistics in Home Assistant are correctly calculated and displayed.
 
 
 The following input dataformats are supported:
