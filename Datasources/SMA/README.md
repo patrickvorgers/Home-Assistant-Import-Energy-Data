@@ -21,7 +21,7 @@ SMA offers the option to export data from the SMA device. This data can be trans
   - Click on `Gegevens exporteren` (Dutch) or `Export data` (English)
   - The data for the selected period is downloaded to your PC as a separate file
 - Download the `SMADataPrepare.py` and the `DataPrepareEngine.py` (Datasources directory) files and put it in the same directory as the downloaded CSV data
-- Execute the python script with as parameter the name of the directory which contains the files with the exported data `python SolarmanDataPrepare.py *.csv elec_solar_high_resolution.csv`.
+- Execute the python script with as parameter the name of the directory which contains the files with the exported data `python SMADataPrepare.py *.csv elec_solar_high_resolution.csv`.
 The python script creates the needed file for the generic import script.
 The script can handle both high resolution (5 min interval) and low resolution (day interval) data.
 Depending on the data that needs to be imported, the filename of the output file needs to be specified as the last parameter otherwise both output files will be created.
