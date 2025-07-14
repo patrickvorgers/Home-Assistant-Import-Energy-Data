@@ -160,10 +160,10 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
         dateTimeSeries = dateTimeSeries.dt.tz_localize(None)
         systemTimeZone = datetime.datetime.now().astimezone().tzinfo
         dateTimeSeries = dateTimeSeries.dt.tz_localize(
-                systemTimeZone,
-                ambiguous="infer",
-                nonexistent="shift_forward",
-            )
+            systemTimeZone,
+            ambiguous="infer",
+            nonexistent="shift_forward",
+        )
         dateTimeSeries = dateTimeSeries.dt.tz_convert('UTC')
 
     # Remove the timezone
