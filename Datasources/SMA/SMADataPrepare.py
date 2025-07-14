@@ -28,13 +28,13 @@ engine.inputFileDateTimeColumnFormat = "%d.%m.%Y %H:%M:%S"
 #               Home Assistant uses hourly data, higher resolution will work but will impact performance.
 engine.inputFileDateTimeOnlyUseHourly = True
 # Inputfile(s): Data separator being used in the input file (only csv files)
-engine.inputFileDataSeparator = ";"
+engine.inputFileDataSeparator = ","
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
 engine.inputFileDataDecimal = "."
 # Inputfile(s): Whether the input file has a header row from which header names can be derived (only csv files)
 engine.inputFileHasHeaderNameRow = True
 # Inputfile(s): Number of header rows in the input file (csv and excel files)
-engine.inputFileNumHeaderRows = 7
+engine.inputFileNumHeaderRows = 8
 # Inputfile(s): Number of footer rows in the input file (csv and excel files)
 engine.inputFileNumFooterRows = 0
 

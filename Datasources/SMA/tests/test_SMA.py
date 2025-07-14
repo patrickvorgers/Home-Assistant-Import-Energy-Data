@@ -6,15 +6,7 @@ COMMANDS = [
         "SMADataPrepare.py",
         [
             "-y",
-            "Sample files/SUNNY_TRIPOWER_8.0_XXXXXXXXXX_Daily_2025_07_12_14_16_26.csv",
-            "elec_solar_low_resolution.csv",
-        ],
-    ),
-    (
-        "SMADataPrepare.py",
-        [
-            "-y",
-            "Sample files/SUNNY_TRIPOWER_8.0_XXXXXXXXXX_5Min_2025_07_12_14_15_15.csv",
+            "Sample files/SUNNY_TRIPOWER_6.0_XXXXXXXXXX_5Min_2025_07_14_10_08_13.csv",
             "elec_solar_high_resolution.csv",
         ],
     ),
