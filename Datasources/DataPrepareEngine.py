@@ -6,7 +6,6 @@ import json
 import os
 import sqlite3
 import sys
-from time import localtime
 import warnings
 from typing import List, NamedTuple
 
@@ -166,7 +165,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
                 nonexistent="shift_forward",
             )
         dateTimeSeries = dateTimeSeries.dt.tz_convert('UTC')
-    
+
     # Remove the timezone
     dataFrame[dateTimeColumnName] = dateTimeSeries.dt.tz_localize(None)
 
