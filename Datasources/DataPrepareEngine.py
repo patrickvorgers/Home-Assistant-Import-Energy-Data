@@ -164,7 +164,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
             ambiguous="infer",
             nonexistent="shift_forward",
         )
-        dateTimeSeries = dateTimeSeries.dt.tz_convert('UTC')
+        dateTimeSeries = dateTimeSeries.dt.tz_convert("UTC")
 
     # Remove the timezone
     dataFrame[dateTimeColumnName] = dateTimeSeries.dt.tz_localize(None)
