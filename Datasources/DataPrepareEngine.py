@@ -6,6 +6,7 @@ import json
 import os
 import sqlite3
 import sys
+from time import localtime
 import warnings
 from typing import List, NamedTuple
 
@@ -61,6 +62,9 @@ inputFileTimeColumnName: str = ""
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat: str = ""
+# Inputfile(s): Date/time UTC indication.
+#               Set to True in case the date/time is in UTC, False in case it is in local time.
+inputFileDateTimeIsUTC: bool = True
 # Inputfile(s): Only use hourly data (True) or use the data as is (False)
 #               In case of True, the data will be filtered to only include hourly data.
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
@@ -121,7 +125,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.8.4"
+versionNumber = "1.8.5"
 
 
 # Prepare the input data
@@ -136,7 +140,8 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
         # Take note that the format is changed in case the column was parsed as date.
         # For excel change the type of the cell to text or adjust the format accordingly,
         # use statement print(dataFrame) to get information about the used format.
-        dataFrame[dateTimeColumnName] = pd.to_datetime(
+        # Initially the date/time format is forced to UTC, this is changed later if needed.
+        dateTimeSeries = pd.to_datetime(
             dataFrame[inputFileDateColumnName].astype(str)
             + " "
             + dataFrame[inputFileTimeColumnName].astype(str),
@@ -144,13 +149,26 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
             utc=True,
         )
     else:
-        dataFrame[dateTimeColumnName] = pd.to_datetime(
+        dateTimeSeries = pd.to_datetime(
             dataFrame[inputFileDateColumnName],
             format=inputFileDateTimeColumnFormat,
             utc=True,
         )
-    # Remove the timezone (if it exists)
-    dataFrame[dateTimeColumnName] = dataFrame[dateTimeColumnName].dt.tz_localize(None)
+
+    # Determine if the date/time needs to be localized
+    if not inputFileDateTimeIsUTC:
+        # Determine the local timezone
+        dateTimeSeries = dateTimeSeries.dt.tz_localize(None)
+        systemTimeZone = datetime.datetime.now().astimezone().tzinfo
+        dateTimeSeries = dateTimeSeries.dt.tz_localize(
+                systemTimeZone,
+                ambiguous="infer",
+                nonexistent="shift_forward",
+            )
+        dateTimeSeries = dateTimeSeries.dt.tz_convert('UTC')
+    
+    # Remove the timezone
+    dataFrame[dateTimeColumnName] = dateTimeSeries.dt.tz_localize(None)
 
     # Select only correct dates
     df = dataFrame.loc[
