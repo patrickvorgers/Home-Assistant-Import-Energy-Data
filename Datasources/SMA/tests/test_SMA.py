@@ -7,7 +7,7 @@ COMMANDS = [
         [
             "-y",
             "Sample files/SUNNY_TRIPOWER_8.0_XXXXXXXXXX_Daily_2025_07_14_14_36_40.csv",
-            "elec_solar_high_resolution.csv",
+            "elec_solar_low_resolution.csv",
         ],
     ),
     (
@@ -15,7 +15,7 @@ COMMANDS = [
         [
             "-y",
             "Sample files/SUNNY_TRIPOWER_8.0_XXXXXXXXXX_5Min_2025_07_14_13_32_21.csv",
-            "elec_solar_low_resolution.csv",
+            "elec_solar_high_resolution.csv",
         ],
     ),
 ]

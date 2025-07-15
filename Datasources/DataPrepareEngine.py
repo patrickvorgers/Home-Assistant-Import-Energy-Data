@@ -8,9 +8,9 @@ import sqlite3
 import sys
 import warnings
 from typing import List, NamedTuple
-from tzlocal import get_localzone
 
 import pandas as pd
+from tzlocal import get_localzone
 
 
 # DataFilter named tuple definition
