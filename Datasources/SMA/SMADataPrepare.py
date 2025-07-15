@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import DataFilter, OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -47,14 +47,19 @@ engine.outputFiles = [
     OutputFileDefinition(
         "elec_solar_high_resolution.csv",
         "[[]Wh[]]",
-        [],
+        [
+            DataFilter("[Wh]", "0.0", False),
+        ],
         False,
     ),
     # The columnname [Wh] needs to be escaped to prevent regex issues
+    # The low resolution file is daily, so treat the data as UTC
     OutputFileDefinition(
         "elec_solar_low_resolution.csv",
         "[[]Wh[]]",
-        [],
+        [
+            DataFilter("[Wh]", "0.0", False),
+        ],
         False,
     ),
 ]

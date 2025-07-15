@@ -9,6 +9,7 @@ SMA offers the option to export data from the SMA device. This data can be trans
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 
 **How-to**

@@ -8,6 +8,7 @@ import sqlite3
 import sys
 import warnings
 from typing import List, NamedTuple
+from tzlocal import get_localzone
 
 import pandas as pd
 
@@ -158,7 +159,7 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
     if not inputFileDateTimeIsUTC:
         # Determine the local timezone
         dateTimeSeries = dateTimeSeries.dt.tz_localize(None)
-        systemTimeZone = datetime.datetime.now().astimezone().tzinfo
+        systemTimeZone = get_localzone()
         dateTimeSeries = dateTimeSeries.dt.tz_localize(
             systemTimeZone,
             ambiguous="infer",
