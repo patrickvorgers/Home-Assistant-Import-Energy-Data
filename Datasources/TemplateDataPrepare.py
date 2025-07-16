@@ -27,11 +27,22 @@ engine.inputFileTimeColumnName = ""
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 engine.inputFileDateTimeColumnFormat = "%d-%m-%Y"
+# Inputfile(s): Date/time UTC indication
+#               Set to True in case the date/time is in UTC, False in case it is in local time.
+engine.inputFileDateTimeIsUTC = True
+# Inputfile(s): Name of the timezone of the input data
+#               The IANA timezone name of the input data (so that DST can be correctly applied).
+#               Example: "Europe/Amsterdam", "America/New_York".
+#               Leave as empty string to auto-detect from the local machine.
+#               Setting is only needed when the setting inputFileDateTimeIsUTC is False.
+engine.inputFileTimeZoneName = ""
 # Inputfile(s): Only use hourly data (True) or use the data as is (False)
 #               In case of True, the data will be filtered to only include hourly data.
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
 #               Home Assistant uses hourly data, higher resolution will work but will impact performance.
 engine.inputFileDateTimeOnlyUseHourly = False
+# Inputfile(s): Invalid values in the input file will be removed otherwise they will be replaced with 0.
+engine.inputFileDataRemoveInvalidValues = False
 # Inputfile(s): Data separator being used in the input file (only csv files)
 engine.inputFileDataSeparator = ","
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)

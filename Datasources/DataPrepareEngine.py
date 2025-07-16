@@ -8,8 +8,10 @@ import sqlite3
 import sys
 import warnings
 from typing import List, NamedTuple
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import pandas as pd
+import tzlocal  # type: ignore
 
 
 # DataFilter named tuple definition
@@ -61,11 +63,22 @@ inputFileTimeColumnName: str = ""
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat: str = ""
+# Inputfile(s): Date/time UTC indication
+#               Set to True in case the date/time is in UTC, False in case it is in local time.
+inputFileDateTimeIsUTC: bool = True
+# Inputfile(s): Name of the timezone of the input data
+#               The IANA timezone name of the input data (so that DST can be correctly applied).
+#               Example: "Europe/Amsterdam", "America/New_York".
+#               Leave as empty string to auto-detect from the local machine.
+#               Setting is only needed when the setting inputFileDateTimeIsUTC is False.
+inputFileTimeZoneName: str = ""
 # Inputfile(s): Only use hourly data (True) or use the data as is (False)
 #               In case of True, the data will be filtered to only include hourly data.
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
 #               Home Assistant uses hourly data, higher resolution will work but will impact performance.
 inputFileDateTimeOnlyUseHourly: bool = False
+# Inputfile(s): Invalid values in the input file will be removed otherwise they will be replaced with 0.
+inputFileDataRemoveInvalidValues: bool = False
 # Inputfile(s): Data separator being used in the input file (only csv files)
 inputFileDataSeparator: str = ","
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
@@ -121,7 +134,45 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.8.4"
+versionNumber = "1.9.0"
+
+
+# Get the timezone name to use for localization
+def getTimeZoneInfo() -> ZoneInfo:
+    if inputFileTimeZoneName:
+        timeZoneName = inputFileTimeZoneName
+    else:
+        try:
+            timeZoneName = tzlocal.get_localzone_name()
+        except Exception:
+            print("Could not auto-detect system timezone.")
+            print(
+                "Make sure that the Python tzdata package is installed (pip install tzdata)."
+            )
+            if sys.platform.startswith("linux"):
+                print(
+                    "Alternatively install the distros tzdata (e.g. apt install tzdata)."
+                )
+            sys.exit(1)
+
+    # Try to create a ZoneInfo object with the provided timezone name
+    try:
+        print(f"Using timezone: {timeZoneName}")
+        timeZoneInfo = ZoneInfo(timeZoneName)
+    except ZoneInfoNotFoundError:
+        print(f"Timezone '{timeZoneName}' not recognized.")
+        if inputFileTimeZoneName:
+            print(
+                'Make sure it matches one of the IANA names, for example: "UTC", "Europe/Amsterdam"'
+            )
+        print(
+            "Make sure that the Python tzdata package is installed (pip install tzdata)."
+        )
+        if sys.platform.startswith("linux"):
+            print("Alternatively install the distros tzdata (e.g. apt install tzdata).")
+        sys.exit(1)
+
+    return timeZoneInfo
 
 
 # Prepare the input data
@@ -136,7 +187,8 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
         # Take note that the format is changed in case the column was parsed as date.
         # For excel change the type of the cell to text or adjust the format accordingly,
         # use statement print(dataFrame) to get information about the used format.
-        dataFrame[dateTimeColumnName] = pd.to_datetime(
+        # Initially the date/time format is forced to UTC, this is changed later if needed.
+        dateTimeSeries = pd.to_datetime(
             dataFrame[inputFileDateColumnName].astype(str)
             + " "
             + dataFrame[inputFileTimeColumnName].astype(str),
@@ -144,13 +196,27 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
             utc=True,
         )
     else:
-        dataFrame[dateTimeColumnName] = pd.to_datetime(
+        dateTimeSeries = pd.to_datetime(
             dataFrame[inputFileDateColumnName],
             format=inputFileDateTimeColumnFormat,
             utc=True,
         )
-    # Remove the timezone (if it exists)
-    dataFrame[dateTimeColumnName] = dataFrame[dateTimeColumnName].dt.tz_localize(None)
+
+    # Determine if the date/time needs to be localized
+    if not inputFileDateTimeIsUTC:
+        # Remove the UTC timezone
+        dateTimeSeries = dateTimeSeries.dt.tz_localize(None)
+
+        # Localize the dateTimeSeries to the specified timezone
+        dateTimeSeries = dateTimeSeries.dt.tz_localize(
+            getTimeZoneInfo(),
+            ambiguous="infer",
+            nonexistent="shift_forward",
+        )
+        dateTimeSeries = dateTimeSeries.dt.tz_convert("UTC")
+
+    # Remove the timezone
+    dataFrame[dateTimeColumnName] = dateTimeSeries.dt.tz_localize(None)
 
     # Select only correct dates
     df = dataFrame.loc[
@@ -263,10 +329,17 @@ def generateImportDataFile(
             return
         dataColumnName = matches[0]
 
-    # Make sure that the dataColumnName column is numeric and replace NaNs with 0
+    # Make sure that the dataColumnName column is numeric
     dataFrame[dataColumnName] = pd.to_numeric(
         dataFrame[dataColumnName], errors="coerce"
-    ).fillna(0)
+    )
+
+    if inputFileDataRemoveInvalidValues:
+        # Remove the rows with invalid values (NaN)
+        dataFrame = dataFrame[dataFrame[dataColumnName].notna()]
+    else:
+        # Replace invalid values with 0
+        dataFrame[dataColumnName] = dataFrame[dataColumnName].fillna(0)
 
     # Column exists, continue
     print("Creating file: " + outputFile)
@@ -320,7 +393,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
                 skiprows=inputFileNumHeaderRows,
                 skipfooter=inputFileNumFooterRows,
                 index_col=False,
-                na_values=["N/A"],
+                na_values=["N/A", "NaN"],
                 header="infer" if inputFileHasHeaderNameRow else None,
                 engine="python",
             )
