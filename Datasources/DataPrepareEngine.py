@@ -6,11 +6,12 @@ import json
 import os
 import sqlite3
 import sys
+import tzlocal # type: ignore
 import warnings
 from typing import List, NamedTuple
 
 import pandas as pd
-from tzlocal import get_localzone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
 # DataFilter named tuple definition
@@ -62,9 +63,15 @@ inputFileTimeColumnName: str = ""
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 inputFileDateTimeColumnFormat: str = ""
-# Inputfile(s): Date/time UTC indication.
+# Inputfile(s): Date/time UTC indication
 #               Set to True in case the date/time is in UTC, False in case it is in local time.
 inputFileDateTimeIsUTC: bool = True
+# Inputfile(s): Name of the timezone of the input data
+#               The IANA timezone name of the input data (so that DST can be correctly applied).
+#               Example: "Europe/Amsterdam", "America/New_York".
+#               Leave as empty string to auto-detect from the local machine.
+#               Setting is only needed when the setting inputFileDateTimeIsUTC is False.
+inputFileTimeZoneName: str = ""
 # Inputfile(s): Only use hourly data (True) or use the data as is (False)
 #               In case of True, the data will be filtered to only include hourly data.
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
@@ -125,7 +132,36 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.8.5"
+versionNumber = "1.9.0"
+
+# Get the timezone name to use for localization
+def getTimeZoneInfo() -> ZoneInfo:
+    if inputFileTimeZoneName:
+        timeZoneName = inputFileTimeZoneName
+    else:
+        try:
+            timeZoneName = tzlocal.get_localzone_name()
+        except Exception:
+            print("Could not auto-detect system timezone.")
+            print("Make sure that the Python tzdata package is installed (pip install tzdata).")
+            if sys.platform.startswith("linux"):
+                print("Alternatively install the distros tzdata (e.g. apt install tzdata).")
+            sys.exit(1)
+
+    # Try to create a ZoneInfo object with the provided timezone name
+    try:
+        print(f"Using timezone: {timeZoneName}")
+        timeZoneInfo = ZoneInfo(timeZoneName)
+    except ZoneInfoNotFoundError:
+        print(f"Timezone '{timeZoneName}' not recognized.")
+        if inputFileTimeZoneName:
+            print("Make sure it matches one of the IANA names, for example: \"UTC\", \"Europe/Amsterdam\"")
+        print("Make sure that the Python tzdata package is installed (pip install tzdata).")
+        if sys.platform.startswith("linux"):
+            print("Alternatively install the distros tzdata (e.g. apt install tzdata).")
+        sys.exit(1)
+
+    return timeZoneInfo
 
 
 # Prepare the input data
@@ -157,11 +193,12 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
 
     # Determine if the date/time needs to be localized
     if not inputFileDateTimeIsUTC:
-        # Determine the local timezone
+        # Remove the UTC timezone
         dateTimeSeries = dateTimeSeries.dt.tz_localize(None)
-        systemTimeZone = get_localzone()
+
+        # Localize the dateTimeSeries to the specified timezone
         dateTimeSeries = dateTimeSeries.dt.tz_localize(
-            systemTimeZone,
+            getTimeZoneInfo(),
             ambiguous="infer",
             nonexistent="shift_forward",
         )
