@@ -77,6 +77,8 @@ inputFileTimeZoneName: str = ""
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
 #               Home Assistant uses hourly data, higher resolution will work but will impact performance.
 inputFileDateTimeOnlyUseHourly: bool = False
+# Inputfile(s): Invalid values in the input file will be removed otherwise they will be replaced with 0.
+inputFileDataRemoveInvalidValues: bool = False
 # Inputfile(s): Data separator being used in the input file (only csv files)
 inputFileDataSeparator: str = ","
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
@@ -327,10 +329,17 @@ def generateImportDataFile(
             return
         dataColumnName = matches[0]
 
-    # Make sure that the dataColumnName column is numeric and replace NaNs with 0
+    # Make sure that the dataColumnName column is numeric
     dataFrame[dataColumnName] = pd.to_numeric(
         dataFrame[dataColumnName], errors="coerce"
-    ).fillna(0)
+    )
+
+    if inputFileDataRemoveInvalidValues:
+        # Remove the rows with invalid values (NaN)
+        dataFrame = dataFrame[dataFrame[dataColumnName].notna()]
+    else:
+        # Replace invalid values with 0
+        dataFrame[dataColumnName] = dataFrame[dataColumnName].fillna(0)
 
     # Column exists, continue
     print("Creating file: " + outputFile)
@@ -384,7 +393,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
                 skiprows=inputFileNumHeaderRows,
                 skipfooter=inputFileNumFooterRows,
                 index_col=False,
-                na_values=["N/A"],
+                na_values=["N/A","NaN"],
                 header="infer" if inputFileHasHeaderNameRow else None,
                 engine="python",
             )
