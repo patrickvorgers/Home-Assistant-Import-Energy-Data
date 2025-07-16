@@ -48,7 +48,7 @@ engine.outputFiles = [
         "elec_solar_high_resolution.csv",
         "[[]Wh[]]",
         [
-            DataFilter("[Wh]", "0.0", False),
+            DataFilter("[Wh]", r"^0\.0$", False),
         ],
         False,
     ),
@@ -58,7 +58,7 @@ engine.outputFiles = [
         "elec_solar_low_resolution.csv",
         "[[]Wh[]]",
         [
-            DataFilter("[Wh]", "0.0", False),
+            DataFilter("[Wh]", r"^0\.0$", False),
         ],
         False,
     ),
