@@ -393,7 +393,7 @@ def readInputFile(inputFileName: str) -> pd.DataFrame:
                 skiprows=inputFileNumHeaderRows,
                 skipfooter=inputFileNumFooterRows,
                 index_col=False,
-                na_values=["N/A","NaN"],
+                na_values=["N/A", "NaN"],
                 header="infer" if inputFileHasHeaderNameRow else None,
                 engine="python",
             )
