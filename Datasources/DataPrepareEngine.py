@@ -6,12 +6,12 @@ import json
 import os
 import sqlite3
 import sys
-import tzlocal # type: ignore
 import warnings
 from typing import List, NamedTuple
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import pandas as pd
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+import tzlocal  # type: ignore
 
 
 # DataFilter named tuple definition
@@ -134,6 +134,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # Engine version number
 versionNumber = "1.9.0"
 
+
 # Get the timezone name to use for localization
 def getTimeZoneInfo() -> ZoneInfo:
     if inputFileTimeZoneName:
@@ -143,9 +144,13 @@ def getTimeZoneInfo() -> ZoneInfo:
             timeZoneName = tzlocal.get_localzone_name()
         except Exception:
             print("Could not auto-detect system timezone.")
-            print("Make sure that the Python tzdata package is installed (pip install tzdata).")
+            print(
+                "Make sure that the Python tzdata package is installed (pip install tzdata)."
+            )
             if sys.platform.startswith("linux"):
-                print("Alternatively install the distros tzdata (e.g. apt install tzdata).")
+                print(
+                    "Alternatively install the distros tzdata (e.g. apt install tzdata)."
+                )
             sys.exit(1)
 
     # Try to create a ZoneInfo object with the provided timezone name
@@ -155,8 +160,12 @@ def getTimeZoneInfo() -> ZoneInfo:
     except ZoneInfoNotFoundError:
         print(f"Timezone '{timeZoneName}' not recognized.")
         if inputFileTimeZoneName:
-            print("Make sure it matches one of the IANA names, for example: \"UTC\", \"Europe/Amsterdam\"")
-        print("Make sure that the Python tzdata package is installed (pip install tzdata).")
+            print(
+                "Make sure it matches one of the IANA names, for example: \"UTC\", \"Europe/Amsterdam\""
+            )
+        print(
+            "Make sure that the Python tzdata package is installed (pip install tzdata)."
+        )
         if sys.platform.startswith("linux"):
             print("Alternatively install the distros tzdata (e.g. apt install tzdata).")
         sys.exit(1)
