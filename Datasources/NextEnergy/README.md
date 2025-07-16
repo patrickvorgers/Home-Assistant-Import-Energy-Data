@@ -10,6 +10,7 @@ NextEnergy doesn't offer the option to export data from their site or mobile app
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 - OpenPyXL python library `pip install openpyxl`
 
 **How-to**

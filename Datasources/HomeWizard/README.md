@@ -23,6 +23,7 @@ HomeWizard offers the option to export data from Energy+. This data can be trans
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Go to the [HomeWizard](https://helpdesk.homewizard.com/en/articles/6664029-how-to-export-and-use-csv-files) site and follow the help to export the data

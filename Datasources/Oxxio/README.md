@@ -12,6 +12,7 @@ Oxxio offers the option to export data from the [Mijn Oxxio](https://inloggen.ox
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 - OpenPyXL python library `pip install openpyxl`
 
 **How-to**

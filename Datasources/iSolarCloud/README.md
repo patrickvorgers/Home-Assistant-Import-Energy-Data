@@ -8,7 +8,7 @@ iSolarCloud offers the option to export data from the [iSolarCloud](https://www.
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
-
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the [iSolarCloud](https://www.isolarcloud.com/) site

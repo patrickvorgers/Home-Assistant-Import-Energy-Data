@@ -10,6 +10,7 @@ Engie offers the option to export data from their app. This data can be transfor
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the Engie app

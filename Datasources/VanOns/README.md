@@ -11,6 +11,7 @@ VanOns offers the option to export data from the [VanOns](https://mijn.vanons.or
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the [VanOns](https://mijn.vanons.org/overview) site

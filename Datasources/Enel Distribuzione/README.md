@@ -8,6 +8,7 @@ Enel Distribuzione, part of the Italian grid authority, allows users to export t
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export your electricity consumption data from the Enel Distribuzione website (Italian grid authority).

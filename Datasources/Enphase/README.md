@@ -10,6 +10,7 @@ Enphase offers the option to export data from the [Enlighten Enphase Energy](htt
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the [Enlighten Enphase Energy](https://enlighten.enphaseenergy.com/) site

@@ -22,6 +22,9 @@ engine.inputFileDateColumnName = "TIMESTAMP"
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 engine.inputFileDateTimeColumnFormat = "%Y-%m-%d %H:%M:%S"
+# Inputfile(s): Date/time UTC indication.
+#               Set to True in case the date/time is in UTC, False in case it is in local time.
+engine.inputFileDateTimeIsUTC = False
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
 engine.inputFileDataDecimal = "."
 # Inputfile(s): Number of header rows in the input file (csv and excel files)

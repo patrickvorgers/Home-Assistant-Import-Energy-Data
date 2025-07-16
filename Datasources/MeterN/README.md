@@ -20,6 +20,7 @@ By using this file and adjusting the `sensor_id_elec_solar` in the import script
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from your local MeterN site

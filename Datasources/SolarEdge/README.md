@@ -8,7 +8,7 @@ SolarEdge offers the option to export data from the [Solar Edge](https://www.sol
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
-
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data using the <i>Site Energy API</i> (see online [API documentation](https://knowledge-center.solaredge.com/sites/kc/files/se_monitoring_api.pdf#page=14)). Use multiple exports in case the needed period exceeds the API limitation (one month/one year - depending on resolution)

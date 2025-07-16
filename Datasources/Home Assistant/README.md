@@ -14,6 +14,11 @@ This howto describes how to export data from an existing Home Assistant energy/w
 - Gas consumption - High resolution (hour interval)
 - Water consumption - High resolution (hour interval)
 
+**Tooling needed**
+- Python 3
+- Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
+
 **How-to (Home Assistant):**
 
 This scenario can be used in case Home Assistant is available and can be used to export data.

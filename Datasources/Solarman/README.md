@@ -10,8 +10,8 @@ Solarman offers the option to export data from the [Solarman](https://www.solarm
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 - OpenPyXL python library `pip install openpyxl`
-
 
 **How-to**
 - Export data from the [Solarman](https://www.solarmanpv.com/) site

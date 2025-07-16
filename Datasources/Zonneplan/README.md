@@ -10,6 +10,7 @@ Zonneplan does not directly provide the possibility to export data. Data can be 
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 - OpenPyXL python library `pip install openpyxl`
 
 **How-to**
