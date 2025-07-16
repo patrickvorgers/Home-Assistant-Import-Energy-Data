@@ -161,7 +161,7 @@ def getTimeZoneInfo() -> ZoneInfo:
         print(f"Timezone '{timeZoneName}' not recognized.")
         if inputFileTimeZoneName:
             print(
-                "Make sure it matches one of the IANA names, for example: \"UTC\", \"Europe/Amsterdam\""
+                'Make sure it matches one of the IANA names, for example: "UTC", "Europe/Amsterdam"'
             )
         print(
             "Make sure that the Python tzdata package is installed (pip install tzdata)."
