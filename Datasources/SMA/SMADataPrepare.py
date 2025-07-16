@@ -53,7 +53,6 @@ engine.outputFiles = [
         False,
     ),
     # The columnname [Wh] needs to be escaped to prevent regex issues
-    # The low resolution file is daily, so treat the data as UTC
     OutputFileDefinition(
         "elec_solar_low_resolution.csv",
         "[[]Wh[]]",
