@@ -134,7 +134,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.9.0"
+versionNumber = "1.9.1"
 
 
 # Get the timezone name to use for localization
@@ -208,9 +208,10 @@ def prepareData(dataFrame: pd.DataFrame) -> pd.DataFrame:
         dateTimeSeries = dateTimeSeries.dt.tz_localize(None)
 
         # Localize the dateTimeSeries to the specified timezone
+        # In case of DST and double dates, use the first occurrence
         dateTimeSeries = dateTimeSeries.dt.tz_localize(
             getTimeZoneInfo(),
-            ambiguous="infer",
+            ambiguous=True,
             nonexistent="shift_forward",
         )
         dateTimeSeries = dateTimeSeries.dt.tz_convert("UTC")
