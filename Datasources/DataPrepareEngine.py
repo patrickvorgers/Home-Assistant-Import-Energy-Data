@@ -7,6 +7,7 @@ import os
 import sqlite3
 import sys
 import warnings
+from enum import Enum, auto
 from typing import List, NamedTuple
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -24,14 +25,23 @@ class DataFilter(NamedTuple):
     equal: bool
 
 
+# IntervalMode enum definition
+#   USAGE:                  The reading is usage in that interval (e.g. gas, water, electricity)
+#   READING_START_INTERVAL: The reading is the start of the interval (e.g. electricity meter reading)
+#   READING_END_INTERVAL:   The reading is the end of the interval (e.g. electricity meter reading)
+class IntervalMode(Enum):
+    USAGE = auto()
+    READING_START_INTERVAL = auto()
+    READING_END_INTERVAL = auto()
+
+
 # OutputFileDefinition named tuple definition
 #   outputFileName:  The name of the output file
 #   valueColumnName: The name of the column holding the value. Regular expressions are allowed.
 #                    Use the column index in case the column name is not available.
 #   dataFilters:     A list of datafilters (see above the definition of a datafilter)
-#   recalculate:     Boolean value indication whether the data should be recalculated,
-#                    because the source is not an increasing value
-#   initialValue:    Starting reading to apply when recalculate=True. Use when the source`s first reading is known;
+#   intervalMode:    Mode of the interval, either USAGE, READING_START_INTERVAL or READING_END_INTERVAL.
+#   initialValue:    Starting reading to apply when intervalMode=USAGE. Use when the source`s first reading is known;
 #                    otherwise, imported values are treated as relative increments without actual totals.
 #                    Supplying an initialValue establishes a baseline and helps avoid a potentially large spike at
 #                    the crossover between imported data and existing Home Assistant statistics - especially
@@ -40,7 +50,7 @@ class OutputFileDefinition(NamedTuple):
     outputFileName: str
     valueColumnName: str | int
     dataFilters: List[DataFilter]
-    recalculate: bool
+    intervalMode: IntervalMode = IntervalMode.READING_START_INTERVAL
     initialValue: float = 0
 
 
@@ -260,14 +270,14 @@ def filterData(dataFrame: pd.DataFrame, filters: List[DataFilter]) -> pd.DataFra
 
 # Recalculate the data so that the value increases
 # The value is currently the usage in that interval. This can be used to generate fake "states".
-def recalculateData(
+def recalculateUsageData(
     dataFrame: pd.DataFrame, dataColumnName: str | int, initialValue: float
 ) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()
 
-    # If the DataFrame is empty, return it as is.
-    if df.empty:
+    # Dataframe must have at least two rows to determine the interval
+    if len(df) < 2:
         return df
 
     # 1) Compute cumulative sum, then add the baseline (initial value)
@@ -277,11 +287,7 @@ def recalculateData(
     df[dataColumnName] = cumulative_values.shift(1, fill_value=initialValue)
 
     # Calculate the interval between timestamps (first two rows)
-    interval = (
-        df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0]
-        if len(df) >= 2
-        else 0
-    )
+    interval = df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0]
 
     # Create an extra row:
     # - dateTimeColumnName: last timestamp + interval
@@ -297,13 +303,45 @@ def recalculateData(
     return df
 
 
+# Recalculate the data is at the end of the interval
+def recalculateEndOfIntervalData(dataFrame: pd.DataFrame, dataColumnName: str | int) -> pd.DataFrame:
+    # Work on a copy to ensure we're not modifying a slice of the original DataFrame
+    df = dataFrame.copy()
+
+    # Dataframe must have at least two rows to determine the interval
+    if len(df) < 2:
+        return df
+
+    # Shift the value column down by one row
+    df[dataColumnName] = df[dataColumnName].shift(1)
+
+    # Drop the first row (misaligned due to the shift)
+    df = df.iloc[1:].reset_index(drop=True)
+
+    # Calculate the interval between timestamps (first two rows)
+    interval = df[dateTimeColumnName].iloc[1] - df[dateTimeColumnName].iloc[0]
+
+    # Create an extra row:
+    # - dateTimeColumnName: last timestamp + interval
+    # - value: last value of the original data frame
+    extra_row = {
+        dateTimeColumnName: df[dateTimeColumnName].iloc[-1] + interval,
+        dataColumnName: dataFrame[dataColumnName].iloc[-1],
+    }
+
+    # Append the extra row to the DataFrame
+    df = pd.concat([df, pd.DataFrame([extra_row])], ignore_index=True)
+
+    return df
+
+
 # Generate the datafile which can be imported
 def generateImportDataFile(
     dataFrame: pd.DataFrame,
     outputFile: str,
     dataColumnName: str | int,
     filters: list[DataFilter],
-    recalculate: bool,
+    intervalMode: IntervalMode,
     initialValue: float,
 ):
     if isinstance(dataColumnName, int):
@@ -347,9 +385,13 @@ def generateImportDataFile(
     dataFrameFiltered = filterData(dataFrame, filters)
 
     # Check if we have to recalculate the data
-    if recalculate:
-        dataFrameFiltered = recalculateData(
+    if intervalMode == intervalMode.USAGE:
+        dataFrameFiltered = recalculateUsageData(
             dataFrameFiltered, dataColumnName, initialValue
+        )
+    if intervalMode == intervalMode.READING_END_INTERVAL:
+        dataFrameFiltered = recalculateEndOfIntervalData(
+            dataFrameFiltered, dataColumnName
         )
 
     # Select only the needed data
@@ -484,7 +526,7 @@ def generateImportDataFiles(
                 ),
                 outputFile.valueColumnName,
                 outputFile.dataFilters,
-                outputFile.recalculate,
+                outputFile.intervalMode,
                 outputFile.initialValue,
             )
     print("Processing complete.")

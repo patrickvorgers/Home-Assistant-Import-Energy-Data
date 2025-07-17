@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import IntervalMode, OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -50,13 +50,13 @@ engine.outputFiles = [
         "elec_meter_import_high_resolution.csv",
         "Import kWh",
         [],
-        False,
+        IntervalMode.READING_END_INTERVAL,
     ),
     OutputFileDefinition(
         "elec_meter_export_high_resolution.csv",
         "Export kWh",
         [],
-        False,
+        IntervalMode.READING_END_INTERVAL,
     ),
 ]
 
