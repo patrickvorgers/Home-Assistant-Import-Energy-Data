@@ -304,7 +304,9 @@ def recalculateUsageData(
 
 
 # Recalculate the data is at the end of the interval
-def recalculateEndOfIntervalData(dataFrame: pd.DataFrame, dataColumnName: str | int) -> pd.DataFrame:
+def recalculateEndOfIntervalData(
+    dataFrame: pd.DataFrame, dataColumnName: str | int
+) -> pd.DataFrame:
     # Work on a copy to ensure we're not modifying a slice of the original DataFrame
     df = dataFrame.copy()
 

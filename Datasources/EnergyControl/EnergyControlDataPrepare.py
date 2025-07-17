@@ -42,7 +42,6 @@ engine.outputFiles = [
         "water_high_resolution.csv",
         "Zählerstand",
         [],
-        False,
     ),
 ]
 

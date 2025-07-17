@@ -39,7 +39,6 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "state",
         [],
-        False,
     )
 ]
 

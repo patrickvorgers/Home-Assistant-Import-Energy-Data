@@ -39,25 +39,21 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "StandNormaal",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
         "StandDal",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "TerugleveringNormaal",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
         "TerugleveringDal",
         [],
-        False,
     ),
 ]
 

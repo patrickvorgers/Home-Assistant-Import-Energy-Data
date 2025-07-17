@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import DataFilter, IntervalMode, OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -51,14 +51,14 @@ engine.outputFiles = [
         "_Value",
         # Exclude negative values
         [DataFilter("_Value", r"^(?:[1-9]\d*|0)?(?:\.\d+)?$", True)],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "_Value",
         # Exclude positive values
         [DataFilter("_Value", r"^(?:[1-9]\d*|0)?(?:\.\d+)?$", False)],
-        True,
+        IntervalMode.USAGE,
     ),
 ]
 

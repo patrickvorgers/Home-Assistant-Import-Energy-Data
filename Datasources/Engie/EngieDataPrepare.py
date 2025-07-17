@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import DataFilter, IntervalMode, OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -39,19 +39,19 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "Verbruik",
         [DataFilter("Type", "Elektriciteit", True), DataFilter("Piek", "true", True)],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
         "Verbruik",
         [DataFilter("Type", "Elektriciteit", True), DataFilter("Piek", "false", True)],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "gas_high_resolution.csv",
         "Verbruik",
         [DataFilter("Type", "Gas", True)],
-        True,
+        IntervalMode.USAGE,
     ),
 ]
 

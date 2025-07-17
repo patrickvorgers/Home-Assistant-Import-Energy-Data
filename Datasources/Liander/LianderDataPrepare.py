@@ -39,31 +39,26 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "reading2",
         [DataFilter("meternummer", "^E", True)],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
         "reading1",
         [DataFilter("meternummer", "^E", True)],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "reading4",
         [DataFilter("meternummer", "^E", True)],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
         "reading3",
         [DataFilter("meternummer", "^E", True)],
-        False,
     ),
     OutputFileDefinition(
         "gas_high_resolution.csv",
         "reading1",
         [DataFilter("meternummer", "^G", True)],
-        False,
     ),
 ]
 

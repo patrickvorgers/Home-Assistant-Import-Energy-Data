@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import IntervalMode, OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -38,19 +38,19 @@ engine.outputFiles = [
         "elec_solar_high_resolution.csv",
         "Production-Today(kWh)",
         [],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_battery_feed_in_high_resolution.csv",
         "Energy Charged-This Day(kWh)",
         [],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_battery_feed_out_high_resolution.csv",
         "Energy Discharged-This Day(kWh)",
         [],
-        True,
+        IntervalMode.USAGE,
     ),
 ]
 
