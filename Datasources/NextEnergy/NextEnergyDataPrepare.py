@@ -38,19 +38,16 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "Reading Start",
         [DataFilter("Unit", "m3", False), DataFilter("Direction", "levering", True)],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "Reading Start",
         [DataFilter("Unit", "m3", False), DataFilter("Direction", "levering", False)],
-        False,
     ),
     OutputFileDefinition(
         "gas_high_resolution.csv",
         "Reading Start",
         [DataFilter("Unit", "m3", True), DataFilter("Direction", "levering", True)],
-        False,
     ),
 ]
 

@@ -8,9 +8,9 @@ Solax offers the option to export data from the [Solax Cloud](https://www.solaxc
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 - OpenPyXL python library `pip install openpyxl`
 - XLRD python library `pip install xlrd`
-
 
 **How-to**
 - Export data from the [Solax Cloud](https://www.solaxcloud.com/) site

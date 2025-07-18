@@ -14,6 +14,7 @@ It is recommended to create a quarter hourly (15 minute) export request so you c
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 

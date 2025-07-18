@@ -10,6 +10,7 @@ Data from this database can be extracted and transformed so that it can be impor
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **Preparation**
 - Update and create in the `DomoticzDataPrepare.py` script the output file definitions for the data that needs to be exported from the Domoticz database.

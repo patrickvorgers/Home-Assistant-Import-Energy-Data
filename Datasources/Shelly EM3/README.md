@@ -9,6 +9,7 @@ The Shelly EM3 device offers the option to export history data by accessing the 
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Open the Shelly EM3 Web UI by entering the device's IP address in your browser.

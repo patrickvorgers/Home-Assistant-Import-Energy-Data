@@ -39,25 +39,21 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "afname stand normaal",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
         "afname stand dal",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "invoeding stand normaal",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
         "invoeding stand dal",
         [],
-        False,
     ),
 ]
 

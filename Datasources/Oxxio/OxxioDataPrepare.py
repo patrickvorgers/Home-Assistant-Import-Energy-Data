@@ -38,27 +38,23 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "Meterstand hoogtarief (El 2)",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
         "Meterstand laagtarief (El 1)",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "Meterstand hoogtarief (El 4)",
         [],
-        False,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
         "Meterstand laagtarief (El 3)",
         [],
-        False,
     ),
-    OutputFileDefinition("gas_high_resolution.csv", "Meterstand", [], False),
+    OutputFileDefinition("gas_high_resolution.csv", "Meterstand", []),
 ]
 
 

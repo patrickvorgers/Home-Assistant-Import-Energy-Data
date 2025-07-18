@@ -12,6 +12,7 @@ Liander doesn't offer the option to export data from their site or mobile app, b
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Request data from Liander customer service

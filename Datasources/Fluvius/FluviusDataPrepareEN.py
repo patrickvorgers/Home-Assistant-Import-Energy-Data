@@ -7,7 +7,11 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import (  # noqa: E402
+    DataFilter,
+    IntervalMode,
+    OutputFileDefinition,
+)
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -45,7 +49,7 @@ engine.outputFiles = [
             DataFilter("Register", "Offtake Day", True),
             DataFilter("Validation status", "No consumption", False),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "energy_consumed_tariff_2_high_resolution.csv",
@@ -54,7 +58,7 @@ engine.outputFiles = [
             DataFilter("Register", "Offtake Night", True),
             DataFilter("Validation status", "No consumption", False),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "energy_produced_tariff_1_high_resolution.csv",
@@ -63,7 +67,7 @@ engine.outputFiles = [
             DataFilter("Register", "Injection Day", True),
             DataFilter("Validation status", "No consumption", False),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "energy_produced_tariff_2_high_resolution.csv",
@@ -72,7 +76,7 @@ engine.outputFiles = [
             DataFilter("Register", "Injection Night", True),
             DataFilter("Validation status", "No consumption", False),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "gas_consumed_high_resolution.csv",
@@ -81,7 +85,7 @@ engine.outputFiles = [
             DataFilter("Unit", "m³", True),
             DataFilter("Validation status", "No consumption", False),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
 ]
 

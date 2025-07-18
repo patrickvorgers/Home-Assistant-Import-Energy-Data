@@ -11,6 +11,7 @@ Greenchoice offers the option to export data from the [GreenChoice](https://www.
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the [GreenChoice](https://www.greenchoice.nl/) site

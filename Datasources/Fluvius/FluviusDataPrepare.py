@@ -7,7 +7,11 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import (  # noqa: E402
+    DataFilter,
+    IntervalMode,
+    OutputFileDefinition,
+)
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -45,7 +49,7 @@ engine.outputFiles = [
             DataFilter("Register", "Afname Dag", True),
             DataFilter("Eenheid", "kWh", True),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",
@@ -54,7 +58,7 @@ engine.outputFiles = [
             DataFilter("Register", "Afname Nacht", True),
             DataFilter("Eenheid", "kWh", True),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
@@ -63,7 +67,7 @@ engine.outputFiles = [
             DataFilter("Register", "Injectie Dag", True),
             DataFilter("Eenheid", "kWh", True),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_2_high_resolution.csv",
@@ -72,7 +76,7 @@ engine.outputFiles = [
             DataFilter("Register", "Injectie Nacht", True),
             DataFilter("Eenheid", "kWh", True),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
     OutputFileDefinition(
         "gas_high_resolution.csv",
@@ -81,7 +85,7 @@ engine.outputFiles = [
             DataFilter("Register", "Afname", True),
             DataFilter("Eenheid", "m³", True),
         ],
-        True,
+        IntervalMode.USAGE,
     ),
 ]
 

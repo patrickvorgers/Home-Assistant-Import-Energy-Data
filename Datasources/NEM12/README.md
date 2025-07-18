@@ -12,6 +12,7 @@ This implementation is under development and may not work for all NEM12 files.
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export your electricity consumption data in the NEM12 format.

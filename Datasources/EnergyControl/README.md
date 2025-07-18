@@ -13,6 +13,7 @@
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the [EnergyControl](https://www.steige-solutions.de/energy-control/) app.

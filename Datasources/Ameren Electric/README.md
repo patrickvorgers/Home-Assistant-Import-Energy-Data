@@ -8,6 +8,7 @@ Ameren Electric offers the option to export data from the [Ameren Electric](http
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 
 **How-to**
 - Export data from the [Ameren Electric](https://www.ameren.com/) site

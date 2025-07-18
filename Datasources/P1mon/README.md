@@ -13,6 +13,7 @@ P1Mon offers the option to export data from the local database. This data can be
 **Tooling needed**
 - Python 3
 - Pandas python library `pip install pandas`
+- Tzlocal python library `pip install tzlocal`
 - OpenPyXL python library `pip install openpyxl`
 
 **How-to**

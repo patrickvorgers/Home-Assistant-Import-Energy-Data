@@ -36,7 +36,6 @@ engine.outputFiles = [
         "elec_solar_high_resolution.csv",
         "Value",
         [DataFilter("DeviceRowID", "^2$", True)],
-        False,
     ),
 ]
 
