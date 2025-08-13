@@ -89,6 +89,8 @@ inputFileTimeZoneName: str = ""
 inputFileDateTimeOnlyUseHourly: bool = False
 # Inputfile(s): Invalid values in the input file will be removed otherwise they will be replaced with 0.
 inputFileDataRemoveInvalidValues: bool = False
+# Inputfile(s): Remove zero values in the input file. Some datasources have zero values where no data is available.
+inputFileDataRemoveZeroValues: bool = False
 # Inputfile(s): Data separator being used in the input file (only csv files)
 inputFileDataSeparator: str = ","
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
@@ -144,7 +146,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Engine version number
-versionNumber = "1.9.1"
+versionNumber = "1.9.2"
 
 
 # Get the timezone name to use for localization
@@ -381,6 +383,10 @@ def generateImportDataFile(
     else:
         # Replace invalid values with 0
         dataFrame[dataColumnName] = dataFrame[dataColumnName].fillna(0)
+
+    if inputFileDataRemoveZeroValues:
+        # Remove rows where the value is exactly 0
+        dataFrame = dataFrame[dataFrame[dataColumnName] != 0]
 
     # Column exists, continue
     print("Creating file: " + outputFile)

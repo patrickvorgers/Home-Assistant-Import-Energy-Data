@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import IntervalMode, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -33,6 +33,10 @@ engine.inputFileDateTimeIsUTC = False
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
 #               Home Assistant uses hourly data, higher resolution will work but will impact performance.
 engine.inputFileDateTimeOnlyUseHourly = True
+# Inputfile(s): Invalid values in the input file will be removed otherwise they will be replaced with 0.
+engine.inputFileDataRemoveInvalidValues = True
+# Inputfile(s): Remove zero values in the input file. Some datasources have zero values where no data is available.
+engine.inputFileDataRemoveZeroValues = True
 # Inputfile(s): Data separator being used in the input file (only csv files)
 engine.inputFileDataSeparator = ","
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
@@ -47,28 +51,16 @@ engine.inputFileNumFooterRows = 0
 # List of one or more output file definitions
 engine.outputFiles = [
     OutputFileDefinition(
-        "elec_feed_in_tariff_1_high_resolution.csv",
-        "Import T1 kWh",
-        [],
-        IntervalMode.READING_END_INTERVAL,
+        "elec_feed_in_tariff_1_high_resolution.csv", "Import T1 kWh", []
     ),
     OutputFileDefinition(
-        "elec_feed_in_tariff_2_high_resolution.csv",
-        "Import T2 kWh",
-        [],
-        IntervalMode.READING_END_INTERVAL,
+        "elec_feed_in_tariff_2_high_resolution.csv", "Import T2 kWh", []
     ),
     OutputFileDefinition(
-        "elec_feed_out_tariff_1_high_resolution.csv",
-        "Export T1 kWh",
-        [],
-        IntervalMode.READING_END_INTERVAL,
+        "elec_feed_out_tariff_1_high_resolution.csv", "Export T1 kWh", []
     ),
     OutputFileDefinition(
-        "elec_feed_out_tariff_2_high_resolution.csv",
-        "Export T2 kWh",
-        [],
-        IntervalMode.READING_END_INTERVAL,
+        "elec_feed_out_tariff_2_high_resolution.csv", "Export T2 kWh", []
     ),
 ]
 
