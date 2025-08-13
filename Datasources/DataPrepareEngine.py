@@ -383,7 +383,7 @@ def generateImportDataFile(
     else:
         # Replace invalid values with 0
         dataFrame[dataColumnName] = dataFrame[dataColumnName].fillna(0)
-    
+
     if inputFileDataRemoveZeroValues:
         # Remove rows where the value is exactly 0
         dataFrame = dataFrame[dataFrame[dataColumnName] != 0]
