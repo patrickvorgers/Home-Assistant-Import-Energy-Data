@@ -29,7 +29,7 @@ engine.inputFileTimeColumnName = ""
 engine.inputFileDateTimeColumnFormat = "%Y-%m-%dT%H:%M:%S.%fZ"
 # Inputfile(s): Date/time UTC indication.
 #               Set to True in case the date/time is in UTC, False in case it is in local time.
-engine.inputFileDateTimeIsUTC = True
+engine.inputFileDateTimeIsUTC = False
 # Inputfile(s): Only use hourly data (True) or use the data as is (False)
 #               In case of True, the data will be filtered to only include hourly data.
 #               It takes into account in case the data needs to be recalculated (source data not increasing).
