@@ -65,9 +65,9 @@ engine.outputFiles = [
 def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
     # Adds a column to the DataFrame by summing L1, L2, and L3 columns.
     dataFrame["_Diverter Energy Total (Wh)"] = (
-        dataFrame["Diverter Energy (L1) (Wh)"] +
-        dataFrame["Diverter Energy (L2) (Wh)"] +
-        dataFrame["Diverter Energy (L3) (Wh)"]
+        dataFrame["Diverter Energy (L1) (Wh)"]
+        + dataFrame["Diverter Energy (L2) (Wh)"]
+        + dataFrame["Diverter Energy (L3) (Wh)"]
     )
     return dataFrame
 
