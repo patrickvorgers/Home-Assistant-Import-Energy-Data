@@ -10,6 +10,13 @@ Myenergi Zappi (Smart EV charger) offers the option to export data from the [Mye
 - Pandas python library `pip install pandas`
 - Tzlocal python library `pip install tzlocal`
 
+**Help needed**
+
+Currently, the script supports the Zappi device, which is a Smart EV charger from Myenergi.
+Myenergi also offers other devices like Libbi (Homebattery).
+To support these devices, the script may need adjustments to handle different data formats or additional fields.
+If you have other Myenergi devices, it would be helpful to provide sample data for those devices so support can be added to the script.
+
 **How-to**
 - Export data from the [Myenergi](https://www.myenergi.com/) site
   - Go to the [Myenergi login](https://myaccount.myenergi.com/login) site and login with your account
