@@ -1,10 +1,7 @@
 import filecmp
-import glob
 import inspect
-import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -40,7 +37,7 @@ def run_commands(
     sample_dirname: str = "Sample files",
 ) -> None:
     """
-    Execute scripts, compare their CSV outputs against samples, and clean up.
+    Execute all scripts first, then compare any CSV outputs against samples and clean up.
 
     Args:
         repo_root: Path to project root.
@@ -49,18 +46,21 @@ def run_commands(
 
     Workflow:
       1. Determine the source directory from the calling test's location.
-      2. For each command:
-         a. Copy required input files to a temporary directory.
-         b. Execute the script using the temporary input path.
-         c. Compare any generated CSVs in the temporary directory with
-            the samples.
+      2. Snapshot existing '*.csv' files once before running any scripts.
+      3. Execute all scripts in sequence with their parameters.
+      4. Snapshot '*.csv' files after all scripts have run and identify new files.
+      5. For each new CSV: check existence of matching sample and content equality.
+      6. Delete each new CSV.
     """
     # 1) Locate source directory from test file
     test_file = Path(inspect.stack()[1].filename).resolve()
     source_dir = test_file.parent.parent
     assert source_dir.exists(), f"Source directory not found: {source_dir}"
 
-    # 2) Process each command individually
+    # 2) Snapshot before
+    before = {f.name for f in source_dir.glob("*.csv")}
+
+    # 3) Run all commands
     for script_name, params in commands:
         script_path = source_dir / script_name
         assert script_path.exists(), f"Script not found: {script_path}"
@@ -74,53 +74,25 @@ def run_commands(
                 expanded.append(str(candidate))
             else:
                 expanded.append(p)
+        run_script(script_path, cwd=source_dir, params=expanded)
 
-        # Determine input path (first non-option argument)
-        input_idx = next(
-            (i for i, val in enumerate(expanded) if not val.startswith("-")),
-            None,
-        )
-        assert input_idx is not None, "No input file specified"
-        input_pattern = expanded[input_idx]
-        pattern_path = Path(input_pattern)
-        if not pattern_path.is_absolute():
-            pattern_path = source_dir / pattern_path
-        input_paths = glob.glob(str(pattern_path))
-        assert input_paths, f"No input files found for pattern: {input_pattern}"
-        input_dir = Path(input_paths[0]).parent
+    # 4) Snapshot after and determine new files
+    after = {f.name for f in source_dir.glob("*.csv")}
+    new_files = after - before
+    assert new_files, "No new CSV files were generated."
 
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            # Copy input files to temporary directory
-            for path in input_paths:
-                shutil.copy(path, tmp_path / Path(path).name)
+    # 5) Compare samples
+    sample_dir = source_dir / sample_dirname
+    assert sample_dir.exists(), f"Sample directory not found: {sample_dir}"
 
-            # Replace input parameter to point to temp directory
-            expanded[input_idx] = str(tmp_path / Path(input_pattern).name)
+    for name in sorted(new_files):
+        generated = source_dir / name
+        sample = sample_dir / name
+        assert sample.exists(), f"Sample missing for {name}: {sample}"
+        assert filecmp.cmp(
+            generated, sample, shallow=False
+        ), f"Generated CSV '{name}' does not match sample"
 
-            # Snapshot before
-            before = {f.name for f in tmp_path.glob("*.csv")}
-
-            # Run the script
-            run_script(script_path, cwd=source_dir, params=expanded)
-
-            # Determine new files
-            after = {f.name for f in tmp_path.glob("*.csv")}
-            new_files = after - before
-            # Filter out empty files which indicate no applicable data
-            meaningful = [
-                name
-                for name in new_files
-                if (tmp_path / name).stat().st_size > 0
-            ]
-            assert meaningful, "No new CSV files were generated."
-
-            # Compare against samples in original input directory
-            sample_dir = input_dir
-            for name in sorted(meaningful):
-                generated = tmp_path / name
-                sample = sample_dir / name
-                assert sample.exists(), f"Sample missing for {name}: {sample}"
-                assert filecmp.cmp(
-                    generated, sample, shallow=False
-                ), f"Generated CSV '{name}' does not match sample"
+    # 6) Cleanup generated CSVs
+    for name in new_files:
+        (source_dir / name).unlink()
