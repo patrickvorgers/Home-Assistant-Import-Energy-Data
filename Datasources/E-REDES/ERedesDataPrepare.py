@@ -126,11 +126,11 @@ def convert(input_file: Path) -> None:
         df = df[df["Estado"].str.lower() == "real"].copy()
 
     tz = ZoneInfo("Europe/Lisbon")
-    timestamps: List[float] = []
+    timestamps: List[int] = []
     for date_str, time_str in zip(df["Data"], df["Hora"]):
         dt = datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
         dt = dt.replace(tzinfo=tz)
-        timestamps.append(dt.timestamp())
+        timestamps.append(int(dt.timestamp()))
 
     values = df["Consumo registado, Ativa (kW)"].astype(float).tolist()
 
