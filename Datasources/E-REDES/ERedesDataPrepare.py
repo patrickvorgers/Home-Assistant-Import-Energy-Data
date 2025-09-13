@@ -135,8 +135,9 @@ def convert(input_file: Path) -> None:
     values = df["Consumo registado, Ativa (kW)"].astype(float).tolist()
 
     out_df = pd.DataFrame({"timestamp": timestamps, "value": values})
+    output_path = input_file.with_name("elec_feed_in_tariff_1_high_resolution.csv")
     out_df.to_csv(
-        "elec_feed_in_tariff_1_high_resolution.csv",
+        output_path,
         index=False,
         header=False,
     )
