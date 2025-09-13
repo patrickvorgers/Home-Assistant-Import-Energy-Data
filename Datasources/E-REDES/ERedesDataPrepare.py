@@ -126,17 +126,18 @@ def convert(input_file: Path) -> None:
         df = df[df["Estado"].str.lower() == "real"].copy()
 
     tz = ZoneInfo("Europe/Lisbon")
-    timestamps: List[float] = []
+    timestamps: List[int] = []
     for date_str, time_str in zip(df["Data"], df["Hora"]):
         dt = datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
         dt = dt.replace(tzinfo=tz)
-        timestamps.append(dt.timestamp())
+        timestamps.append(int(dt.timestamp()))
 
     values = df["Consumo registado, Ativa (kW)"].astype(float).tolist()
 
     out_df = pd.DataFrame({"timestamp": timestamps, "value": values})
+    output_path = input_file.with_name("elec_feed_in_tariff_1_high_resolution.csv")
     out_df.to_csv(
-        "elec_feed_in_tariff_1_high_resolution.csv",
+        output_path,
         index=False,
         header=False,
     )
