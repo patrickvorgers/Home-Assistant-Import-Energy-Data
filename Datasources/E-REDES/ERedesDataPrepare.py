@@ -135,7 +135,12 @@ def convert(input_file: Path) -> None:
     values = df["Consumo registado, Ativa (kW)"].astype(float).tolist()
 
     out_df = pd.DataFrame({"timestamp": timestamps, "value": values})
-    output_path = input_file.with_name("elec_feed_in_tariff_1_high_resolution.csv")
+
+    # Write the resulting CSV to the current working directory instead of the
+    # directory containing the source file.  This mirrors the behaviour of the
+    # other datasource conversion scripts and ensures that test helpers can
+    # easily locate the generated output.
+    output_path = Path("elec_feed_in_tariff_1_high_resolution.csv")
     out_df.to_csv(
         output_path,
         index=False,
