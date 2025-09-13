@@ -520,18 +520,23 @@ def generateImportDataFiles(
     # Prepare the data
     dataFrame = prepareData(dataFrame)
 
+    # Determine output directory: same as the first input file
+    outputDir = os.path.dirname(fileNames[0]) or "."
+
     # Create the output files
     for outputFile in outputFiles:
         # Check if we have to generate a specific output file
         if outputFileName is None or outputFile.outputFileName == outputFileName:
             # Generate the import data file and ensure dataFrame is not modified between definitions
+            outputPath = os.path.join(
+                outputDir,
+                f"{prefix}_{outputFile.outputFileName}"
+                if prefix
+                else outputFile.outputFileName,
+            )
             generateImportDataFile(
                 dataFrame.copy(),
-                (
-                    f"{prefix}_{outputFile.outputFileName}"
-                    if prefix
-                    else outputFile.outputFileName
-                ),
+                outputPath,
                 outputFile.valueColumnName,
                 outputFile.dataFilters,
                 outputFile.intervalMode,
@@ -587,7 +592,7 @@ Notes:
     args = parser.parse_args()
 
     print(
-        "The files will be prepared in the current directory. Any previous files will be overwritten!\n"
+        "The files will be prepared in the same directory as the input files. Any previous files will be overwritten!\n"
     )
 
     # proceed automatically if --yes was passed
