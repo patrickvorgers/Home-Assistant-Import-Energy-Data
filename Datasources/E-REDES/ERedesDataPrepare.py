@@ -72,8 +72,13 @@ def _load_worksheet(z: ZipFile, shared: List[str]) -> pd.DataFrame:
     header: List[str] | None = None
     rows: List[List[str]] = []
 
+    # Detect the header row dynamically.  Some exports place additional
+    # descriptive rows above the actual data, while others start directly with
+    # the headers in the first row.  Look for the mandatory column names instead
+    # of relying on a fixed row number.
+    required_headers = {"Data", "Hora", "Consumo registado, Ativa (kW)"}
+
     for row in sheet_data.findall("m:row", ns):
-        r_index = int(row.attrib.get("r", "0"))
         cells: Dict[str, str] = {}
         for c in row.findall("m:c", ns):
             ref = c.attrib["r"]
@@ -85,13 +90,22 @@ def _load_worksheet(z: ZipFile, shared: List[str]) -> pd.DataFrame:
                     value = shared[int(v.text)]
                 else:
                     value = v.text
+            else:
+                # Some spreadsheets use inline strings instead of shared strings
+                t_elem = c.find("m:is/m:t", ns)
+                if t_elem is not None and t_elem.text is not None:
+                    value = t_elem.text
             cells[col] = value
 
-        if r_index == 8:
-            # Header row: expect five columns (A-E)
-            header = [cells.get(col, "") for col in ["A", "B", "C", "D", "E"]]
-        elif r_index > 8 and header is not None:
-            rows.append([cells.get(col, "") for col in ["A", "B", "C", "D", "E"]])
+        row_values = [cells.get(col, "") for col in ["A", "B", "C", "D", "E"]]
+
+        if header is None:
+            if required_headers.issubset(set(row_values)):
+                header = row_values
+            continue
+
+        if any(row_values):
+            rows.append(row_values)
 
     if header is None:
         raise ValueError("Could not locate header row in worksheet")
