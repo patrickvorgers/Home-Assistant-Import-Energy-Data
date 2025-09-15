@@ -73,9 +73,9 @@ def _load_worksheet(z: ZipFile, shared: List[str]) -> pd.DataFrame:
     rows: List[List[str]] = []
 
     # Detect the header row dynamically.  Some exports place additional
-    # descriptive rows above the actual data, while others start directly with
-    # the headers in the first row.  Look for the mandatory column names instead
-    # of relying on a fixed row number.
+    # descriptive rows above the actual data, while others start directly
+    # with the headers in the first row. Look for the mandatory column names
+    # instead of relying on a fixed row number.
     required_headers = {"Data", "Hora", "Consumo registado, Ativa (kW)"}
 
     for row in sheet_data.findall("m:row", ns):
@@ -91,7 +91,8 @@ def _load_worksheet(z: ZipFile, shared: List[str]) -> pd.DataFrame:
                 else:
                     value = v.text
             else:
-                # Some spreadsheets use inline strings instead of shared strings
+                # Some spreadsheets use inline strings instead of shared
+                # strings
                 t_elem = c.find("m:is/m:t", ns)
                 if t_elem is not None and t_elem.text is not None:
                     value = t_elem.text
@@ -175,7 +176,13 @@ def main(argv: List[str] | None = None) -> int:
     parser.add_argument("input_file", type=Path, help="Path to .xlsx export")
     args = parser.parse_args(argv)
 
-    if args.yes or input("Are you sure you want to continue [Y/N]?: ").strip().lower().startswith("y"):
+    if (
+        args.yes
+        or input("Are you sure you want to continue [Y/N]?: ")
+        .strip()
+        .lower()
+        .startswith("y")
+    ):
         convert(args.input_file)
         return 0
     return 1
