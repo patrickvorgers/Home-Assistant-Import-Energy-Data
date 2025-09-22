@@ -267,6 +267,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 * Bernardo Bandos (https://github.com/jbbandos)
   * Implementation: Fluvius (English version)
   * Inital implementation: Inital value for recalculation
+* Thomas HF Wright (https://github.com/ThomasHFWright)
+  * Initial Implementation: E-Redes
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

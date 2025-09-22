@@ -1,193 +1,73 @@
-"""Prepare E-REDES export data for Home Assistant import.
-
-The official data export of the Portuguese grid operator E-REDES is an
-``.xlsx`` file containing 15‑minute electricity usage values.  This script
-parses that spreadsheet without requiring external dependencies such as
-``openpyxl`` and converts it into the generic two‑column CSV format used by
-the rest of this repository.
-
-The resulting file is named
-``elec_feed_in_tariff_1_high_resolution.csv`` and contains rows of
-``<unix_timestamp>,<value>`` where the timestamp is localised to
-``Europe/Lisbon``.
-"""
-
-from __future__ import annotations
-
-import argparse
-import re
 import sys
 from pathlib import Path
-from typing import Dict, List
-from xml.etree import ElementTree as ET
-from zipfile import ZipFile
 
 import pandas as pd
 
-# ---------------------------------------------------------------------------
-# Helper functions
-# ---------------------------------------------------------------------------
+# 1) Add engine to path (simple way to add the engine to the path)
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
+
+# 2) Import engine (supress linter warnings)
+import DataPrepareEngine as engine  # noqa: E402
+from DataPrepareEngine import DataFilter, IntervalMode, OutputFileDefinition  # noqa: E402
+
+# 3) Override DataPrepare engine globals
+# Name of the energy provider
+engine.energyProviderName = "E-Redes"
+
+# Inputfile(s): filename extension
+engine.inputFileNameExtension = ".xlsx"
+# Inputfile(s): Name of the column containing the date of the reading.
+#               Use this in case date and time is combined in one field.
+#               Use the numerical column index in case the column name is not available.
+engine.inputFileDateColumnName = "Data"
+# Inputfile(s): Name of the column containing the time of the reading.
+#               Leave empty in case date and time is combined in one field.
+engine.inputFileTimeColumnName = "Hora"
+# Inputfile(s): Date/time format used in the datacolumn.
+#               Combine the format of the date and time in case date and time are two seperate fields.
+engine.inputFileDateTimeColumnFormat = "%Y/%m/%d %H:%M"
+# Inputfile(s): Date/time UTC indication
+#               Set to True in case the date/time is in UTC, False in case it is in local time.
+engine.inputFileDateTimeIsUTC = False
+# Inputfile(s): Name of the timezone of the input data
+#               The IANA timezone name of the input data (so that DST can be correctly applied).
+#               Example: "Europe/Amsterdam", "America/New_York".
+#               Leave as empty string to auto-detect from the local machine.
+#               Setting is only needed when the setting inputFileDateTimeIsUTC is False.
+engine.inputFileTimeZoneName = "Europe/Lisbon"
+# Inputfile(s): Only use hourly data (True) or use the data as is (False)
+#               In case of True, the data will be filtered to only include hourly data.
+#               It takes into account in case the data needs to be recalculated (source data not increasing).
+#               Home Assistant uses hourly data, higher resolution will work but will impact performance.
+engine.inputFileDateTimeOnlyUseHourly = True
+# Inputfile(s): Invalid values in the input file will be removed otherwise they will be replaced with 0.
+engine.inputFileDataRemoveInvalidValues = False
+# Inputfile(s): Decimal token being used in the input file (csv and excel files)
+engine.inputFileDataDecimal = ","
+# Inputfile(s): Number of header rows in the input file (csv and excel files)
+engine.inputFileNumHeaderRows = 7
+# Inputfile(s): Number of footer rows in the input file (csv and excel files)
+engine.inputFileNumFooterRows = 0
+# Inputfile(s): Name or index of the excel sheet (only needed for excel files containing more sheets,
+#               leave at 0 for the first sheet)
+engine.inputFileExcelSheetName = 0
+
+# Name used for the temporary date/time field.
+# This needs normally no change only when it conflicts with existing columns.
+engine.dateTimeColumnName = "_DateTime"
+
+# List of one or more output file definitions
+engine.outputFiles = [
+    OutputFileDefinition(
+        "elec_feed_in_tariff_1_high_resolution.csv",
+        "Consumo registado, Ativa (kW)",
+        [DataFilter("Estado", "Real", True)],
+        IntervalMode.USAGE,
+    ),
+]
 
 
-def _column_letter(cell_ref: str) -> str:
-    """Return the column letter(s) from an Excel cell reference.
-
-    Examples:
-        >>> _column_letter("A1")
-        'A'
-        >>> _column_letter("BC12")
-        'BC'
-    """
-
-    return re.match(r"[A-Z]+", cell_ref).group(0)  # type: ignore[arg-type]
-
-
-def _parse_shared_strings(z: ZipFile) -> List[str]:
-    """Extract the shared string table from the workbook."""
-
-    try:
-        xml = z.read("xl/sharedStrings.xml")
-    except KeyError:
-        return []
-
-    ns = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-    root = ET.fromstring(xml)
-    strings: List[str] = []
-    for si in root.findall("m:si", ns):
-        # A shared string item may be split into multiple ``t`` nodes.
-        text = "".join(t.text or "" for t in si.findall(".//m:t", ns))
-        strings.append(text)
-    return strings
-
-
-def _load_worksheet(z: ZipFile, shared: List[str]) -> pd.DataFrame:
-    """Parse the first worksheet of the workbook into a DataFrame."""
-
-    xml = z.read("xl/worksheets/sheet1.xml")
-    ns = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
-    root = ET.fromstring(xml)
-    sheet_data = root.find("m:sheetData", ns)
-    assert sheet_data is not None
-
-    header: List[str] | None = None
-    rows: List[List[str]] = []
-
-    # Detect the header row dynamically.  Some exports place additional
-    # descriptive rows above the actual data, while others start directly
-    # with the headers in the first row. Look for the mandatory column names
-    # instead of relying on a fixed row number.
-    required_headers = {"Data", "Hora", "Consumo registado, Ativa (kW)"}
-
-    for row in sheet_data.findall("m:row", ns):
-        cells: Dict[str, str] = {}
-        for c in row.findall("m:c", ns):
-            ref = c.attrib["r"]
-            col = _column_letter(ref)
-            value = ""
-            v = c.find("m:v", ns)
-            if v is not None and v.text is not None:
-                if c.attrib.get("t") == "s":
-                    value = shared[int(v.text)]
-                else:
-                    value = v.text
-            else:
-                # Some spreadsheets use inline strings instead of shared
-                # strings
-                t_elem = c.find("m:is/m:t", ns)
-                if t_elem is not None and t_elem.text is not None:
-                    value = t_elem.text
-            cells[col] = value
-
-        row_values = [cells.get(col, "") for col in ["A", "B", "C", "D", "E"]]
-
-        if header is None:
-            if required_headers.issubset(set(row_values)):
-                header = row_values
-            continue
-
-        if any(row_values):
-            rows.append(row_values)
-
-    if header is None:
-        raise ValueError("Could not locate header row in worksheet")
-
-    return pd.DataFrame(rows, columns=header)
-
-
-def read_eredes_xlsx(path: Path) -> pd.DataFrame:
-    """Read the E-REDES ``.xlsx`` export into a DataFrame."""
-
-    with ZipFile(path) as zf:
-        shared = _parse_shared_strings(zf)
-        df = _load_worksheet(zf, shared)
-    return df
-
-
-# ---------------------------------------------------------------------------
-# Conversion logic
-# ---------------------------------------------------------------------------
-
-
-def convert(input_file: Path) -> None:
-    """Convert the given E-REDES file to the expected CSV output."""
-
-    from datetime import datetime
-    from zoneinfo import ZoneInfo
-
-    df = read_eredes_xlsx(input_file)
-
-    # Only keep rows marked as real measurements
-    if "Estado" in df.columns:
-        df = df[df["Estado"].str.lower() == "real"].copy()
-
-    tz = ZoneInfo("Europe/Lisbon")
-    timestamps: List[int] = []
-    for date_str, time_str in zip(df["Data"], df["Hora"]):
-        dt = datetime.strptime(f"{date_str} {time_str}", "%Y/%m/%d %H:%M")
-        dt = dt.replace(tzinfo=tz)
-        timestamps.append(int(dt.timestamp()))
-
-    values = df["Consumo registado, Ativa (kW)"].astype(float).tolist()
-
-    out_df = pd.DataFrame({"timestamp": timestamps, "value": values})
-
-    # Write the resulting CSV to the current working directory instead of the
-    # directory containing the source file.  This mirrors the behaviour of the
-    # other datasource conversion scripts and ensures that test helpers can
-    # easily locate the generated output.
-    output_path = Path("elec_feed_in_tariff_1_high_resolution.csv")
-    out_df.to_csv(
-        output_path,
-        index=False,
-        header=False,
-    )
-
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
-
-
-def main(argv: List[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Prepare E-REDES export for Home Assistant"
-    )
-    parser.add_argument("-y", "--yes", action="store_true", help="No prompt")
-    parser.add_argument("input_file", type=Path, help="Path to .xlsx export")
-    args = parser.parse_args(argv)
-
-    if (
-        args.yes
-        or input("Are you sure you want to continue [Y/N]?: ")
-        .strip()
-        .lower()
-        .startswith("y")
-    ):
-        convert(args.input_file)
-        return 0
-    return 1
-
-
-if __name__ == "__main__":  # pragma: no cover - CLI entry
-    sys.exit(main())
-
+# 4) Invoke DataPrepare engine
+if __name__ == "__main__":
+    engine.main()

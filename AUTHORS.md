@@ -34,4 +34,6 @@ Please share scripts or how-to guides if you have built an integration with a ne
 * Bernardo Bandos (https://github.com/jbbandos)
   * Implementation: Fluvius (English version)
   * Inital implementation: Inital value for recalculation
+* Thomas HF Wright (https://github.com/ThomasHFWright)
+  * Initial Implementation: E-Redes
   
