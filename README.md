@@ -269,6 +269,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
   * Inital implementation: Inital value for recalculation
 * Thomas HF Wright (https://github.com/ThomasHFWright)
   * Initial Implementation: E-Redes
+* Julius (https://github.com/juliu-s)
+  * Initial Implementation: DSMR-reader
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
