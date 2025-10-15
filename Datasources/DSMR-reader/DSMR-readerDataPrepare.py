@@ -93,25 +93,6 @@ engine.outputFiles = [
 ]
 
 
-# Prepare the input data (after date/time manipulation)
-def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
-    return dataFrame
-
-
-# Prepare the input data (after date/time manipulation)
-def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
-    # Default no manipulation, add code if needed
-
-    # Example:
-    #   dataFrame["Energy Produced (Wh)"] =
-    #       dataFrame["Energy Produced (Wh)"].str.replace(',', '').replace('\"', '').astype(int)
-    return dataFrame
-
-
 # 4) Invoke DataPrepare engine
 if __name__ == "__main__":
-    # Set the hook functions
-    engine.customPrepareDataPre = customPrepareDataPre
-    engine.customPrepareDataPost = customPrepareDataPost
-
     engine.main()
