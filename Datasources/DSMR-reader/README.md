@@ -1,20 +1,20 @@
 # Datasource: [DSMR-reader](https://dsmr-reader.readthedocs.io)
 
-DSMR-reader offers the option to export data from the local database.
-This data can be transformed and used to import into Home Assistant.
+[DSMR-reader](https://dsmr-reader.readthedocs.io) offers the option to export collected (all the) data to CSV.
+The CSV can be transformed using this project and import into Home Assistant.
 
 ## Before you start
 
-In case you are using the P1 to USB cable that is currently connected to DSMR-reader, you need the "future" sensor ids to import the data to.
+In case you currently using the P1 to USB cable that is connected to [DSMR-reader](https://dsmr-reader.readthedocs.nl), you need the "future" sensor ids to import the data to.
 To create them:
 
 - Stop [DSMR-reader](https://dsmr-reader.readthedocs.io)
 - Connect the USB to Home Assistant
-- Add the `DSMR Smart Meter` integration
+- Add the `DSMR Smart Meter` integration to your Home Assistant installation
 - Wait till there are some readings
 - Shutdown Home Assistant and create a backup
 
-The documentation in this repo states that:
+> **NOTE:** The documentation in this repo states that:
 
 ```
 Ensure that the Home Assistant target sensor has atleast 7 days of data before importing the prepared data.
@@ -60,7 +60,7 @@ podman run -d \
 
 ```
 
-- Shutdown the container and create fake sensors by editing the `Configuration.yaml`
+- Shutdown the container and create fake sensors by adding the configuration below to the `configuration.yaml`
 
 ```yaml
 template:
@@ -106,12 +106,13 @@ template:
         icon: "mdi:solar-power"
 ```
 
-- Start the container again, and verify the new sensors
-- Shutdown and use the database
+- Start the container again, and verify that the new sensors are present
+- Shutdown again and use the database
 
 **When using the SQLite version**
 
-When modifying the `Import Energy data into Home Assistant.sqbpro` file in `DB Browser for SQLite` only change the sensor ids, NOT the sensor names.
+When modifying the `Import Energy data into Home Assistant.sqbpro` file in `DB Browser for SQLite`, only change the sensor ids, NOT the sensor names.
+Also note the value of `correction`, this should be set `1.0`.
 
 - Example below with sensor ids `119`, `122`, `123`, `124` and `125`:
 
@@ -121,7 +122,7 @@ INSERT INTO SENSORS VALUES ('gas',                    119,        1.0,    25.0, 
 INSERT INTO SENSORS VALUES ('elec_feed_in_tariff_1',  122,        1.0,    25.0,            1000.0); /* Change */
 INSERT INTO SENSORS VALUES ('elec_feed_in_tariff_2',  123,        1.0,    25.0,            1000.0); /* Change */
 INSERT INTO SENSORS VALUES ('elec_feed_out_tariff_1', 124,        1.0,    25.0,            1000.0); /* Change */
-INSERT INTO SENSORS VALUES ('elec_feed_out_tariff_2', 125,       1.0,    25.0,            1000.0); /* Change */
+INSERT INTO SENSORS VALUES ('elec_feed_out_tariff_2', 125,        1.0,    25.0,            1000.0); /* Change */
 /*INSERT INTO SENSORS VALUES ('elec_solar',             352,      1000.0,    25.0,            1000.0); /* Change */
 /*INSERT INTO SENSORS VALUES ('elec_battery_feed_in',   450,      1000.0,    25.0,            1000.0); /* Change */
 /*INSERT INTO SENSORS VALUES ('elec_battery_feed_out',  451,      1000.0,    25.0,            1000.0); /* Change */
@@ -130,4 +131,4 @@ INSERT INTO SENSORS VALUES ('elec_feed_out_tariff_2', 125,       1.0,    25.0,  
 
 **Modifying readings afterwards**
 
-When you need to modify a reading or readings, [you can do that from the UI](https://www.reddit.com/r/homeassistant/comments/14cts2p/how_can_i_delete_a_single_day_of_the_energy_panel/)!
+When you need to modify a reading or readings, [you can do that from the UI](https://www.reddit.com/r/homeassistant/comments/14cts2p/how_can_i_delete_a_single_day_of_the_energy_panel)!
