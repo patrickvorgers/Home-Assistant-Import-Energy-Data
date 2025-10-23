@@ -1,0 +1,59 @@
+
+ ========================================
+ Usage Information
+ For: redacted_account_id
+ ========================================
+ Meter Reading Information
+ Type of readings: Electricity, Energy Consumption, Real energy in kilowatt-hours 
+ ========================================
+ Detailed Usage
+ ========================================
+ Start date: 2025-10-19 00:00 for 2 days
+ ========================================
+ Interval Blockdata for period starting:, 2025-10-19 00:00  for 2 days
+ ========================================
+ Energy consumption time period,Usage(Real energy in kilowatt-hours),Events occurred
+ 2025-10-19 00:00 to 2025-10-20 00:00,49.600,,
+ 2025-10-20 00:00 to 2025-10-21 00:00,23.030,,
+ 
+ ========================================
+ Meter Reading Information
+ Type of readings: Electricity, Energy Consumption, Real energy in kilowatt-hours 
+ ========================================
+ Detailed Usage
+ ========================================
+ Start date: 2025-10-19 00:00 for 2 days
+ ========================================
+ Interval Blockdata for period starting:, 2025-10-19 00:00  for 2 days
+ ========================================
+ Energy consumption time period,Usage(Real energy in kilowatt-hours),Events occurred
+ 2025-10-19 00:00 to 2025-10-20 00:00,38.600,,
+ 2025-10-20 00:00 to 2025-10-21 00:00,-6.490,,
+ 
+ ========================================
+ Meter Reading Information
+ Type of readings: Electricity, Energy Consumption, Real energy in kilowatt-hours 
+ ========================================
+ Detailed Usage
+ ========================================
+ Start date: 2025-10-19 00:00 for 2 days
+ ========================================
+ Interval Blockdata for period starting:, 2025-10-19 00:00  for 2 days
+ ========================================
+ Energy consumption time period,Usage(Real energy in kilowatt-hours),Events occurred
+ 2025-10-19 00:00 to 2025-10-20 00:00,-11.000,,
+ 2025-10-20 00:00 to 2025-10-21 00:00,-29.520,,
+ 
+ ========================================
+ Meter Reading Information
+ Type of readings: Electricity, Energy Consumption, Real energy in kilowatts 
+ ========================================
+ Detailed Usage
+ ========================================
+ Start date: 2025-10-19 00:00 for 2 days
+ ========================================
+ Interval Blockdata for period starting:, 2025-10-19 00:00  for 2 days
+ ========================================
+ Energy consumption time period,Usage(Real energy in kilowatts),Events occurred
+ 2025-10-19 00:00 to 2025-10-20 00:00,10.672,,
+  
