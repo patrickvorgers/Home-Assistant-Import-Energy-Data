@@ -36,4 +36,5 @@ Please share scripts or how-to guides if you have built an integration with a ne
   * Inital implementation: Inital value for recalculation
 * Thomas HF Wright (https://github.com/ThomasHFWright)
   * Initial Implementation: E-Redes
-  
+* Ghislain Seguin (https://github.com/gseguin)
+  * Initial Implementation: Xcel Energy  
