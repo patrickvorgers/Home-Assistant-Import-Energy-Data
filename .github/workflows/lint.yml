@@ -8,6 +8,7 @@ on:
 
   # run on PRs against main when contributors push commits
   pull_request:
+    types: [opened, reopened, synchronize, edited]
     branches:
       - main
 
