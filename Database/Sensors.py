@@ -559,7 +559,7 @@ class StatsMetaApp:
             if entry["selected"] and entry["import_id"]:
                 parts = []
                 # name field
-                parts.append(f"'{entry['import_id']:<{columns[0][1]}}'")
+                parts.append(f"'{entry['import_id']}'".ljust(columns[0][1]))
                 # numeric fields
                 vals = [
                     entry["id"],
