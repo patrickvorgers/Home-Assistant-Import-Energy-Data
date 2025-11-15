@@ -79,6 +79,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
     - `--verbose`<br><br>
     Example:<br>
 `python ImportData.py --db-type mariadb --host localhost --user root --database homeassistant --csv-file "data\*.csv" --verbose`
+- Verify by pressing F5 (refresh) that the database now contains the table `IMPORT_DATA`
 
 #### Load import script
 - Load SQL file `Import Energy data into Home Assistant.sql` from the MariaDB directory (File -> Load SQL file - Yes on auto-detect file encoding)

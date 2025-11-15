@@ -48,9 +48,6 @@ Importing historical energy data into Home Assistant is not simple and requires 
     In case of this method make sure that you didn't skip the step to create a backup so that you can always restore this version of the database!
 
 #### Import the data into a temporary table
-- Start `DB Browser for SQLite`
-- Open project `Import Energy data into Home Assistant.sqbpro`.
-  - If the database is not loaded directly you have to open the `home-assistant_v2.db` database manually ("Open Database").
 - Run the `ImportData.py` script from the Datasources directory to import the generated CSV files and use the following command-line parameters:
     - `--db-type sqlite`
     - `--sqlite-db home-assistant_v2.db`
@@ -58,6 +55,10 @@ Importing historical energy data into Home Assistant is not simple and requires 
     - `--verbose`<br><br>
     Example:<br>
 `python ImportData.py --db-type sqlite --sqlite-db home-assistant_v2.db --csv-file "data\*.csv" --verbose`
+- Start `DB Browser for SQLite`
+- Open project `Import Energy data into Home Assistant.sqbpro`.
+  - If the database is not loaded directly you have to open the `home-assistant_v2.db` database manually ("Open Database").
+- Validate with `Browse Data` that the database now contains the table `IMPORT_DATA`
 
 #### Load import script
 - Validate the schema version of the database (Browse Data -> Table: schema_changes)
