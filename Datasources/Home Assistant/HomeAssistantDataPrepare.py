@@ -7,10 +7,7 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import (
-    DataFilter,
-    OutputFileDefinition,
-)  # noqa: E402
+from DataPrepareEngine import (DataFilter, OutputFileDefinition)  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -44,7 +41,8 @@ engine.outputFiles = [
         [
             DataFilter(
                 "entity_id", "^sensor.electricity_meter_feed_in_tariff_1$", True
-            ),        ],
+            ),
+        ],
     ),
     OutputFileDefinition(
         "elec_feed_in_tariff_2_high_resolution.csv",

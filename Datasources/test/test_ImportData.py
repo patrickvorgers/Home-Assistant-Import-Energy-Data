@@ -12,7 +12,6 @@ from enum import Enum
 from pathlib import Path
 
 import pytest
-
 from ImportData import (
     DatabaseType,
     compute_id_and_resolution,
@@ -24,7 +23,6 @@ from ImportData import (
     main,
     parse_db_type,
 )
-
 
 # ---------- helpers ----------
 
@@ -246,9 +244,7 @@ def test_import_csv_data_upsert_updates_existing_rows(tmp_path: Path):
         conn.commit()
 
         rows = list(
-            conn.execute(
-                "SELECT timestamp, value FROM IMPORT_DATA ORDER BY timestamp"
-            )
+            conn.execute("SELECT timestamp, value FROM IMPORT_DATA ORDER BY timestamp")
         )
         assert rows == [
             (1.0, 15.0),
