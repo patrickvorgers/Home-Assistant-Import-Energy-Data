@@ -1,6 +1,7 @@
 # test_ImportData.py
 # Unit tests for ImportData.py
 # Usage for coverage check: python -m pytest test --cov=ImportData --cov-report=term-missing
+# test_ImportData.py
 
 import argparse
 import contextlib
@@ -15,17 +16,18 @@ import pytest
 from ImportData import (
     DatabaseType,
     compute_id_and_resolution,
-    expand_file_patterns,
-    import_csv_data,
     create_table,
-    parse_db_type,
+    expand_file_patterns,
     get_connection,
+    import_csv_data,
     log,
     main,
+    parse_db_type,
 )
 
 
 # ---------- helpers ----------
+
 
 @contextlib.contextmanager
 def sqlite_import_table(recreate: bool = True):
@@ -52,7 +54,19 @@ class DummyCursor:
         self.params.extend(seq_of_params)
 
 
+def _install_fake_mysql(monkeypatch, fake_connect):
+    """Install a fake mysql.connector module that uses `fake_connect`."""
+    mysql_mod = types.ModuleType("mysql")
+    connector_mod = types.ModuleType("mysql.connector")
+    connector_mod.connect = fake_connect
+    mysql_mod.connector = connector_mod
+
+    monkeypatch.setitem(sys.modules, "mysql", mysql_mod)
+    monkeypatch.setitem(sys.modules, "mysql.connector", connector_mod)
+
+
 # ---------- parse_db_type ----------
+
 
 def test_parse_db_type_sqlite():
     assert parse_db_type("sqlite") is DatabaseType.SQLITE
@@ -70,6 +84,7 @@ def test_parse_db_type_invalid():
 
 
 # ---------- compute_id_and_resolution ----------
+
 
 def test_compute_id_and_resolution_high_suffix():
     id_part, resolution = compute_id_and_resolution(
@@ -115,6 +130,7 @@ def test_compute_id_and_resolution_assumes_high_and_trims_underscore(capsys):
 
 # ---------- expand_file_patterns ----------
 
+
 def test_expand_file_patterns(tmp_path: Path):
     f1 = tmp_path / "a_high_resolution.csv"
     f2 = tmp_path / "b_low_resolution.csv"
@@ -140,6 +156,7 @@ def test_expand_file_patterns_warns_on_missing_pattern(capsys):
 
 
 # ---------- import_csv_data + create_table (SQLite in-memory) ----------
+
 
 def test_import_csv_data_basic_insert(tmp_path: Path):
     with sqlite_import_table() as (conn, cursor):
@@ -192,9 +209,7 @@ def test_import_csv_data_skips_malformed_and_header(tmp_path: Path):
         assert skipped == 2
 
         rows = list(
-            conn.execute(
-                "SELECT timestamp, value FROM IMPORT_DATA ORDER BY timestamp"
-            )
+            conn.execute("SELECT timestamp, value FROM IMPORT_DATA ORDER BY timestamp")
         )
         assert rows == [
             (1.0, 10.0),
@@ -289,6 +304,7 @@ def test_import_csv_data_unsupported_db_type_raises(tmp_path: Path):
 
 # ---------- create_table behavior (id / resolution constraints) ----------
 
+
 def test_create_table_schema_allows_only_high_low_resolution():
     with sqlite_import_table() as (conn, cursor):
         # Insert valid resolutions
@@ -330,6 +346,7 @@ def test_create_table_no_recreate_keeps_existing_data():
 
 # ---------- log ----------
 
+
 def test_log_verbose(capsys):
     log("hello", verbose=True)
     out = capsys.readouterr().out
@@ -343,6 +360,7 @@ def test_log_not_verbose(capsys):
 
 
 # ---------- get_connection (SQLite + MariaDB) ----------
+
 
 def test_get_connection_sqlite_missing_db_raises():
     args = argparse.Namespace(
@@ -380,7 +398,9 @@ def test_get_connection_mariadb_missing_args_raises():
         password=None,
         host="localhost",
     )
-    with pytest.raises(ValueError, match="--user and --database are required for MariaDB"):
+    with pytest.raises(
+        ValueError, match="--user and --database are required for MariaDB"
+    ):
         get_connection(DatabaseType.MARIADB, args)
 
 
@@ -391,16 +411,9 @@ def test_get_connection_mariadb_uses_connector(monkeypatch):
     def fake_connect(**kwargs):
         called_kwargs.update(kwargs)
         # Return a dummy connection-like object
-        dummy_conn = object()
-        return dummy_conn
+        return object()
 
-    mysql_mod = types.ModuleType("mysql")
-    connector_mod = types.ModuleType("mysql.connector")
-    connector_mod.connect = fake_connect
-    mysql_mod.connector = connector_mod
-
-    monkeypatch.setitem(sys.modules, "mysql", mysql_mod)
-    monkeypatch.setitem(sys.modules, "mysql.connector", connector_mod)
+    _install_fake_mysql(monkeypatch, fake_connect)
 
     args = argparse.Namespace(
         sqlite_db=None,
@@ -413,9 +426,7 @@ def test_get_connection_mariadb_uses_connector(monkeypatch):
     conn, placeholder = get_connection(DatabaseType.MARIADB, args)
 
     assert placeholder == "%s"
-    # We got the dummy connection
     assert conn is not None
-    # And the correct kwargs were passed
     assert called_kwargs == {
         "host": "dbhost",
         "user": "user1",
@@ -432,13 +443,7 @@ def test_get_connection_mariadb_default_empty_password(monkeypatch):
         called_kwargs.update(kwargs)
         return object()
 
-    mysql_mod = types.ModuleType("mysql")
-    connector_mod = types.ModuleType("mysql.connector")
-    connector_mod.connect = fake_connect
-    mysql_mod.connector = connector_mod
-
-    monkeypatch.setitem(sys.modules, "mysql", mysql_mod)
-    monkeypatch.setitem(sys.modules, "mysql.connector", connector_mod)
+    _install_fake_mysql(monkeypatch, fake_connect)
 
     # password is None -> should default to ""
     args = argparse.Namespace(
@@ -458,6 +463,7 @@ def test_get_connection_mariadb_default_empty_password(monkeypatch):
 
 def test_get_connection_unsupported_db_type_raises():
     """Cover the defensive 'unsupported database type' branch."""
+
     class FakeDb(Enum):
         OTHER = 1
 
@@ -474,6 +480,7 @@ def test_get_connection_unsupported_db_type_raises():
 
 
 # ---------- main() CLI behavior ----------
+
 
 def test_main_requires_csv_or_cleanup(monkeypatch):
     # No --csv-file and no --cleanup-backup -> argparse error (SystemExit)

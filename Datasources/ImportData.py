@@ -125,7 +125,7 @@ def compute_id_and_resolution(csv_file: str) -> tuple[str, str]:
     Examples:
         "deviceX_high_resolution.csv" --> id: "sensor_id_deviceX", resolution: "HIGH"
         "abc123_low_resolution.csv"   --> id: "sensor_id_abc123", resolution: "LOW"
-    
+
     Fallback:
         If neither suffix is present, the resolution defaults to HIGH.
         The id is the file name without extension (any trailing underscore removed),
@@ -345,6 +345,7 @@ def main():
             cursor.close()
         if conn is not None:
             conn.close()
+
 
 if __name__ == "__main__":  # pragma: no cover
     main()
