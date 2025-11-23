@@ -87,16 +87,16 @@ def get_connection(db_type: DatabaseType, args):
     return conn, placeholder
 
 
-def create_table(cursor, recreate=True, verbose=False):
+def create_table(cursor, recreate: bool = True, verbose: bool = False):
     """
     Creates the `IMPORT_DATA` table with the appropriate schema.
     If `recreate` is True, drops the table first.
     """
     if recreate:
-        log("🔄 Dropping existing IMPORT_DATA table...", verbose)
+        log("🔄 Dropping existing IMPORT_DATA table", verbose)
         cursor.execute("DROP TABLE IF EXISTS IMPORT_DATA")
 
-        log("🛠️ Creating IMPORT_DATA table...")
+        log("🛠️ Creating IMPORT_DATA table")
     else:
         log("🧱 Keeping existing IMPORT_DATA table (created if missing)", verbose)
 
@@ -114,7 +114,7 @@ def create_table(cursor, recreate=True, verbose=False):
     )
 
 
-def compute_id_and_resolution(csv_file):
+def compute_id_and_resolution(csv_file: str) -> tuple[str, str]:
     """
     Extract the id and resolution from the CSV file name.
 
@@ -125,28 +125,40 @@ def compute_id_and_resolution(csv_file):
     Examples:
         "deviceX_high_resolution.csv" --> id: "sensor_id_deviceX", resolution: "HIGH"
         "abc123_low_resolution.csv"   --> id: "sensor_id_abc123", resolution: "LOW"
+    
+    Fallback:
+        If neither suffix is present, the resolution defaults to HIGH.
+        The id is the file name without extension (any trailing underscore removed),
+        and a message is printed to inform the user that HIGH was assumed.
     """
     basename = os.path.basename(csv_file)
     lower_basename = basename.lower()
+
     if lower_basename.endswith("high_resolution.csv"):
         suffix = "high_resolution.csv"
         resolution = "HIGH"
+        id_part = basename[: -len(suffix)]
     elif lower_basename.endswith("low_resolution.csv"):
         suffix = "low_resolution.csv"
         resolution = "LOW"
+        id_part = basename[: -len(suffix)]
     else:
-        raise ValueError(
-            "Filename must end with 'high_resolution.csv' or 'low_resolution.csv'."
+        # No explicit resolution: assume HIGH and inform the user.
+        log(
+            f"ℹ️ No 'high_resolution' or 'low_resolution' suffix found in '{basename}'. "
+            f"Assuming HIGH resolution."
         )
+        name_without_ext, _ = os.path.splitext(basename)
+        id_part = name_without_ext
+        resolution = "HIGH"
 
-    id_part = basename[: -len(suffix)]
     if id_part.endswith("_"):
         id_part = id_part[:-1]
 
     return id_part, resolution
 
 
-def expand_file_patterns(patterns):
+def expand_file_patterns(patterns: list[str]) -> list[str]:
     """
     Expand each file pattern (which may include wildcards) into a list of files.
     """
@@ -161,7 +173,12 @@ def expand_file_patterns(patterns):
 
 
 def import_csv_data(
-    cursor, csv_file, placeholder, id_val, resolution, db_type: DatabaseType
+    cursor,
+    csv_file: str,
+    placeholder: str,
+    id_val: str,
+    resolution: str,
+    db_type: DatabaseType,
 ) -> tuple[int, int]:
     """
     Efficiently imports data from a CSV into the IMPORT_DATA table with upsert support.
@@ -212,10 +229,13 @@ def main():
     Handles argument parsing, database setup, and CSV processing.
     """
     parser = argparse.ArgumentParser(
-        description="Import one or more CSV files (timestamp and value) into the IMPORT_DATA table. "
-        "The id and resolution are derived from each CSV file name. "
-        "Filenames must end with 'high_resolution.csv' or 'low_resolution.csv'. "
-        "By default, the table is dropped and recreated; use --suppress-recreate to keep the existing table."
+        description=(
+            "Import one or more CSV files (timestamp and value) into the IMPORT_DATA table. "
+            "The id and resolution are derived from each CSV file name. "
+            "Filenames may end with 'high_resolution.csv' or 'low_resolution.csv'; "
+            "if no such suffix is present, HIGH resolution is assumed. "
+            "By default, the table is dropped and recreated; use --suppress-recreate to keep the existing table."
+        )
     )
     parser.add_argument(
         "--verbose", action="store_true", help="Enable verbose logging output."
@@ -268,6 +288,9 @@ def main():
         parser.error("--csv-file is required unless --cleanup-backup is used")
     db_type = args.db_type
 
+    conn = None
+    cursor = None
+
     try:
         # Establish database connection
         conn, placeholder = get_connection(db_type, args)
@@ -275,16 +298,14 @@ def main():
 
         # Cleanup backup tables and exit if --cleanup-backup is specified.
         if args.cleanup_backup:
-            log("🧹 Cleaning up backup tables...")
+            log("🧹 Cleaning up backup tables")
             cursor.execute("DROP TABLE IF EXISTS BACKUP_STATISTICS")
             cursor.execute("DROP TABLE IF EXISTS BACKUP_STATISTICS_SHORT_TERM")
             conn.commit()
-            cursor.close()
-            conn.close()
             log("✅ Backup cleanup completed")
             return
 
-        log("🚀 Starting CSV import process...")
+        log("🚀 Starting CSV import process")
         # Expand wildcards in CSV file arguments (only executed if not cleaning up backup)
         csv_files = expand_file_patterns(args.csv_file)
         if not csv_files:
@@ -315,12 +336,15 @@ def main():
                 )
             conn.commit()
 
-        cursor.close()
-        conn.close()
         log("✅ CSV import completed")
     except Exception as e:
         log("❌ An error occurred: " + str(e))
+    finally:
+        # Make sure we always close the connection
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
 
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
