@@ -35,16 +35,25 @@ This scenario can be used in case Home Assistant is available and can be used to
   The python script creates the needed file for the generic import script.
   To import data from multiple exports, use `?` or `*` in the filename to match multiple files.
   To produce the right output filename the output file definition can be changed accordingly.
-  See [Generic how-to](../../README.md) `Source data preparation` section for more information about the supported filenames.
+  See [Generic how-to](../../README.md) `Source data preparation` section for more information.
+  In the generated `history.csv` lookup the `entity_id` column to find the correct entity_id for the output file definitions, add or remove output file definitions as needed.
 ```python
 # List of one or more output file definitions
-outputFiles = [
+engine.outputFiles = [
     OutputFileDefinition(
         "elec_feed_in_tariff_1_high_resolution.csv",
         "state",
-        [],
-        False,
-    )
+        [
+            DataFilter("entity_id", "^sensor.electricity_meter_feed_in_tariff_1$", True),
+        ],
+    ),
+    OutputFileDefinition(
+        "elec_feed_in_tariff_2_high_resolution.csv",
+        "state",
+        [
+            DataFilter("entity_id", "^sensor.electricity_meter_feed_in_tariff_2$", True),
+        ],
+    ),
 ]
 ```
 - Follow the steps in the overall how-to
