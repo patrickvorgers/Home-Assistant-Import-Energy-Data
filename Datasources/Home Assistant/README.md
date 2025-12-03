@@ -72,7 +72,7 @@ This scenario can be used in case the SQLite database is available and Home Assi
 <br>Example:
 ```
         id  statistic_id                                source      unit_of_measurement
-        6   sensor.gas_meter                            recorder    m�
+        6   sensor.gas_meter                            recorder    m³
         7   sensor.electricity_meter_feed_in_tariff_1   recorder    kWh
         8   sensor.electricity_meter_feed_in_tariff_2   recorder    kWh
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
@@ -80,7 +80,7 @@ This scenario can be used in case the SQLite database is available and Home Assi
         352 sensor.solar_energy_produced_today          recorder    kWh
         450 sensor.battery_energy_feed_in               recorder    kWh
         451 sensor.battery_energy_feed_out              recorder    kWh
-        653 sensor.watermeter_quantity_m3               recorder    m�
+        653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Go to the `Execute SQL` tab and paste in the contents of the `HomeAssistant Export.sql` file.
 - Change the SQL script and fill in the ID of the sensor. The remark `/* Change */` has been added in the SQL statement for the line that needs to be changed.
@@ -114,7 +114,7 @@ This scenario can be used in case the MariaDB database is available and Home Ass
 <br>Example:
 ```
         id  statistic_id                                source      unit_of_measurement
-        6   sensor.gas_meter                            recorder    m�
+        6   sensor.gas_meter                            recorder    m³
         7   sensor.electricity_meter_feed_in_tariff_1   recorder    kWh
         8   sensor.electricity_meter_feed_in_tariff_2   recorder    kWh
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
@@ -122,7 +122,7 @@ This scenario can be used in case the MariaDB database is available and Home Ass
         352 sensor.solar_energy_produced_today          recorder    kWh
         450 sensor.battery_energy_feed_in               recorder    kWh
         451 sensor.battery_energy_feed_out              recorder    kWh
-        653 sensor.watermeter_quantity_m3               recorder    m�
+        653 sensor.watermeter_quantity_m3               recorder    m³
 ```
 - Go to the `Query*` tab and paste in the contents of the `HomeAssistant Export.sql` file.
 - Change the SQL script and fill in the ID of the sensor. The remark `/* Change */` has been added in the SQL statement for the line that needs to be changed.
