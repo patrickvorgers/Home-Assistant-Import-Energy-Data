@@ -1,15 +1,17 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
-
 # 1) Add engine to path (simple way to add the engine to the path)
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, IntervalMode, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import (
+    DataFilter,
+    IntervalMode,
+    OutputFileDefinition,
+)  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -47,31 +49,46 @@ engine.outputFiles = [
     OutputFileDefinition(
         "elec_feed_in_tariff_1_high_resolution.csv",
         "total.grid.import",
-        [DataFilter("status", "^NORMAL$", True), DataFilter("is_metered", "^True$", True)],
+        [
+            DataFilter("status", "^NORMAL$", True),
+            DataFilter("is_metered", "^True$", True),
+        ],
         IntervalMode.READING_START_INTERVAL,
     ),
     OutputFileDefinition(
         "elec_feed_out_tariff_1_high_resolution.csv",
         "total.grid.export",
-        [DataFilter("status", "^NORMAL$", True), DataFilter("is_metered", "^True$", True)],
+        [
+            DataFilter("status", "^NORMAL$", True),
+            DataFilter("is_metered", "^True$", True),
+        ],
         IntervalMode.READING_START_INTERVAL,
     ),
     OutputFileDefinition(
         "elec_solar_high_resolution.csv",
         "total.solar",
-        [DataFilter("status", "^NORMAL$", True), DataFilter("is_metered", "^True$", True)],
+        [
+            DataFilter("status", "^NORMAL$", True),
+            DataFilter("is_metered", "^True$", True),
+        ],
         IntervalMode.READING_START_INTERVAL,
     ),
     OutputFileDefinition(
         "elec_battery_feed_out_high_resolution.csv",
         "today.battery.charge",
-        [DataFilter("status", "^NORMAL$", True), DataFilter("is_metered", "^True$", True)],
+        [
+            DataFilter("status", "^NORMAL$", True),
+            DataFilter("is_metered", "^True$", True),
+        ],
         IntervalMode.READING_START_INTERVAL,
     ),
     OutputFileDefinition(
         "elec_battery_feed_in_high_resolution.csv",
         "today.battery.discharge",
-        [DataFilter("status", "^NORMAL$", True), DataFilter("is_metered", "^True$", True)],
+        [
+            DataFilter("status", "^NORMAL$", True),
+            DataFilter("is_metered", "^True$", True),
+        ],
         IntervalMode.READING_START_INTERVAL,
     ),
 ]

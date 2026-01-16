@@ -109,7 +109,9 @@ def fetch_day(*, serial: str, api_token: str, datestring: str) -> Dict[str, Any]
 
     combined: Dict[str, Any] = {}
     if isinstance(first_payload, dict):
-        combined.update({k: v for k, v in first_payload.items() if k not in ("data", "meta")})
+        combined.update(
+            {k: v for k, v in first_payload.items() if k not in ("data", "meta")}
+        )
 
     combined["data"] = all_points
     combined["meta"] = combined_meta
@@ -120,7 +122,6 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
     with path.open("w", encoding="utf-8") as f:
         # Use a standard, human-readable indentation
         json.dump(payload, f, indent=4)
-
 
 
 def main() -> int:
@@ -209,7 +210,9 @@ def main() -> int:
             print(f"Downloading {datestring} -> {target}")
 
         try:
-            payload = fetch_day(serial=serial, api_token=api_token, datestring=datestring)
+            payload = fetch_day(
+                serial=serial, api_token=api_token, datestring=datestring
+            )
             write_json(target, payload)
             count = len(payload.get("data") or [])
             print(f"  Wrote {count} points")
