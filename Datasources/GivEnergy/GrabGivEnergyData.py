@@ -125,11 +125,11 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
 
 
 def main() -> int:
-    print(f"Grab GivEnergy data\n")
+    print("Grab GivEnergy data\n")
     print(
-        f"This python script grabs the GivEnergy daily data which can be used in the conversion script.\n"
+        "This python script grabs the GivEnergy daily data which can be used in the conversion script.\n"
     )
-    
+
     parser = argparse.ArgumentParser(
         description=(
             "Download daily JSON data-points from the GivEnergy Cloud API and store them as files. "

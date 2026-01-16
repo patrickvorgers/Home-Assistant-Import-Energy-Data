@@ -7,11 +7,11 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import (
+from DataPrepareEngine import (  # noqa: E402
     DataFilter,
     IntervalMode,
     OutputFileDefinition,
-)  # noqa: E402
+)
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
