@@ -70,9 +70,9 @@ This scenario can be used in case the SQLite database is available and Home Assi
 - Open the database (`Open Database`) that has been backed up in the [SQLite how-to](../../SQLite/README.md).
 - Lookup in the `statistics_meta` table the ID of the sensor for which the data should be exported (Browse Data -> Table: `statistics_meta`; You can use "filter" to find the ID of the sensor).
 <br>Example:
-`
+```
         id  statistic_id                                source      unit_of_measurement
-        6   sensor.gas_meter                            recorder    m³
+        6   sensor.gas_meter                            recorder    mÂ³
         7   sensor.electricity_meter_feed_in_tariff_1   recorder    kWh
         8   sensor.electricity_meter_feed_in_tariff_2   recorder    kWh
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
@@ -80,8 +80,8 @@ This scenario can be used in case the SQLite database is available and Home Assi
         352 sensor.solar_energy_produced_today          recorder    kWh
         450 sensor.battery_energy_feed_in               recorder    kWh
         451 sensor.battery_energy_feed_out              recorder    kWh
-        653 sensor.watermeter_quantity_m3               recorder    m³
-`
+        653 sensor.watermeter_quantity_m3               recorder    mÂ³
+```
 - Go to the `Execute SQL` tab and paste in the contents of the `HomeAssistant Export.sql` file.
 - Change the SQL script and fill in the ID of the sensor. The remark `/* Change */` has been added in the SQL statement for the line that needs to be changed.
 - Execute the SQL and wait for it to complete.
@@ -112,9 +112,9 @@ This scenario can be used in case the MariaDB database is available and Home Ass
 - Open a session to the Home Assistant MariaDB database, see [MariaDB how-to](../../MariaDB/README.md) for information regarding setting up the intial connection and creating a backup of the database.
 - Lookup in the `statistics_meta` table the ID of the sensor for which the data should be exported (Select table: `statistics_meta` and select the data tab on the right. You can use `filter` to find the ID of the sensor, For instance: `statistic_id LIKE '%sensor.gas_meter%'`).
 <br>Example:
-`
+```
         id  statistic_id                                source      unit_of_measurement
-        6   sensor.gas_meter                            recorder    m³
+        6   sensor.gas_meter                            recorder    mÂ³
         7   sensor.electricity_meter_feed_in_tariff_1   recorder    kWh
         8   sensor.electricity_meter_feed_in_tariff_2   recorder    kWh
         9   sensor.electricity_meter_feed_out_tariff_1  recorder    kWh
@@ -122,8 +122,8 @@ This scenario can be used in case the MariaDB database is available and Home Ass
         352 sensor.solar_energy_produced_today          recorder    kWh
         450 sensor.battery_energy_feed_in               recorder    kWh
         451 sensor.battery_energy_feed_out              recorder    kWh
-        653 sensor.watermeter_quantity_m3               recorder    m³
-`
+        653 sensor.watermeter_quantity_m3               recorder    mÂ³
+```
 - Go to the `Query*` tab and paste in the contents of the `HomeAssistant Export.sql` file.
 - Change the SQL script and fill in the ID of the sensor. The remark `/* Change */` has been added in the SQL statement for the line that needs to be changed.
 - Execute the SQL and wait for it to complete (Shortcut: F9).
