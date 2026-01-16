@@ -3,14 +3,14 @@ from tests.helpers import run_commands
 # List scripts and their CLI args
 # Test all three scenarios: gas only, electric only, and both
 COMMANDS = [
-#    (
-#        "XcelEnergyDataPrepare.py",
-#        ["-y", "Sample files/xcel_energy_gas_only_sample.csv"],
-#    ),
-#    (
-#        "XcelEnergyDataPrepare.py",
-#        ["-y", "Sample files/xcel_energy_electric_only_sample.csv"],
-#    ),
+    #    (
+    #        "XcelEnergyDataPrepare.py",
+    #        ["-y", "Sample files/xcel_energy_gas_only_sample.csv"],
+    #    ),
+    #    (
+    #        "XcelEnergyDataPrepare.py",
+    #        ["-y", "Sample files/xcel_energy_electric_only_sample.csv"],
+    #    ),
     (
         "XcelEnergyDataPrepare.py",
         ["-y", "Sample files/xcel_energy_sample.csv"],
