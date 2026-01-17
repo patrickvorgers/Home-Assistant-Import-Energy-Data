@@ -74,7 +74,7 @@ engine.outputFiles = [
         IntervalMode.READING_START_INTERVAL,
     ),
     OutputFileDefinition(
-        "elec_battery_feed_out_high_resolution.csv",
+        "elec_battery_feed_in_high_resolution.csv",
         "today.battery.charge",
         [
             DataFilter("status", "^NORMAL$", True),
@@ -83,7 +83,7 @@ engine.outputFiles = [
         IntervalMode.READING_START_INTERVAL,
     ),
     OutputFileDefinition(
-        "elec_battery_feed_in_high_resolution.csv",
+        "elec_battery_feed_out_high_resolution.csv",
         "today.battery.discharge",
         [
             DataFilter("status", "^NORMAL$", True),
