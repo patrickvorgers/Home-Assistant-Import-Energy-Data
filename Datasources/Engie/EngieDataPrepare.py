@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 # 1) Add engine to path (simple way to add the engine to the path)
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -52,6 +54,18 @@ engine.outputFiles = [
         IntervalMode.USAGE,
     ),
     OutputFileDefinition(
+        "elec_feed_out_tariff_1_high_resolution.csv",
+        "Verbruik",
+        [DataFilter("Type", "Teruglevering", True), DataFilter("Piek", "true", True)],
+        IntervalMode.USAGE,
+    ),
+    OutputFileDefinition(
+        "elec_feed_out_tariff_2_high_resolution.csv",
+        "Verbruik",
+        [DataFilter("Type", "Teruglevering", True), DataFilter("Piek", "false", True)],
+        IntervalMode.USAGE,
+    ),
+    OutputFileDefinition(
         "gas_high_resolution.csv",
         "Verbruik",
         [DataFilter("Type", "Gas", True)],
@@ -59,7 +73,19 @@ engine.outputFiles = [
     ),
 ]
 
+# Prepare the input data (after date/time manipulation)
+def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
+    if "Piek" in dataFrame.columns:
+        # Force string + normalize to lowercase so True/False and "true"/"false" behave the same
+        # Gas entries will have 0 in the Piek column which automatically forces the column to be string.
+        # In case there are no Gas entries, we still need to force the column to string.
+        dataFrame["Piek"] = dataFrame["Piek"].astype("string").str.strip().str.lower()
+
+    return dataFrame
 
 # 4) Invoke DataPrepare engine
 if __name__ == "__main__":
+    # Set the hook functions
+    engine.customPrepareDataPost = customPrepareDataPost
+
     engine.main()

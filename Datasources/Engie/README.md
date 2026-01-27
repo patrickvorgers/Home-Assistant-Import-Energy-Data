@@ -5,6 +5,8 @@ Engie offers the option to export data from their app. This data can be transfor
 **Data provided**
 - Electricity consumption - Tariff 1 - High resolution (hour interval) - kWh
 - Electricity consumption - Tariff 2 - High resolution (hour interval) - kWh
+- Electricity production - Tariff 1 - High resolution (hour interval) - kWh
+- Electricity production - Tariff 2 - High resolution (hour interval) - kWh
 - Gas consumption - High resolution (hour interval) - m³
 
 **Tooling needed**
