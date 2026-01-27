@@ -73,6 +73,7 @@ engine.outputFiles = [
     ),
 ]
 
+
 # Prepare the input data (after date/time manipulation)
 def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
     if "Piek" in dataFrame.columns:
@@ -82,6 +83,7 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
         dataFrame["Piek"] = dataFrame["Piek"].astype("string").str.strip().str.lower()
 
     return dataFrame
+
 
 # 4) Invoke DataPrepare engine
 if __name__ == "__main__":

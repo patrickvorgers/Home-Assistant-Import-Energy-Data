@@ -3,8 +3,21 @@ from tests.helpers import run_commands
 # List scripts and their CLI args
 COMMANDS = [
     ("EngieDataPrepare.py", ["-y", "Sample files/Export.verbruiken.ENGIE.csv"]),
-    ("EngieDataPrepare.py", ["-y", "Sample files/Export.verbruiken.ENGIE.export.csv", "elec_feed_out_tariff_1_high_resolution.csv"]),
-    ("EngieDataPrepare.py", ["-y", "Sample files/Export.verbruiken.ENGIE.export.csv", "elec_feed_out_tariff_2_high_resolution.csv"]),
+    (
+        "EngieDataPrepare.py",
+        ["-y",
+         "Sample files/Export.verbruiken.ENGIE.export.csv",
+         "elec_feed_out_tariff_1_high_resolution.csv",
+        ]
+    ),
+    (
+        "EngieDataPrepare.py",
+        [
+            "-y",
+            "Sample files/Export.verbruiken.ENGIE.export.csv",
+            "elec_feed_out_tariff_2_high_resolution.csv",
+        ]
+    ),
 ]
 
 
