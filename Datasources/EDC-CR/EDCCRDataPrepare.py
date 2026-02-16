@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
-
 # 1) Add engine to path (simple way to add the engine to the path)
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
@@ -82,22 +80,6 @@ engine.outputFiles = [
     ),
 ]
 
-
-# Prepare the input data (before date/time manipulation)
-def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
-    return dataFrame
-
-
-# Prepare the input data (after date/time manipulation)
-def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
-    # Default no manipulation, add code if needed
-    return dataFrame
-
-
 # 4) Invoke DataPrepare engine
 if __name__ == "__main__":
-    # Set the hook functions
-    engine.customPrepareDataPre = customPrepareDataPre
-    engine.customPrepareDataPost = customPrepareDataPost
-
     engine.main()

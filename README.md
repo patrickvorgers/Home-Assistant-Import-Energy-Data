@@ -271,6 +271,10 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
   * Initial Implementation: E-Redes
 * Julius (https://github.com/juliu-s)
   * Initial Implementation: DSMR-reader
+* Ghislain Seguin (https://github.com/gseguin)
+  * Initial Implementation: Xcel Energy & United Power
+* jan-zezula (https://github.com/jan-zezula)
+  * Initial Implementation: EDC-CR - Energetické Datové Centrum (edc-cr.cz)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
