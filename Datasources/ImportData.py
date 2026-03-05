@@ -51,7 +51,7 @@ def parse_db_type(db_type_str: str) -> DatabaseType:
     db_type_map = {
         "sqlite": DatabaseType.SQLITE,
         "mariadb": DatabaseType.MARIADB,
-        "postgresql": DatabaseType.POSTGRESQL
+        "postgresql": DatabaseType.POSTGRESQL,
     }
     try:
         return db_type_map[db_type_str.lower()]
@@ -85,11 +85,13 @@ def get_connection(db_type: DatabaseType, args):
         placeholder = "%s"
     elif db_type == DatabaseType.POSTGRESQL:
         import psycopg2
-        
+
         if not args.user or not args.database:
             raise ValueError("--user and --database are required for PostgreSQL")
         password = args.password if args.password is not None else ""
-        conn = psycopg2.connect(host=args.host, user=args.user, password=password, database=args.database)
+        conn = psycopg2.connect(
+            host=args.host, user=args.user, password=password, database=args.database
+        )
         # PostgreSQL uses '%s' for placeholders
         placeholder = "%s"
     else:
@@ -98,7 +100,9 @@ def get_connection(db_type: DatabaseType, args):
     return conn, placeholder
 
 
-def create_table(cursor, db_type: DatabaseType, recreate: bool = True, verbose: bool = False):
+def create_table(
+    cursor, db_type: DatabaseType, recreate: bool = True, verbose: bool = False
+):
     """
     Creates the `IMPORT_DATA` table with the appropriate schema.
     If `recreate` is True, drops the table first.
@@ -288,7 +292,9 @@ def main():
     parser.add_argument(
         "--host", default="localhost", help="Database host (default: localhost)"
     )
-    parser.add_argument("--user", help="Database username (required for mariadb/postgresql)")
+    parser.add_argument(
+        "--user", help="Database username (required for mariadb/postgresql)"
+    )
     parser.add_argument(
         "--password", help="Database password (default: empty if not set)"
     )
