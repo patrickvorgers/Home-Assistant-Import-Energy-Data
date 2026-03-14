@@ -1,15 +1,13 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
-
 # 1) Add engine to path (simple way to add the engine to the path)
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, IntervalMode, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import IntervalMode, OutputFileDefinition  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -52,7 +50,7 @@ engine.outputFiles = [
         "elec_feed_in_tariff_1_high_resolution.csv",
         "kWh.first_value",
         [],
-        IntervalMode.READING_START_INTERVAL
+        IntervalMode.READING_START_INTERVAL,
     ),
 ]
 
