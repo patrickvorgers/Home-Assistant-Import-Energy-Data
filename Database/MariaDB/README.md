@@ -84,7 +84,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 #### Load import script
 - Load SQL file `Import Energy data into Home Assistant.sql` from the MariaDB directory (File -> Load SQL file - Yes on auto-detect file encoding)
 - Validate the schema version of the database (Select table: schema_changes and select the data tab on the right and scroll down to the bottom)
-  - The script has been tested with schema version 50. With higher versions you should validate if the structure of the `statistics` and `statistics_short_term` tables have changed.
+  - The script has been tested with schema version 53. With higher versions you should validate if the structure of the `statistics` and `statistics_short_term` tables have changed.
     - Used fields in table `statistics`: `metadata_id`, `state`, `sum`, `start_ts`, `created_ts`
     - Used fields in table `statistics_short_term`: `sum`
 
