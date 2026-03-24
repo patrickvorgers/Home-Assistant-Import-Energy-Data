@@ -52,12 +52,13 @@ The id is used to identify the sensor in the SQL script that processes the impor
 - **Flexible file selection**:<br>
   Supports importing one or multiple CSV files, including the use of wildcard patterns (e.g., "data/*.csv") to process batches of files.
 - **Database compatibility**:<br>
-  Operates with both local SQLite databases and MariaDB servers.
+  Operates with SQLite, MariaDB, and PostgreSQL databases.
 - **Safe and repeatable import**:<br>
   Designed to handle repeated imports while keeping the data current. The data is imported into a "temporary" working table.
 
 ### Tooling
 - MySQL python library `pip install mysql-connector-python`
+- PostgreSQL python library `pip install psycopg2-binary`
  
 ### Usage instructions
 - **CSV file preparation**:<br>
@@ -66,6 +67,7 @@ Depending on the input file, multiple CSV files may be generated.
 - **Database Selection**:<br>
     - For SQLite, specify the path to the SQLite database file.
     - For MariaDB, provide the database host, username, password, and database name.
+    - For PostgreSQL, provide the database host, username, password, database name, and optionally the port (default: 5432).
 - **Command-line execution**:<br>
   Execute the script from a command-line interface using the appropriate options.
 
@@ -73,5 +75,7 @@ Depending on the input file, multiple CSV files may be generated.
   `python ImportData.py --db-type sqlite --sqlite-db mydb.db --csv-file "data\*.csv" --verbose`<br>
   **Example for MariaDB**:<br>
   `python ImportData.py --db-type mariadb --host localhost --user root --database mydb --csv-file "data\*.csv" --verbose`<br>
+  **Example for PostgreSQL**:<br>
+  `python ImportData.py --db-type postgresql --host localhost --user postgres --database mydb --csv-file "data\*.csv" --verbose`<br>
 - **Optional: Data Preservation**:<br>
   The `--suppress-recreate` option preserves the existing IMPORT_DATA table, allowing new data to be added without deleting previously imported data.

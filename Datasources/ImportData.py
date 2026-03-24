@@ -1,7 +1,7 @@
 ﻿"""
 CSV Import Script for Sensor Data
 
-This script imports CSV files into a unified `import_data` table in either SQLite or MariaDB.
+This script imports CSV files into a unified `import_data` table in SQLite, MariaDB, or PostgreSQL.
 Each CSV is expected to contain two columns: timestamp and value.
 
 - The sensor ID and resolution are extracted from the CSV filename.
@@ -16,11 +16,12 @@ Each CSV is expected to contain two columns: timestamp and value.
   ✓ Efficient batch inserts via executemany()
   ✓ Optional suppression of table recreation
   ✓ Type-safe DB selection
-  ✓ Duplicate key handling for both SQLite and MariaDB
+  ✓ Duplicate key handling for SQLite, MariaDB, and PostgreSQL
 
 Typical usage:
   python script.py --db-type sqlite --sqlite-db db.sqlite --csv-file "data/*.csv"
   python script.py --db-type mariadb --user root --database mydb --csv-file "data/*.csv"
+  python script.py --db-type postgresql --user postgres --database mydb --csv-file "data/*.csv"
   python script.py --db-type mariadb --user root --database mydb --cleanup-backup
 """
 import argparse
@@ -35,6 +36,7 @@ class DatabaseType(Enum):
 
     SQLITE = auto()
     MARIADB = auto()
+    POSTGRESQL = auto()
 
 
 def log(message: str, verbose: bool = True):
@@ -50,6 +52,8 @@ def parse_db_type(db_type_str: str) -> DatabaseType:
     db_type_map = {
         "sqlite": DatabaseType.SQLITE,
         "mariadb": DatabaseType.MARIADB,
+        "postgresql": DatabaseType.POSTGRESQL,
+        "postgres": DatabaseType.POSTGRESQL,
     }
     try:
         return db_type_map[db_type_str.lower()]
@@ -81,13 +85,29 @@ def get_connection(db_type: DatabaseType, args):
         )
         # MariaDB/MySQL uses '%s' for placeholders
         placeholder = "%s"
+    elif db_type == DatabaseType.POSTGRESQL:
+        import psycopg2
+
+        if not args.user or not args.database:
+            raise ValueError("--user and --database are required for PostgreSQL")
+        # Use an empty password if none is provided
+        password = args.password if args.password is not None else ""
+        conn = psycopg2.connect(
+            host=args.host,
+            user=args.user,
+            password=password,
+            database=args.database,
+            port=args.port,
+        )
+        # PostgreSQL uses '%s' for placeholders
+        placeholder = "%s"
     else:
         raise ValueError("Unsupported database type.")
 
     return conn, placeholder
 
 
-def create_table(cursor, recreate: bool = True, verbose: bool = False):
+def create_table(cursor, db_type: DatabaseType, recreate: bool = True, verbose: bool = False):
     """
     Creates the `IMPORT_DATA` table with the appropriate schema.
     If `recreate` is True, drops the table first.
@@ -100,17 +120,31 @@ def create_table(cursor, recreate: bool = True, verbose: bool = False):
     else:
         log("🧱 Keeping existing IMPORT_DATA table (created if missing)", verbose)
 
-    cursor.execute(
+    if db_type == DatabaseType.POSTGRESQL:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS IMPORT_DATA (
+                id VARCHAR(50) NOT NULL,
+                resolution VARCHAR(4) NOT NULL,
+                timestamp DOUBLE PRECISION NOT NULL,
+                value DOUBLE PRECISION NOT NULL,
+                PRIMARY KEY (id, resolution, timestamp),
+                CHECK (resolution IN ('HIGH','LOW'))
+            )
         """
-        CREATE TABLE IF NOT EXISTS IMPORT_DATA (
-            id VARCHAR(50) NOT NULL,
-            resolution VARCHAR(4) NOT NULL,
-            timestamp DOUBLE NOT NULL,
-            value DOUBLE NOT NULL,
-            PRIMARY KEY (id, resolution, timestamp),
-            CHECK (resolution IN ('HIGH','LOW'))
         )
-    """
+    else:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS IMPORT_DATA (
+                id VARCHAR(50) NOT NULL,
+                resolution VARCHAR(4) NOT NULL,
+                timestamp DOUBLE NOT NULL,
+                value DOUBLE NOT NULL,
+                PRIMARY KEY (id, resolution, timestamp),
+                CHECK (resolution IN ('HIGH','LOW'))
+            )
+        """
     )
 
 
@@ -194,6 +228,8 @@ def import_csv_data(
         conflict_clause = "ON CONFLICT(id, resolution, timestamp) DO UPDATE SET value = excluded.value"
     elif db_type == DatabaseType.MARIADB:
         conflict_clause = "ON DUPLICATE KEY UPDATE value = VALUES(value)"
+    elif db_type == DatabaseType.POSTGRESQL:
+        conflict_clause = "ON CONFLICT(id, resolution, timestamp) DO UPDATE SET value = EXCLUDED.value"
     else:
         raise ValueError(f"Unsupported database type: {db_type}")
 
@@ -244,7 +280,7 @@ def main():
         "--db-type",
         type=parse_db_type,
         required=True,
-        help="Type of database to use: sqlite or mariadb",
+        help="Type of database to use: sqlite, mariadb, or postgresql",
     )
     parser.add_argument(
         "--csv-file",
@@ -257,16 +293,22 @@ def main():
         "--sqlite-db", help="SQLite database file path (required for sqlite)"
     )
 
-    # MariaDB-specific parameters
+    # MariaDB or PostgreSQL-specific parameters
     parser.add_argument(
-        "--host", default="localhost", help="MariaDB host (default: localhost)"
+        "--host", default="localhost", help="Database host (default: localhost)"
     )
-    parser.add_argument("--user", help="MariaDB username (required for mariadb)")
+    parser.add_argument("--user", help="Database username (required for mariadb/postgresql)")
     parser.add_argument(
-        "--password", help="MariaDB password (default: empty if not set)"
+        "--password", help="Database password (default: empty if not set)"
     )
     parser.add_argument(
-        "--database", help="MariaDB database name (required for mariadb)"
+        "--database", help="Database name (required for mariadb/postgresql)"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=5432,
+        help="PostgreSQL port (default: 5432, only for postgresql)",
     )
 
     # Control table recreation
@@ -313,7 +355,7 @@ def main():
 
         # Recreate table unless suppression is requested
         create_table(
-            cursor, recreate=(not args.suppress_recreate), verbose=args.verbose
+            cursor, db_type, recreate=(not args.suppress_recreate), verbose=args.verbose
         )
         conn.commit()
 
