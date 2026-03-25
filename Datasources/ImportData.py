@@ -107,7 +107,9 @@ def get_connection(db_type: DatabaseType, args):
     return conn, placeholder
 
 
-def create_table(cursor, db_type: DatabaseType, recreate: bool = True, verbose: bool = False):
+def create_table(
+    cursor, db_type: DatabaseType, recreate: bool = True, verbose: bool = False
+):
     """
     Creates the `IMPORT_DATA` table with the appropriate schema.
     If `recreate` is True, drops the table first.
@@ -145,7 +147,7 @@ def create_table(cursor, db_type: DatabaseType, recreate: bool = True, verbose: 
                 CHECK (resolution IN ('HIGH','LOW'))
             )
         """
-    )
+        )
 
 
 def compute_id_and_resolution(csv_file: str) -> tuple[str, str]:
@@ -297,7 +299,9 @@ def main():
     parser.add_argument(
         "--host", default="localhost", help="Database host (default: localhost)"
     )
-    parser.add_argument("--user", help="Database username (required for mariadb/postgresql)")
+    parser.add_argument(
+        "--user", help="Database username (required for mariadb/postgresql)"
+    )
     parser.add_argument(
         "--password", help="Database password (default: empty if not set)"
     )

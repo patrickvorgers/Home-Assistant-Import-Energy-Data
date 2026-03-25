@@ -719,7 +719,12 @@ def parse_args() -> argparse.Namespace:
         help="Database type to use",
     )
     parser.add_argument("--host", default="localhost", help="Database host name")
-    parser.add_argument("--port", type=int, default=None, help="Database port number (default: 3306 for MariaDB, 5432 for PostgreSQL)")
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Database port number (default: 3306 for MariaDB, 5432 for PostgreSQL)",
+    )
     parser.add_argument("--user", help="Database user name")
     parser.add_argument("--password", help="Database password")
     parser.add_argument("--database", help="Database name")
