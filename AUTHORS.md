@@ -41,4 +41,6 @@ Please share scripts or how-to guides if you have built an integration with a ne
 * Ghislain Seguin (https://github.com/gseguin)
   * Initial Implementation: Xcel Energy & United Power
 * jan-zezula (https://github.com/jan-zezula)
-  * Initial Implementation: EDC-CR - Energetické Datové Centrum (edc-cr.cz)
+  * Initial Implementation: EDC-CR - Energetickï¿½ Datovï¿½ Centrum (edc-cr.cz)
+* kevleodev (https://github.com/kevleodev)
+  * Initial Implementation: PostgreSQL support

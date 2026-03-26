@@ -275,6 +275,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
   * Initial Implementation: Xcel Energy & United Power
 * jan-zezula (https://github.com/jan-zezula)
   * Initial Implementation: EDC-CR - Energetické Datové Centrum (edc-cr.cz)
+* kevleodev (https://github.com/kevleodev)
+  * Initial Implementation: PostgreSQL support
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

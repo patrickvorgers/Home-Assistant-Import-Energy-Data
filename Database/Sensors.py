@@ -1,13 +1,13 @@
 ﻿"""
 Sensor definitions
 
-A GUI application to visually select sensors from a MariaDB or SQLite database,
+A GUI application to visually select sensors from a MariaDB, PostgreSQL, or SQLite database,
 and generate SQL INSERT statements for the conversion SQL script.
 
 Usage:
-    python sensors.py --db-type <mariadb|sqlite> \
+    python sensors.py --db-type <mariadb|postgresql|sqlite> \
         [--host HOST --port PORT --user USER --password PASSWORD --database DB]
-    python sensors.py --db-type sqlite --file path/to/file.db
+    python sensors.py --db-type sqlite --sqlite-db path/to/file.db
 """
 
 import argparse
@@ -605,7 +605,7 @@ class StatsMetaApp:
         popup.lift()
 
 
-def fetch_sensors(conn) -> list:
+def fetch_sensors(conn, args) -> list:
     """
     Fetch sensor definitions from the database.
     """
@@ -615,7 +615,7 @@ def fetch_sensors(conn) -> list:
     query = (
         "SELECT id, statistic_id, unit_of_measurement "
         f"FROM statistics_meta "
-        "WHERE has_sum = 1 "
+        f"WHERE has_sum {'IS TRUE' if args.db_type == 'postgresql' else '= 1'} "
         f"AND LOWER(unit_of_measurement) IN ({placeholders})"
     )
 
@@ -678,10 +678,28 @@ def load_data(args) -> tuple:
             password=args.password or "",
             database=args.database,
         )
+    elif args.db_type == "postgresql":
+        try:
+            import psycopg2
+        except ImportError:
+            messagebox.showerror(
+                "Dependency Error",
+                "psycopg2-binary is required. "
+                "Install with: pip install psycopg2-binary",
+            )
+            sys.exit(1)
+
+        conn = psycopg2.connect(
+            host=args.host,
+            port=args.port,
+            user=args.user,
+            password=args.password or "",
+            database=args.database,
+        )
     else:
         conn = sqlite3.connect(args.sqlite_db)
 
-    sensors = fetch_sensors(conn)
+    sensors = fetch_sensors(conn, args)
     import_ids = fetch_import_ids(conn)
 
     conn.close()
@@ -696,24 +714,33 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--db-type",
-        choices=["mariadb", "sqlite"],
+        choices=["mariadb", "postgresql", "sqlite"],
         required=True,
         help="Database type to use",
     )
-    parser.add_argument("--host", default="localhost", help="MariaDB host name")
-    parser.add_argument("--port", type=int, default=3306, help="MariaDB port number")
-    parser.add_argument("--user", help="MariaDB user name")
-    parser.add_argument("--password", help="MariaDB password")
-    parser.add_argument("--database", help="MariaDB database name")
+    parser.add_argument("--host", default="localhost", help="Database host name")
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Database port number (default: 3306 for MariaDB, 5432 for PostgreSQL)",
+    )
+    parser.add_argument("--user", help="Database user name")
+    parser.add_argument("--password", help="Database password")
+    parser.add_argument("--database", help="Database name")
     parser.add_argument("--sqlite-db", help="Path to SQLite database file")
 
     args = parser.parse_args()
 
-    if args.db_type == "mariadb" and not args.user:
-        parser.error("--user is required for MariaDB")
+    # Set default port based on database type if not specified
+    if args.port is None:
+        args.port = 3306 if args.db_type == "mariadb" else 5432
 
-    if args.db_type == "mariadb" and not args.database:
-        parser.error("--database is required for MariaDB")
+    if args.db_type in ("mariadb", "postgresql") and not args.user:
+        parser.error(f"--user is required for {args.db_type.upper()}")
+
+    if args.db_type in ("mariadb", "postgresql") and not args.database:
+        parser.error(f"--database is required for {args.db_type.upper()}")
 
     if args.db_type == "sqlite" and not args.sqlite_db:
         parser.error("--sqlite-db is required for SQLite")
