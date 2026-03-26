@@ -69,7 +69,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 
 #### Load import script
 - Load SQL file `Import Energy data into Home Assistant.sql` from the PostgreSQL directory
-- Validate the schema version of the database
+- Validate the schema version of the database (Select table: schema_changes and select the data tab on the right and scroll down to the bottom)
   - The script has been tested with schema version 53. With higher versions you should validate if the structure of the `statistics` and `statistics_short_term` tables have changed.
     - Used fields in table `statistics`: `metadata_id`, `state`, `sum`, `start_ts`, `created_ts`
     - Used fields in table `statistics_short_term`: `sum`
@@ -89,9 +89,9 @@ Importing historical energy data into Home Assistant is not simple and requires 
 - Determine the `cutoff_new_meter` and `cutoff_invalid_value`. The script will automatically fill in the default values based on the unit of measurement of the target sensor. The different cutoffs are described in the script.
 - Press `Generate SQL` which will generate the SQL statements that need to be replaced in the `Import Energy data into Home Assistant.sql` SQL file.
 ##### Option 2: Manually lookup the sensor information
-  - In case something goes wrong you can restore the database from your backup.
-- Change the script and remove/comment out the lines of the sensors that are not needed. They can be found at the top of the script by looking up the lines where `/* Change */` has been added in the SQL statement.
-- Change the script and update the IDs according to the found IDs in the `statistics_meta` table.
+- Lookup in the `statistics_meta` table the IDs of the sensors (Select table: `statistics_meta` and select the data tab on the right. You can use `filter` to find the ID of the sensor, For instance: `statistic_id LIKE '%sensor.gas_meter%'`)
+  - The names of the sensors can be looked up in the Home Assistant Energy dashboard (Settings -> Dashboards -> Energy).
+<br>Example:
     ```
         id  statistic_id                                source      unit_of_measurement
         6   sensor.gas_meter                            recorder    m³
@@ -120,7 +120,7 @@ Importing historical energy data into Home Assistant is not simple and requires 
 #### Restart Home Assistant
 - Restart/reboot Home Assistant (physically reboot Home Assistant or login using PUTTY-SSH and execute the `reboot` command)
 - Validate the imported data in the `Energy Dashboard`
-  - After validation, the `homeassistant backup` database can be removed. Right-click on `homeassistant backup` and select `Drop` (HeidiSQL).
+  - After validation, the `homeassistant backup` database can be removed. Right-click on `homeassistant backup` and select `Delete` (DBeaver).
     Optionally, run the `Cleanup backup data.sql` SQL script to remove the backup data from the `homeassistant` database.
     The backup data can also be removed by using the `ImportData.py` script with the `--cleanup-backup` option.
   - In case of issues, the changes can be rolled back with the `Restore backup data.sql` SQL script.

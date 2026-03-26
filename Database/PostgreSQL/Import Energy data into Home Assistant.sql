@@ -197,6 +197,7 @@ WHERE
   - Diff is null  => The point where the imported data goes over to Home Assistant data
   - Diff < 0   => Probably new meter installed (measurement should be low)
   - Diff > invalid => Incorrect value
+  First handle the first two cases and then correct to 0 when incorrect value
 */
 UPDATE stats_new
 SET diff = old_sum
