@@ -428,6 +428,33 @@ def generateImportDataFile(
     )
 
 
+# Generate the datafiles from the provided dataframe
+def generateImportDataFilesFromDataFrame(
+    dataFrame: pd.DataFrame,
+    outputFileName: str | None = None,
+    prefix: str = "",
+):
+    # Prepare the data
+    dataFrame = prepareData(dataFrame)
+
+    # Create the output files
+    for outputFile in outputFiles:
+        if outputFileName is None or outputFile.outputFileName == outputFileName:
+            generateImportDataFile(
+                dataFrame.copy(),
+                (
+                    f"{prefix}_{outputFile.outputFileName}"
+                    if prefix
+                    else outputFile.outputFileName
+                ),
+                outputFile.valueColumnName,
+                outputFile.dataFilters,
+                outputFile.intervalMode,
+                outputFile.initialValue,
+            )
+    print("Processing complete.")
+
+
 # Read the inputfile
 def readInputFile(inputFileName: str) -> pd.DataFrame:
     # Read the specified file
@@ -517,27 +544,8 @@ def generateImportDataFiles(
     # Read all the found files and concat the data
     dataFrame = pd.concat(map(readInputFile, fileNames), ignore_index=True, sort=True)
 
-    # Prepare the data
-    dataFrame = prepareData(dataFrame)
-
-    # Create the output files
-    for outputFile in outputFiles:
-        # Check if we have to generate a specific output file
-        if outputFileName is None or outputFile.outputFileName == outputFileName:
-            # Generate the import data file and ensure dataFrame is not modified between definitions
-            generateImportDataFile(
-                dataFrame.copy(),
-                (
-                    f"{prefix}_{outputFile.outputFileName}"
-                    if prefix
-                    else outputFile.outputFileName
-                ),
-                outputFile.valueColumnName,
-                outputFile.dataFilters,
-                outputFile.intervalMode,
-                outputFile.initialValue,
-            )
-    print("Processing complete.")
+    # Generate the datafiles which can be imported based on the provided dataframe
+    generateImportDataFilesFromDataFrame(dataFrame, outputFileName, prefix)
 
 
 # Main Entry point
