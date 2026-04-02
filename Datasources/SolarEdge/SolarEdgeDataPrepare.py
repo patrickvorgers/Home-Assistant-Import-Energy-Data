@@ -21,7 +21,7 @@ engine.inputFileNameExtension = ".json"
 engine.inputFileDateColumnName = "date"
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
-engine.inputFileDateTimeColumnFormat = "%Y-%m-%d %H:%M:%S"
+engine.inputFileDateTimeColumnFormat = "mixed"
 # Inputfile(s): Json path of the records (only needed for json files)
 # Example: inputFileJsonPath: List[str] = ['energy', 'values']
 engine.inputFileJsonPath = ["energy", "values"]
