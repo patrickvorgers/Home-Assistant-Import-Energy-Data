@@ -2,11 +2,17 @@ from tests.helpers import run_commands
 
 # List scripts and their CLI args
 COMMANDS_NO_UTC = [
-    ("SolarEdgeDataPrepare.py", ["-y", "Sample files/No UTC/solaredge.json"]),
+    (
+        "SolarEdgeDataPrepare.py",
+        ["-y", "Sample files/No UTC/solaredge.json"]
+    ),
 ]
 
 COMMANDS_UTC = [
-    ("SolarEdgeDataPrepare.py", ["-y", "Sample files/UTC/solaredge_????_??.json"]),
+    (
+        "SolarEdgeDataPrepare.py",
+        ["-y", "Sample files/UTC/solaredge_????_??.json"]
+    ),
 ]
 
 
