@@ -46,12 +46,15 @@ class IntervalMode(Enum):
 #                    Supplying an initialValue establishes a baseline and helps avoid a potentially large spike at
 #                    the crossover between imported data and existing Home Assistant statistics - especially
 #                    if the starting reading is below the cutoff_invalid_value.
+#   forcePositive:   Force the value to be positive. This can be used in case the data contains negative values
+#                    and the target entity in Home Assistant only accepts positive values (e.g. energy production).
 class OutputFileDefinition(NamedTuple):
     outputFileName: str
     valueColumnName: str | int
     dataFilters: List[DataFilter]
     intervalMode: IntervalMode = IntervalMode.READING_START_INTERVAL
     initialValue: float = 0
+    forcePositive: bool = False
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -347,6 +350,7 @@ def generateImportDataFile(
     filters: list[DataFilter],
     intervalMode: IntervalMode,
     initialValue: float,
+    forcePositive: bool,
 ):
     if isinstance(dataColumnName, int):
         # Verify if the index is valid
@@ -390,7 +394,11 @@ def generateImportDataFile(
 
     # Column exists, continue
     print("Creating file: " + outputFile)
-    dataFrameFiltered = filterData(dataFrame, filters)
+    dataFrameFiltered = filterData(dataFrame, filters).copy()
+
+    # Make sure that the values are positive in case this is required (e.g. for energy production)
+    if forcePositive:
+        dataFrameFiltered[dataColumnName] = dataFrameFiltered[dataColumnName].abs()
 
     # Check if we have to recalculate the data
     if intervalMode == intervalMode.USAGE:
@@ -451,6 +459,7 @@ def generateImportDataFilesFromDataFrame(
                 outputFile.dataFilters,
                 outputFile.intervalMode,
                 outputFile.initialValue,
+                outputFile.forcePositive,
             )
     print("Processing complete.")
 
