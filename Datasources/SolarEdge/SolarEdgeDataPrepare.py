@@ -75,10 +75,14 @@ def customPrepareDataPre(dataFrame: pd.DataFrame) -> pd.DataFrame:
         # Remove the middle timezone token and keep the trailing numeric offset
         # 2018-04-02 13:00:00 CEST+0200 -> 2018-04-02 13:00:00 +0200
         # 2018-12-01 13:00:00 CET+0100 -> 2018-12-01 13:00:00 +0100
-        df["date"] = df["date"].astype(str).str.replace(
-            r"\s+\S+([+-]\d{4})$",
-            r" \1",
-            regex=True,
+        df["date"] = (
+            df["date"]
+            .astype(str)
+            .str.replace(
+                r"\s+\S+([+-]\d{4})$",
+                r" \1",
+                regex=True,
+            )
         )
 
         engine.inputFileDateTimeColumnFormat = "%Y-%m-%d %H:%M:%S %z"

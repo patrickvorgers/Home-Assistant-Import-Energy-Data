@@ -1,5 +1,5 @@
-from datetime import time
 import sys
+from datetime import time
 from pathlib import Path
 
 import pandas as pd
@@ -10,7 +10,11 @@ sys.path.insert(0, str(ROOT))
 
 # 2) Import engine (supress linter warnings)
 import DataPrepareEngine as engine  # noqa: E402
-from DataPrepareEngine import DataFilter, IntervalMode, OutputFileDefinition  # noqa: E402
+from DataPrepareEngine import (
+    DataFilter,
+    IntervalMode,
+    OutputFileDefinition,
+)  # noqa: E402
 
 # 3) Override DataPrepare engine globals
 # Name of the energy provider
@@ -63,7 +67,7 @@ engine.outputFiles = [
         "usage",
         [
             DataFilter("code", "^ellm$", True),
-            DataFilter('Tariff', '1', True),
+            DataFilter("Tariff", "1", True),
         ],
         intervalMode=IntervalMode.USAGE,
     ),
@@ -72,7 +76,7 @@ engine.outputFiles = [
         "usage",
         [
             DataFilter("code", "^ellm$", True),
-            DataFilter('Tariff', '2', True),
+            DataFilter("Tariff", "2", True),
         ],
         intervalMode=IntervalMode.USAGE,
     ),
@@ -81,7 +85,7 @@ engine.outputFiles = [
         "usage",
         [
             DataFilter("code", "^eltm$", True),
-            DataFilter('Tariff', '1', True),
+            DataFilter("Tariff", "1", True),
         ],
         intervalMode=IntervalMode.USAGE,
     ),
@@ -90,16 +94,15 @@ engine.outputFiles = [
         "usage",
         [
             DataFilter("code", "^eltm$", True),
-            DataFilter('Tariff', '2', True),
+            DataFilter("Tariff", "2", True),
         ],
         intervalMode=IntervalMode.USAGE,
     ),
     OutputFileDefinition(
-        "gas_high_resolution.csv",
-        "value",
-        [DataFilter("code", "agasm$", True)]
+         "gas_high_resolution.csv", "value", [DataFilter("code", "agasm$", True)]
     ),
 ]
+
 
 # Determine the tariff based on the date and time of the record
 def determine_tariff(recordDatetime: pd.Timestamp) -> int:
@@ -130,7 +133,9 @@ def customPrepareDataPost(dataFrame: pd.DataFrame) -> pd.DataFrame:
     df["value"] = pd.to_numeric(df["value"], errors="coerce").fillna(0)
 
     # Convert unix timestamp to datetime (in UTC) and convert to local timezone
-    dt = pd.to_datetime(df[engine.dateTimeColumnName], unit="s", utc=True).dt.tz_convert(engine.inputFileTimeZoneName)
+    dt = pd.to_datetime(
+        df[engine.dateTimeColumnName], unit="s", utc=True
+    ).dt.tz_convert(engine.inputFileTimeZoneName)
 
     # Determine the tariff based on the date and time of the record
     df["Tariff"] = dt.map(determine_tariff)
