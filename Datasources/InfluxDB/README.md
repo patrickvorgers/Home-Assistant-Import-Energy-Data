@@ -14,6 +14,7 @@ This data can be exported using the Chronograf interface and and used to import 
 
 **How-to**
 - Open the InfluxDB Chronograf interface and navigate to the data you want to export.
+- Select InfluxQL as the query language and write the query to retrieve the desired data.
 - Set the required time range.
 - Ensure that the query is configured to:
     - Aggregate data by **1 hour**
