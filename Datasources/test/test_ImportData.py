@@ -50,7 +50,7 @@ class DummyCursor:
     def executemany(self, query, seq_of_params):
         self.executed_queries.append(query)
         self.params.extend(seq_of_params)
-    
+
     def execute(self, query, params=None):
         self.executed_queries.append(query)
         if params is not None:
@@ -73,6 +73,66 @@ def _install_fake_psycopg2(monkeypatch, fake_connect):
     psycopg2_mod = types.ModuleType("psycopg2")
     psycopg2_mod.connect = fake_connect
     monkeypatch.setitem(sys.modules, "psycopg2", psycopg2_mod)
+
+
+def _install_fake_mysql_and_capture(monkeypatch):
+    """Install fake mysql.connector and return a dict capturing connect kwargs."""
+    called_kwargs = {}
+
+    def fake_connect(**kwargs):
+        called_kwargs.update(kwargs)
+        return object()
+
+    _install_fake_mysql(monkeypatch, fake_connect)
+    return called_kwargs
+
+
+def _install_fake_postgresql_and_capture(monkeypatch):
+    """Install fake psycopg2 and return a dict capturing connect kwargs."""
+    called_kwargs = {}
+
+    def fake_connect(**kwargs):
+        called_kwargs.update(kwargs)
+        return object()
+
+    _install_fake_psycopg2(monkeypatch, fake_connect)
+    return called_kwargs
+
+
+def _make_mariadb_args(
+    user="user1",
+    database="db1",
+    password="secret",
+    host="dbhost",
+    port=5432,
+):
+    """Build argparse args for MariaDB connection tests."""
+    return argparse.Namespace(
+        sqlite_db=None,
+        user=user,
+        database=database,
+        password=password,
+        host=host,
+        port=port,
+    )
+
+
+def _make_postgresql_args(
+    user="pguser",
+    database="pgdb",
+    password="secret",
+    host="pghost",
+    port=5432,
+):
+    """Build argparse args for PostgreSQL connection tests."""
+    return argparse.Namespace(
+        sqlite_db=None,
+        user=user,
+        database=database,
+        password=password,
+        host=host,
+        port=port,
+    )
 
 
 # ---------- parse_db_type ----------
@@ -446,15 +506,12 @@ def test_get_connection_sqlite_ok(tmp_path: Path):
         conn.close()
 
 
-def test_get_connection_mariadb_missing_args_raises():
+def test_get_connection_mariadb_missing_args_raises(monkeypatch):
     # Missing user and database
-    args = argparse.Namespace(
-        sqlite_db=None,
-        user=None,
-        database=None,
-        password=None,
-        host="localhost",
-    )
+    _install_fake_mysql_and_capture(monkeypatch)
+
+    args = _make_mariadb_args(user=None, database=None, host="localhost", password=None)
+
     with pytest.raises(
         ValueError, match="--user and --database are required for MariaDB"
     ):
@@ -462,23 +519,9 @@ def test_get_connection_mariadb_missing_args_raises():
 
 
 def test_get_connection_mariadb_uses_connector(monkeypatch):
-    # Fake mysql.connector via sys.modules so we don't need the real package installed
-    called_kwargs = {}
+    called_kwargs = _install_fake_mysql_and_capture(monkeypatch)
 
-    def fake_connect(**kwargs):
-        called_kwargs.update(kwargs)
-        # Return a dummy connection-like object
-        return object()
-
-    _install_fake_mysql(monkeypatch, fake_connect)
-
-    args = argparse.Namespace(
-        sqlite_db=None,
-        user="user1",
-        database="db1",
-        password="secret",
-        host="dbhost",
-    )
+    args = _make_mariadb_args(password="secret")
 
     conn, placeholder = get_connection(DatabaseType.MARIADB, args)
 
@@ -494,22 +537,9 @@ def test_get_connection_mariadb_uses_connector(monkeypatch):
 
 def test_get_connection_mariadb_default_empty_password(monkeypatch):
     """Cover the branch where password is None and defaults to empty string."""
-    called_kwargs = {}
+    called_kwargs = _install_fake_mysql_and_capture(monkeypatch)
 
-    def fake_connect(**kwargs):
-        called_kwargs.update(kwargs)
-        return object()
-
-    _install_fake_mysql(monkeypatch, fake_connect)
-
-    # password is None -> should default to ""
-    args = argparse.Namespace(
-        sqlite_db=None,
-        user="user1",
-        database="db1",
-        password=None,
-        host="dbhost",
-    )
+    args = _make_mariadb_args(password=None)
 
     conn, placeholder = get_connection(DatabaseType.MARIADB, args)
 
@@ -519,18 +549,10 @@ def test_get_connection_mariadb_default_empty_password(monkeypatch):
 
 
 def test_get_connection_postgresql_missing_args_raises(monkeypatch):
-    def fake_connect(**kwargs):
-        return object()
+    _install_fake_postgresql_and_capture(monkeypatch)
 
-    _install_fake_psycopg2(monkeypatch, fake_connect)
-
-    args = argparse.Namespace(
-        sqlite_db=None,
-        user=None,
-        database=None,
-        password=None,
-        host="localhost",
-        port=5432,
+    args = _make_postgresql_args(
+        user=None, database=None, host="localhost", password=None
     )
 
     with pytest.raises(
@@ -540,22 +562,9 @@ def test_get_connection_postgresql_missing_args_raises(monkeypatch):
 
 
 def test_get_connection_postgresql_uses_connector(monkeypatch):
-    called_kwargs = {}
+    called_kwargs = _install_fake_postgresql_and_capture(monkeypatch)
 
-    def fake_connect(**kwargs):
-        called_kwargs.update(kwargs)
-        return object()
-
-    _install_fake_psycopg2(monkeypatch, fake_connect)
-
-    args = argparse.Namespace(
-        sqlite_db=None,
-        user="pguser",
-        database="pgdb",
-        password="secret",
-        host="pghost",
-        port=5433,
-    )
+    args = _make_postgresql_args(password="secret", port=5433)
 
     conn, placeholder = get_connection(DatabaseType.POSTGRESQL, args)
 
@@ -571,22 +580,9 @@ def test_get_connection_postgresql_uses_connector(monkeypatch):
 
 
 def test_get_connection_postgresql_default_empty_password(monkeypatch):
-    called_kwargs = {}
+    called_kwargs = _install_fake_postgresql_and_capture(monkeypatch)
 
-    def fake_connect(**kwargs):
-        called_kwargs.update(kwargs)
-        return object()
-
-    _install_fake_psycopg2(monkeypatch, fake_connect)
-
-    args = argparse.Namespace(
-        sqlite_db=None,
-        user="pguser",
-        database="pgdb",
-        password=None,
-        host="pghost",
-        port=5432,
-    )
+    args = _make_postgresql_args(password=None, port=5432)
 
     conn, placeholder = get_connection(DatabaseType.POSTGRESQL, args)
 
