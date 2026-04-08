@@ -33,7 +33,7 @@ def sqlite_import_table(recreate: bool = True):
     conn = sqlite3.connect(":memory:")
     try:
         cursor = conn.cursor()
-        create_table(cursor, recreate=recreate, verbose=False)
+        create_table(cursor, DatabaseType.SQLITE, recreate=recreate, verbose=False)
         conn.commit()
         yield conn, cursor
     finally:
@@ -50,6 +50,11 @@ class DummyCursor:
     def executemany(self, query, seq_of_params):
         self.executed_queries.append(query)
         self.params.extend(seq_of_params)
+    
+    def execute(self, query, params=None):
+        self.executed_queries.append(query)
+        if params is not None:
+            self.params.append(params)
 
 
 def _install_fake_mysql(monkeypatch, fake_connect):
@@ -61,6 +66,13 @@ def _install_fake_mysql(monkeypatch, fake_connect):
 
     monkeypatch.setitem(sys.modules, "mysql", mysql_mod)
     monkeypatch.setitem(sys.modules, "mysql.connector", connector_mod)
+
+
+def _install_fake_psycopg2(monkeypatch, fake_connect):
+    """Install a fake psycopg2 module that uses `fake_connect`."""
+    psycopg2_mod = types.ModuleType("psycopg2")
+    psycopg2_mod.connect = fake_connect
+    monkeypatch.setitem(sys.modules, "psycopg2", psycopg2_mod)
 
 
 # ---------- parse_db_type ----------
@@ -76,9 +88,19 @@ def test_parse_db_type_mariadb():
     assert parse_db_type("MariaDB") is DatabaseType.MARIADB
 
 
+def test_parse_db_type_postgresql():
+    assert parse_db_type("postgresql") is DatabaseType.POSTGRESQL
+    assert parse_db_type("POSTGRESQL") is DatabaseType.POSTGRESQL
+
+
+def test_parse_db_type_postgres_alias():
+    assert parse_db_type("postgres") is DatabaseType.POSTGRESQL
+    assert parse_db_type("Postgres") is DatabaseType.POSTGRESQL
+
+
 def test_parse_db_type_invalid():
     with pytest.raises(argparse.ArgumentTypeError):
-        parse_db_type("postgres")
+        parse_db_type("oracle")
 
 
 # ---------- compute_id_and_resolution ----------
@@ -278,6 +300,32 @@ def test_import_csv_data_mariadb_branch(tmp_path: Path):
     assert "ON DUPLICATE KEY UPDATE" in cursor.executed_queries[0]
 
 
+def test_import_csv_data_postgresql_branch(tmp_path: Path):
+    """
+    Cover the PostgreSQL conflict clause branch in import_csv_data.
+    We don't need a real DB, just a dummy cursor.
+    """
+    csv_path = tmp_path / "device_high_resolution.csv"
+    csv_path.write_text("1,10\n2,20\n")
+
+    cursor = DummyCursor()
+
+    processed, skipped = import_csv_data(
+        cursor=cursor,
+        csv_file=str(csv_path),
+        placeholder="%s",
+        id_val="device",
+        resolution="HIGH",
+        db_type=DatabaseType.POSTGRESQL,
+    )
+
+    assert processed == 2
+    assert skipped == 0
+    assert len(cursor.executed_queries) == 1
+    assert "ON CONFLICT(id, resolution, timestamp)" in cursor.executed_queries[0]
+    assert "EXCLUDED.value" in cursor.executed_queries[0]
+
+
 def test_import_csv_data_unsupported_db_type_raises(tmp_path: Path):
     """Cover the defensive 'unsupported db type' branch."""
     with sqlite_import_table() as (conn, cursor):
@@ -333,11 +381,24 @@ def test_create_table_no_recreate_keeps_existing_data():
         conn.commit()
 
         # Call create_table with recreate=False -> row should still be there
-        create_table(cursor, recreate=False, verbose=False)
+        create_table(cursor, DatabaseType.SQLITE, recreate=False, verbose=False)
         conn.commit()
 
         rows = list(conn.execute("SELECT id, value FROM IMPORT_DATA"))
         assert rows == [("keep", 42.0)]
+
+
+def test_create_table_postgresql_uses_double_precision():
+    """
+    Cover the PostgreSQL-specific create_table branch by checking the generated SQL.
+    """
+    cursor = DummyCursor()
+    create_table(cursor, DatabaseType.POSTGRESQL, recreate=True, verbose=False)
+
+    assert len(cursor.executed_queries) == 2
+    assert "DROP TABLE IF EXISTS IMPORT_DATA" in cursor.executed_queries[0]
+    assert "DOUBLE PRECISION" in cursor.executed_queries[1]
+    assert "CHECK (resolution IN ('HIGH','LOW'))" in cursor.executed_queries[1]
 
 
 # ---------- log ----------
@@ -455,6 +516,84 @@ def test_get_connection_mariadb_default_empty_password(monkeypatch):
     assert placeholder == "%s"
     assert conn is not None
     assert called_kwargs["password"] == ""
+
+
+def test_get_connection_postgresql_missing_args_raises(monkeypatch):
+    def fake_connect(**kwargs):
+        return object()
+
+    _install_fake_psycopg2(monkeypatch, fake_connect)
+
+    args = argparse.Namespace(
+        sqlite_db=None,
+        user=None,
+        database=None,
+        password=None,
+        host="localhost",
+        port=5432,
+    )
+
+    with pytest.raises(
+        ValueError, match="--user and --database are required for PostgreSQL"
+    ):
+        get_connection(DatabaseType.POSTGRESQL, args)
+
+
+def test_get_connection_postgresql_uses_connector(monkeypatch):
+    called_kwargs = {}
+
+    def fake_connect(**kwargs):
+        called_kwargs.update(kwargs)
+        return object()
+
+    _install_fake_psycopg2(monkeypatch, fake_connect)
+
+    args = argparse.Namespace(
+        sqlite_db=None,
+        user="pguser",
+        database="pgdb",
+        password="secret",
+        host="pghost",
+        port=5433,
+    )
+
+    conn, placeholder = get_connection(DatabaseType.POSTGRESQL, args)
+
+    assert placeholder == "%s"
+    assert conn is not None
+    assert called_kwargs == {
+        "host": "pghost",
+        "user": "pguser",
+        "password": "secret",
+        "database": "pgdb",
+        "port": 5433,
+    }
+
+
+def test_get_connection_postgresql_default_empty_password(monkeypatch):
+    called_kwargs = {}
+
+    def fake_connect(**kwargs):
+        called_kwargs.update(kwargs)
+        return object()
+
+    _install_fake_psycopg2(monkeypatch, fake_connect)
+
+    args = argparse.Namespace(
+        sqlite_db=None,
+        user="pguser",
+        database="pgdb",
+        password=None,
+        host="pghost",
+        port=5432,
+    )
+
+    conn, placeholder = get_connection(DatabaseType.POSTGRESQL, args)
+
+    assert placeholder == "%s"
+    assert conn is not None
+    assert called_kwargs["password"] == ""
+    assert called_kwargs["port"] == 5432
 
 
 def test_get_connection_unsupported_db_type_raises():
