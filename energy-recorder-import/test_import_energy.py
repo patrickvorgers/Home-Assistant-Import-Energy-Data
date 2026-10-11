@@ -234,5 +234,29 @@ class ImportTests(unittest.TestCase):
             imp.apply_sensor(client,plan,{'phase':'unknown'},lambda:None)
         self.assertEqual(client.calls,[])
 
+    def test_realistic_24_hour_prefix_with_48_hour_overlap(self):
+        # Relative trace only: no original sensor IDs, addresses, timestamps or meter baselines.
+        increments=[0.361,0.425,0.292,0.835,0.433,0.385,0.703,1.985,
+                    0.525,1.163,1.737,0.572,0.377,0.361,0.320]+[0.0]*8+[0.233]
+        self.assertEqual(len(increments),24)
+        increments += [0.232]*48
+        value=100.0;readings=[(B,value)]
+        for index,increment in enumerate(increments,1):
+            value+=increment;readings.append((B+index*3600,value))
+        source,notes=imp.source_statistics(readings)
+        prefix_total=source[23]['sum']
+        existing=[{**row,'sum':row['sum']-prefix_total} for row in source[24:]]
+        short=[{'ts':existing[-1]['ts']+300,'state':existing[-1]['state'],
+                'sum':existing[-1]['sum']}]
+        plan=imp.make_sensor_plan(CFG,META,source,existing,short,B+72*3600,notes)
+        self.assertEqual(len(plan['historical']),24)
+        self.assertEqual(plan['overlap_hours'],48)
+        self.assertAlmostEqual(plan['correction'],10.707,places=9)
+        self.assertAlmostEqual(existing[0]['sum'],0.232,places=9)
+        self.assertAlmostEqual(existing[0]['sum']+plan['correction'],10.939,places=9)
+        client=FakeHA(plan)
+        imp.apply_sensor(client,plan,{},lambda:None)
+        self.assertTrue(imp.rows_match(client.hour,source,0.001,True))
+
 
 if __name__=='__main__':unittest.main()

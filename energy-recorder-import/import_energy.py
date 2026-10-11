@@ -1,4 +1,4 @@
-"""Conservative prepend importer for HA Recorder, verified against Core 2026.10.1.
+"""Conservative prepend importer for HA Recorder, API schema checked against Core 2026.10.1.
 
 CSV: UNIX seconds, cumulative meter reading AT START of interval (no header).
 The last reading is a boundary, not another interval to import.

@@ -1,22 +1,22 @@
-# Historische energie importeren via Home Assistant Recorder
+# Import historical energy through Home Assistant Recorder
 
-Deze eerste opzet vervangt de directe SQL-schrijfroute voor één specifiek scenario:
-**oudere historie toevoegen vóór een bestaande, correcte HA-reeks**.
+This prototype replaces direct SQL writes for one specific scenario:
+**prepend older history to an existing, correct Home Assistant statistics series**.
 
-De uitvoering blijft buiten Home Assistant. Een eigen integratie is niet nodig.
-Het script gebruikt de WebSocket-opdrachten van Recorder en wijzigt geen databasebestanden.
-Gebaseerd op de Core-code van **2026.10.1**. Er is geen live import uitgevoerd.
+It runs outside Home Assistant and does not require a custom integration. It uses
+Recorder's WebSocket commands instead of changing database files. The API schema
+was checked against **Core 2026.10.1**. No live import has been performed.
 
-## Bestanden
+## Files
 
-- `import_energy.py`: converter, importplan, uitvoering en terugleescontrole.
-- `config.example.json`: voorbeeldmapping van generieke bestandsnaam naar HA-sensor.
-- `requirements.txt`: externe afhankelijkheid voor de WebSocket-verbinding.
-- `test_import_energy.py`: offline gedragstests met een nagebootste HA-API.
+- `import_energy.py`: input conversion, planning, execution and readback verification.
+- `config.example.json`: mappings from generic CSV filenames to destination sensors.
+- `requirements.txt`: WebSocket client dependency.
+- `test_import_energy.py`: offline behavior tests using a simulated HA API.
 
-## Formaat en grenzen
+## Input format
 
-Gebruik hetzelfde generieke formaat als de repo, zonder header:
+Use the repository's generic CSV format, without a header:
 
 ```text
 1704067200,100000
@@ -24,199 +24,211 @@ Gebruik hetzelfde generieke formaat als de repo, zonder header:
 1704074400,110000
 ```
 
-De eerste kolom is UNIX-tijd in seconden. De tweede kolom is de cumulatieve
-meterstand **aan het begin van het interval**, in de geconfigureerde bron-eenheid.
-In dit voorbeeld is de meterstand om 00:00 100000 Wh, om 01:00 105000 Wh en
-om 02:00 110000 Wh. Het verbruik is dus 5 kWh per uur. De eerste tellerstand
-van 100 kWh wordt niet als nieuw verbruik geteld.
+Column 1 is UNIX time in seconds. Column 2 is the cumulative meter reading
+**at the start of the interval**, expressed in the configured source unit.
+For example, the readings above represent 5 kWh consumption in each of two hours
+when the source unit is Wh. The initial 100 kWh meter baseline is not counted
+as imported consumption.
 
-De laatste regel sluit het voorgaande interval af; het script verzint geen
-verbruik ná die regel. De bron moet doorlopen tot ten minste het einde van
-de tweede volledige HA-overlapuurperiode.
+The last row closes the previous interval. The importer does not invent another
+interval after it. Input must extend through the end of at least the second
+complete overlapping HA hour.
 
-Bestandsnamen zijn `<import_name>_high_resolution.csv` en/of
-`<import_name>_low_resolution.csv`. De bron-eenheid geldt voor alle bestanden
-van dezelfde mapping. HIGH heeft voorrang; LOW wordt alleen vóór het eerste
-HIGH-tijdstip gebruikt, zoals in de bestaande repo.
+Filenames must be `<import_name>_high_resolution.csv` and/or
+`<import_name>_low_resolution.csv`. All files in a mapping use the same source
+unit. HIGH takes precedence: LOW is included only before the earliest HIGH
+timestamp, matching the repository's existing selection rule.
 
-Deze opzet ondersteunt:
+## Supported scope
 
-- Bestaande HA-sensoren met `has_sum=true`, `mean_type=0` en een recente
-  vijfminutenreeks; energie, gas en water.
-- Wh/kWh/MWh en L/m³. De opgeslagen statistiekeenheid van HA is leidend,
-  niet de weergave-eenheid van de sensor.
-- Tijdstippen op exacte UTC-uurgrenzen.
-- Meerdere sensoren, afzonderlijk verwerkt en bijgehouden in het journaal.
+- Existing Recorder sensor statistics with `has_sum=true`, `mean_type=0`, and
+  a recent five-minute sum chain: energy, gas and water counters.
+- Wh/kWh/MWh and L/m³ conversion. The **stored statistics unit** is used for
+  calculations and API reads, rather than the sensor's display unit.
+- Timestamps on exact UTC hour boundaries.
+- Multiple sensors, processed separately and tracked separately in the journal.
 
-Deze opzet ondersteunt nog geen lege of externe doelen, geen ruwe state-historie,
-geen vervanging van overlappende HA-metingen en geen kwartierwaarden zonder
-voorafgaande uurconversie. Het script zaait geen ontbrekende kortetermijnketen.
+Empty destinations, external statistics IDs, raw state-history imports,
+overwriting overlapping HA measurements and quarter-hour inputs without prior
+hour conversion are not supported yet. The prototype does not seed a missing
+short-term statistics chain.
 
-## De sum-aansluiting
+## Cumulative-sum alignment
 
-Voor ieder broninterval wordt het verschil tussen opeenvolgende meterstanden
-berekend. Daaruit ontstaat een cumulatieve bron-`sum`, beginnend bij het
-verbruik van het eerste beschikbare interval.
+The importer calculates consumption from successive source meter readings and
+builds a cumulative source `sum`, starting with the first available interval.
+It reads existing hourly and recent five-minute statistics, finds the actual
+first HA hour, and imports only source hours before that point.
 
-Het script haalt de bestaande uurstatistieken en recente vijfminutenstatistieken
-op en vindt het werkelijke eerste HA-uur. Alleen bronuren vóór dat eerste
-HA-uur worden ingevoerd. De overlap wordt gebruikt om de aansluiting te toetsen.
-
-De correctie is:
+The required correction is:
 
 ```text
-correctie = berekende bron-sum op eerste HA-uur - bestaande HA-sum op dat uur
+adjustment = calculated source sum at the first HA hour - existing HA sum at that hour
 ```
 
-Het script toetst diezelfde correctie op alle beschikbare gedeelde uren vóór
-de recente compileergrens. Het verschil moet binnen `overlap_tolerance` blijven.
-Die tolerantie is absoluut en wordt opgegeven in de HA-statistiekeenheid.
-De standaard is 0,02. Kies deze op basis van bronresolutie en afronding;
-vergroot haar niet alleen om een waarschuwing weg te krijgen.
+That same correction is checked against every shared source/HA hour before the
+recent compile boundary. Differences must remain within `overlap_tolerance`.
+This is an absolute tolerance in the destination statistics unit; the default
+is 0.02. Set it according to source resolution and rounding, not merely to
+silence a mismatch.
 
-Voorbeeld:
-
-| Uur | Bronstand aan begin, kWh | Berekende sum einde uur | HA-sum |
+| Hour | Source start reading, kWh | Calculated hour-end sum | Existing HA sum |
 |---|---:|---:|---:|
-| 00:00 | 100 | 5 | ontbreekt |
-| 01:00 | 105 | 10 | ontbreekt |
+| 00:00 | 100 | 5 | missing |
+| 01:00 | 105 | 10 | missing |
 | 02:00 | 110 | 12 | 2 |
 | 03:00 | 112 | 15 | 5 |
-| 04:00 | 115 | sluitregel | — |
+| 04:00 | 115 | closing boundary | — |
 
-De import schrijft de eerste twee uren met sums 5 en 10. De twee overlapuren
-geven dezelfde correctie +10. De bestaande sums worden daarna 12 en 15.
-De bestaande HA-meterstanden en verbruiksverschillen blijven intact.
+The first two hours are imported with sums 5 and 10. Both overlapping hours
+require +10, so the existing sums become 12 and 15. Existing HA meter readings
+and consumption differences remain unchanged.
 
-Een bestaande hoge HA-baseline kan ook een negatieve correctie vereisen. Het
-script telt daarom niet blind het historische eindtotaal bij HA op.
+An existing high baseline can require a negative correction. The importer
+therefore does not blindly add the last imported total to the destination.
 
-## Daggegevens, gaten en tellerresets
+## Daily data, gaps and counter resets
 
-Standaard is `gap_policy` **reject**. Meer dan één uur tussen bronmetingen
-leidt tot een stop, omdat er geen gemeten uurverdeling beschikbaar is.
+The default `gap_policy` is **reject**. Intervals longer than one hour stop
+planning because there is no measured hourly distribution.
 
-Met expliciet `"gap_policy": "uniform"` wordt intervalverbruik gelijkmatig
-over de ontbrekende uren verdeeld. Daggegevens leveren daarmee geschatte
-uurwaarden op, geen gemeten uurwaarden. Het plan vermeldt het aantal geschatte
-uren. Intervallen van meer dan 31 dagen worden geweigerd.
+Explicit `"gap_policy": "uniform"` distributes consumption equally across
+the hours in the interval. Daily readings then produce **estimated** hourly
+values, not measured hourly values. The plan records the estimated-hour count.
+Intervals longer than 31 days are always rejected.
 
-Standaard is `reset_policy` **reject**. Een dalende tellerstand stopt de import.
-Met expliciet `"reset_policy": "zero"` wordt aangenomen dat de teller naar nul
-is gereset en is de nieuwe stand het verbruik ná de reset. Verbruik vóór de
-reset binnen dat interval is niet uit twee standen terug te halen. Dat is
-een expliciete aanname, geen gegarandeerde correctie. Een reset in een
-meeruursinterval wordt altijd geweigerd.
+The default `reset_policy` is **reject**. A decreasing reading stops planning.
+Explicit `"reset_policy": "zero"` assumes a reset to zero and counts the new
+reading as consumption since that reset. Consumption before a reset inside
+the interval cannot be recovered from two boundary readings. This is an
+explicit assumption, not an exact recovery. Multi-hour reset intervals are
+always rejected.
 
-Ongeldige getallen, NaN, infinity, conflicterende dubbele tijdstippen, lege
-velden, headers en negatieve tellerstanden worden geweigerd. Er wordt niets
-automatisch op nul gezet.
+Invalid numbers, NaN, infinity, conflicting duplicate timestamps, empty values,
+headers and negative counter readings are rejected. They are never silently
+replaced with zero.
 
-## Gebruik op Windows
+## Windows usage
 
-Voer deze opdrachten uit in de map waarin de bestanden staan.
+Run the following commands from this directory:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-Kopieer `config.example.json` naar bijvoorbeeld `config.json`, vul de echte
-statistiek-ID's, eenheden en bestandspaden in. Relatieve CSV-paden worden
-ten opzichte van het configuratiebestand gelezen.
+Copy `config.example.json` to `config.json` and set the actual statistics IDs,
+source units and input paths. Relative CSV paths are resolved relative to the
+configuration file.
 
-Stel de verbinding en een administrator-token in voor de huidige sessie.
-Het token wordt niet opgeslagen in het plan of journaal. Onderstaand voorbeeld
-vraagt het token zonder het zichtbaar af te drukken:
+Set a connection URL and an administrator token for the current shell session.
+The token is not stored in the plan or journal. The following PowerShell 7
+example masks input:
 
 ```powershell
 $env:HA_URL = 'http://homeassistant.local:8123'
-$energyImportToken = Read-Host 'HA administrator-token' -MaskInput
+$energyImportToken = Read-Host 'HA administrator token' -MaskInput
 $env:HA_TOKEN = $energyImportToken
 ```
 
-`-MaskInput` vereist PowerShell 7. Gebruik in een oudere PowerShell een bestaande
-veilige methode om de omgevingsvariabele in te stellen; zet het token niet in
-het configuratiebestand of een gedeeld commando.
+On older PowerShell versions, use an existing secure method to populate the
+environment variable. Do not put a token in the configuration or a shared command.
 
-Maak eerst een plan:
+Create a preview first:
 
 ```powershell
 python import_energy.py plan --config config.json --output import-plan.json
 ```
 
-Dit leest HA en schrijft alleen een lokaal JSON-bestand. De preview schrijft
-**niets** naar Home Assistant. Bestaande planbestanden worden niet overschreven.
+This reads HA and writes a local JSON plan. It **does not write to HA**.
+Existing plan files are not overwritten.
 
-Controleer per sensor de bestemming, opgeslagen eenheid, tijdsgrens,
-overlapafwijking, correctie, aannames en historische uurwaarden. Het plan bevat
-ook de oorspronkelijke uitgelezen sums en standen als controlemateriaal.
-Dit is geen volledige databaseback-up.
+Review each destination, stored unit, join timestamp, overlap differences,
+adjustment, assumptions and historical values. The plan also includes original
+sum/state snapshots for verification. It is not a complete database backup.
 
-Na beoordeling en een databaseback-up kan een plan worden uitgevoerd:
+After reviewing the plan and making a database backup:
 
 ```powershell
 python import_energy.py apply --plan import-plan.json --backup-confirmed
 ```
 
-Het script importeert in groepen van 500 uren. Na iedere groep worden de sums
-en standen teruggelezen. Daarna voert het één sum-correctie uit vanaf het
-eerste bestaande HA-uur. Uiteindelijk controleert het de historische uren,
-de oorspronkelijke HA-uurreeks plus correctie en de opgeslagen recente
-vijfminutenreeks plus correctie.
+Historical hours are imported in batches of 500 and their sums/states are read
+back after each batch. One sum adjustment is then requested from the first
+existing HA hour. Final verification checks the imported hours, the original
+hourly series plus adjustment, and the original recent five-minute series plus
+adjustment.
 
-Recente uren worden tijdens planning buiten de controlesnapshot gehouden:
-de grens ligt twee uur vóór het huidige UTC-uur. De correctieopdracht zelf
-verschuift alle bestaande sums vanaf de aansluitgrens, ook nieuwere rijen.
-Verificatie van toekomstige Recorder-cycli en een HA-herstart is nog een
-live acceptatietest; die is in deze opzet niet uitgevoerd.
+Planning excludes recent rows at and after a boundary two hours before the
+current UTC hour. The adjustment itself shifts all existing sums from the join,
+including newer rows. Future Recorder cycles and restart persistence still
+require live acceptance testing.
 
-## Onderbreking, herhaling en herstel
+## Interrupted runs and repeated execution
 
-Naast het plan ontstaat `import-plan.json.journal.json`, met per sensor de
-fasen `importing`, `adjusting` en `complete`.
+`import-plan.json.journal.json` tracks each sensor through `importing`,
+`adjusting` and `complete`.
 
-- Tijdens `importing` kan hetzelfde plan worden hervat. Al geschreven oudere
-  uren moeten exact met het plan overeenkomen; opnieuw schrijven is daar
-  deterministisch. De bestaande HA-uren moeten nog aan de oude snapshot voldoen.
-- Vóór het versturen van de optellende correctie wordt `adjusting` duurzaam
-  opgeslagen. Na een onderbreking leest het script eerst terug. Als de verwachte
-  correctie zichtbaar is, wordt de sensor compleet gemeld zonder opnieuw op te tellen.
-- Is de correctie niet bevestigd of slechts gedeeltelijk zichtbaar, dan stopt
-  het script. Het verstuurt niet automatisch nogmaals een correctie. Inspecteer
-  Recorder, plan en journaal; dit is bewust een situatie voor handmatige diagnose.
-- Bij `complete` controleert herhaling alleen het resultaat en schrijft niets.
+- During `importing`, resume the **same plan and journal**. Previously imported
+  prefix rows must match the plan; rewriting them is deterministic. Existing HA
+  rows must still match the original snapshot.
+- Before sending the additive correction, `adjusting` is durably recorded.
+  On resume, the importer first checks the database. If the expected correction
+  is visible, it marks completion without adding the correction again.
+- An unconfirmed or partially visible correction stops execution. No automatic
+  replay occurs. Inspect Recorder, the plan and journal before deciding how to
+  recover.
+- At `complete`, repeated execution only verifies and performs no writes.
 
-**Bewaar hetzelfde plan en journaal.** Een nieuw plan is geen vervanging voor
-het hervatten van een gedeeltelijke import. Na 24 uur wordt verder schrijven
-met een oud, nog niet gecorrigeerd plan geweigerd. Snapshots kunnen inmiddels
-veranderd of gepurgd zijn. Inspecteer de reeds uitgevoerde stappen.
+Keep the plan and journal together. A newly generated plan is not a substitute
+for resuming a partial import. Further writing is refused when an unadjusted
+plan is older than 24 hours, because snapshots may have changed or been purged.
 
-Een lockbestand voorkomt gelijktijdige uitvoeringen van hetzelfde plan. Een
-procescrash kan de lock achterlaten: controleer eerst processen en journaal
-voordat je die lock verwijdert. De lock beschermt niet tegen een ander plan,
-een andere computer of wijzigingen door andere tools; voer die niet tegelijk uit.
+A lock file prevents concurrent executions of the same plan. A crashed process
+can leave the lock behind: inspect processes and the journal before removing
+it. This lock does not coordinate other plans, computers or tools. Do not run
+other historical-data writers concurrently.
 
-De twee API-opdrachten vormen samen **geen transactie**. Tijdens import kan de
-grafiek tijdelijk een niet-aangesloten reeks tonen. Het script biedt geen
-automatische rollback. Een negatieve correctie is alleen een mogelijke
-omkering van een bevestigde correctie, niet een volledig herstel van een import.
-Voor volledig herstel is een passende databaseback-up nodig.
+The two API commands do **not** form a combined transaction. Charts may briefly
+show an unaligned series between import and adjustment. There is no automatic
+rollback. Reversing a confirmed adjustment does not remove imported rows or
+constitute a complete restore; full recovery requires a suitable database backup.
 
-## Offline validatie
+## Previewing data already imported previously
+
+Source files may already be represented in HA. Compare their first timestamp
+with the actual first destination timestamp before proposing any adjustment.
+If no source rows are older, this prepend workflow has no work to do.
+
+A source file starting years after the destination can have a different
+relative sum baseline while every overlapping measurement is correct.
+That difference is **not** a reason to shift the live destination.
+
+For testing the prepend calculation in this situation, use a separate local
+simulation: keep a source window, choose a later hypothetical destination
+start, and rebase the simulated destination's sum to its own start. Label that
+result as simulated and do not apply its adjustment to the live sensor.
+
+## Validation
 
 ```powershell
 python -m unittest -v test_import_energy
 ```
 
-Er zijn 20 offline tests voor onder meer unitconversie, LOW/HIGH-voorrang,
-sum-berekening, afwijkende overlap, tellerresets, dagverdeling, behoud van
-bestaande meetwaarden, beide statistiektabellen, gedeeltelijke import,
-verloren correctiebevestiging, dubbel uitvoeren, metadatawijzigingen en de
-complete preview/uitvoering/journaalroute. De tests gebruiken een nagebootste
-HA-API; ze bewijzen geen productiegeschiktheid op iedere Recorder-database.
+There are 21 offline behavior tests, covering unit conversion, HIGH/LOW
+precedence, sum calculation, overlap mismatch, resets, coarse intervals,
+existing measurements, both statistics tables, partial imports, lost adjustment
+responses, repeated execution, metadata changes, journal handling and the
+complete preview/apply workflow. A realistic 24-hour prefix and 48-hour overlap
+case checks the join explicitly.
 
-## Bronnen
+The tests use a simulated HA API. An additional read-only check of personal
+Toon CSVs against captured live HA statistics verified selected daily and
+hourly measurements and a separately labelled local prepend simulation.
+This does not establish live write-path acceptance or compatibility with
+every Recorder database.
 
-- [Recorder WebSocket-opdrachten, Core 2026.10.1](https://github.com/home-assistant/core/blob/2026.10.1/homeassistant/components/recorder/websocket_api.py)
-- [Statistiekverwerking en sum-correctie, Core 2026.10.1](https://github.com/home-assistant/core/blob/2026.10.1/homeassistant/components/recorder/statistics.py)
-- [Generieke bronimport, repo v2.9](https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/tree/v2.9)
+## References
+
+- [Recorder WebSocket commands, Core 2026.10.1](https://github.com/home-assistant/core/blob/2026.10.1/homeassistant/components/recorder/websocket_api.py)
+- [Statistics processing and sum adjustment, Core 2026.10.1](https://github.com/home-assistant/core/blob/2026.10.1/homeassistant/components/recorder/statistics.py)
+- [Generic input format, repository v2.9](https://github.com/patrickvorgers/Home-Assistant-Import-Energy-Data/tree/v2.9)
