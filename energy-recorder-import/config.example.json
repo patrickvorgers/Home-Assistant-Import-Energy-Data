@@ -1,0 +1,13 @@
+{
+  "sensors": [
+    {
+      "import_name": "elec_feed_in_tariff_1",
+      "statistic_id": "sensor.electricity_meter_feed_in_tariff_1",
+      "source_unit": "Wh",
+      "files": ["data/elec_feed_in_tariff_1_high_resolution.csv"],
+      "gap_policy": "reject",
+      "reset_policy": "reject",
+      "overlap_tolerance": 0.02
+    }
+  ]
+}
