@@ -27,6 +27,9 @@ engine.inputFileTimeColumnName = "_Time"
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
 engine.inputFileDateTimeColumnFormat = "%d/%m/%Y %H:%M"
+# Enel timestamps use local Italian time, not UTC.
+engine.inputFileDateTimeIsUTC = False
+engine.inputFileTimeZoneName = "Europe/Rome"
 # Inputfile(s): Data separator being used in the input file (only csv files)
 engine.inputFileDataSeparator = ";"
 # Inputfile(s): Decimal token being used in the input file (csv and excel files)
