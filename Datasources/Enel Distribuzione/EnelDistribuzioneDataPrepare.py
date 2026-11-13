@@ -22,7 +22,7 @@ engine.inputFileNameExtension = ".csv"
 #               Use the numerical column index in case the column name is not available.
 engine.inputFileDateColumnName = "Giorno"
 # Inputfile(s): Name of the column containing the time of the reading.
-#               Leave empty in case date and time are combined in one field.
+#               Leave empty in case date and time is combined in one field.
 engine.inputFileTimeColumnName = "_Time"
 # Inputfile(s): Date/time format used in the datacolumn.
 #               Combine the format of the date and time in case date and time are two seperate fields.
