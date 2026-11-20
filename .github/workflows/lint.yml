@@ -7,33 +7,27 @@ on:
       - main
 
   # run on PRs against main when contributors push commits
-  pull_request_target:
+  pull_request:
     types: [opened, reopened, synchronize, edited]
     branches:
       - main
 
 permissions:
-  # ensure the checkout step can fetch from forks
+  # Lint pull requests with read-only repository access.
   contents: read
 
 jobs:
   super-lint:
-    if: ${{ github.event.pull_request.head.repo.full_name != '' }}
     name: Lint code base
     runs-on: ubuntu-latest
 
     steps:
-      # 1. we always want the PR’s HEAD commit, even in pull_request_target
-      - name: Checkout PR code
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
-          # this will pull exactly the commit that triggered the PR event
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref:        ${{ github.event.pull_request.head.ref }}
-          token:      ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          persist-credentials: false
 
-      # 2. run the linter exactly as before
       - name: Run Super-Linter
         uses: github/super-linter@latest
         env:
